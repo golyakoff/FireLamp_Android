@@ -1,3 +1,8 @@
+# Release 0.3.2
+
+- WiFi settings: pick a network the lamp hears from a list (needs lamp firmware with the WiFi scan); with older firmware, "The phone's network" fills in the network name and warns when the phone is on 5 GHz; the 2.4 GHz requirement is shown
+- Firmware update: Cancel now stops the download and the upload; once the whole file is sent the update can no longer be cancelled and finishes correctly instead of being reported as cancelled
+
 # Release 0.3.1
 
 - The lamp list fills right after the Bluetooth permission is granted or Bluetooth is turned on, without restarting the app
