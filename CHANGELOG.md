@@ -1,3 +1,7 @@
+# Release 0.3.5
+
+- After a lamp firmware update the app sees the new firmware's features (such as the WiFi network list of firmware 0.1.5): Android's cached list of the lamp's services is refreshed on every reconnection
+
 # Release 0.3.4
 
 - WiFi network list for lamp firmware 0.1.5 and newer: all networks the lamp finds (up to 64) are listed; earlier app versions show an empty list with that firmware
