@@ -21,6 +21,9 @@ sealed class ConnectionState {
     /** The lamp speaks a protocol version this app does not know: update the app. */
     data class UnsupportedProtocol(val version: Int) : ConnectionState()
 
+    /** The Bluetooth permissions were not granted or were revoked in the system settings. */
+    object NoPermission : ConnectionState()
+
     data class Error(val message: String) : ConnectionState()
 
     /** Somewhere between "connect" and "ready". */

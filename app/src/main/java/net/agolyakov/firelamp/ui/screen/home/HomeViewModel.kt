@@ -23,6 +23,7 @@ import net.agolyakov.firelamp.data.local.AppLanguage
 import net.agolyakov.firelamp.data.local.KnownLamps
 import net.agolyakov.firelamp.data.local.LanguagePreferences
 import net.agolyakov.firelamp.data.repository.AppUpdateRepository
+import net.agolyakov.firelamp.service.bluetooth.BlePermissions
 import net.agolyakov.firelamp.service.bluetooth.BluetoothAdapterProvider
 import net.agolyakov.firelamp.service.bluetooth.BluetoothService
 import net.agolyakov.firelamp.domain.repository.PreferencesRepository
@@ -82,26 +83,39 @@ class HomeViewModel @Inject constructor(
             .build()
     )
 
-    @RequiresPermission(value = Manifest.permission.BLUETOOTH_SCAN)
+    /**
+     * Starts scanning unless it already runs. Safe to call on every return to the Home screen:
+     * that is also how scanning starts after the user granted the permissions (or turned
+     * Bluetooth on) - both bring the screen back to the foreground.
+     */
     fun startScan() {
+        if (callback != null) return
+        if (!BlePermissions.granted(bluetoothAdapterProvider.getContext())) return
         addConnectedLamps()
-        if (callback == null) {
-            callback = BleScanCallback()
-            scanner = adapter.bluetoothLeScanner
-            scanner?.startScan(filters, settings, callback)
+        // Null while Bluetooth is off
+        val scanner = adapter.bluetoothLeScanner ?: return
+        val callback = BleScanCallback()
+        try {
+            scanner.startScan(filters, settings, callback)
+        } catch (e: SecurityException) {
+            Log.w("BluetoothScanner", "No permission to scan", e)
+            return
         }
+        this.scanner = scanner
+        this.callback = callback
     }
 
-    @RequiresPermission(Manifest.permission.BLUETOOTH_SCAN)
     fun stopScan() {
-        if (callback != null) {
+        val callback = callback ?: return
+        try {
             scanner?.stopScan(callback)
-            scanner = null
-            callback = null
+        } catch (e: SecurityException) {
+            Log.w("BluetoothScanner", "No permission to stop the scan", e)
         }
+        scanner = null
+        this.callback = null
     }
 
-    @RequiresPermission(value = Manifest.permission.BLUETOOTH_SCAN)
     override fun onCleared() {
         super.onCleared()
         stopScan()
@@ -141,14 +155,18 @@ class HomeViewModel @Inject constructor(
      * Android shares the link. A lamp is recognized by the default name, by the service UUID
      * the system cached, or because this app used it before.
      */
-    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     private fun addConnectedLamps() {
-        val connected = try {
-            bluetoothAdapterProvider.getConnectedGattDevices()
+        // The names, UUIDs and the list itself all need BLUETOOTH_CONNECT, which can be revoked
+        try {
+            addConnectedLampsUnchecked()
         } catch (e: SecurityException) {
             Log.w("BluetoothScanner", "No permission to list connected devices", e)
-            return
         }
+    }
+
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
+    private fun addConnectedLampsUnchecked() {
+        val connected = bluetoothAdapterProvider.getConnectedGattDevices()
         val lamps = connected.filter { device ->
             device.name?.startsWith(DEFAULT_NAME_PREFIX) == true ||
                 device.uuids?.any { it.uuid == FireLampGatt.SERVICE } == true ||

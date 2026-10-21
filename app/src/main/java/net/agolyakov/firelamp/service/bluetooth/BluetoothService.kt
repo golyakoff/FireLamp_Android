@@ -232,7 +232,7 @@ class BluetoothService @Inject constructor(
                 _connectionState.value = ConnectionState.PairingRejected(staleBondRemoved = removed)
             }
             state.isInProgress && reason != ConnectionObserver.REASON_LINK_LOSS &&
-                reason != ConnectionObserver.REASON_TIMEOUT && device.bondState == BluetoothDevice.BOND_BONDED -> {
+                reason != ConnectionObserver.REASON_TIMEOUT && device.isBonded() -> {
                 // Bonded, but the lamp does not let us in: it forgot this phone (factory reset,
                 // a 5th phone). Removing the bond is left to the user, it may also be a fluke.
                 _connectionState.value = ConnectionState.PairingRejected(staleBondRemoved = false)
@@ -250,8 +250,13 @@ class BluetoothService @Inject constructor(
         }
         lastDevice = device
         resetDeviceState()
+        // Revoked in the system settings: every Bluetooth call would throw
+        if (!BlePermissions.granted(bluetoothAdapterProvider.getContext())) {
+            _connectionState.value = ConnectionState.NoPermission
+            return
+        }
         val btDevice = bluetoothAdapterProvider.getAdapter().getRemoteDevice(device.macAddress)
-        bondedInThisAttempt = btDevice.bondState != BluetoothDevice.BOND_BONDED
+        bondedInThisAttempt = !btDevice.isBonded()
         _connectionState.value = ConnectionState.Connecting
         connectJob = scope.launch {
             try {

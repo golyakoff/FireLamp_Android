@@ -1,6 +1,5 @@
 package net.agolyakov.firelamp
 
-import android.Manifest
 import android.app.Activity.RESULT_CANCELED
 import android.bluetooth.BluetoothAdapter
 import android.content.Context
@@ -23,6 +22,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import net.agolyakov.firelamp.data.local.LanguagePreferences
 import net.agolyakov.firelamp.data.local.withAppLanguage
 import net.agolyakov.firelamp.navigation.SetupNavGraph
+import net.agolyakov.firelamp.service.bluetooth.BlePermissions
 import net.agolyakov.firelamp.service.bluetooth.BluetoothService
 import net.agolyakov.firelamp.ui.viewmodel.MyRequestPermission
 import net.agolyakov.firelamp.ui.theme.FireLampTheme
@@ -39,7 +39,6 @@ class MainActivity : ComponentActivity() {
         super.attachBaseContext(newBase.withAppLanguage(LanguagePreferences(newBase).language))
     }
 
-    @RequiresApi(Build.VERSION_CODES.S)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -59,9 +58,7 @@ class MainActivity : ComponentActivity() {
 
     @RequiresApi(Build.VERSION_CODES.S)
     private fun enableScrollCapture() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            window.decorView.setScrollCaptureHint(View.SCROLL_CAPTURE_HINT_INCLUDE)
-        }
+        window.decorView.setScrollCaptureHint(View.SCROLL_CAPTURE_HINT_INCLUDE)
     }
 
     override fun onPause() {
@@ -89,7 +86,6 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.S)
 @Composable
 fun MainContent() {
     FireLampTheme {
@@ -105,17 +101,8 @@ fun MainContent() {
             }
         }
 
-        val permissions =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
-                listOf(
-                    Manifest.permission.BLUETOOTH_SCAN,
-                    Manifest.permission.BLUETOOTH_CONNECT)
-            else
-                listOf(
-                    Manifest.permission.ACCESS_FINE_LOCATION)
-
         // Request permissions
-        MyRequestPermission(permissions) { granted ->
+        MyRequestPermission(BlePermissions.required) { granted ->
             if (granted) {
                 enableBluetoothLauncher.launch(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE))
             } else {

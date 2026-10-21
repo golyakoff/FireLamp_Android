@@ -1,4 +1,4 @@
-﻿<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">FireLamp</string>
 
     <!-- Permissions -->
@@ -27,6 +27,7 @@
     <string name="state_disconnecting">Disconnecting…</string>
     <string name="state_pairing_rejected">The lamp did not accept this phone</string>
     <string name="state_unsupported_protocol">Unsupported lamp</string>
+    <string name="state_no_permission">No Bluetooth permission</string>
     <string name="state_error">Error: %1$s</string>
 
     <string name="pairing_rejected_title">Pairing is not allowed right now</string>
@@ -34,6 +35,8 @@
     <string name="pairing_rejected_forget_hint">If this phone was paired with the lamp before (the lamp was reset or remembers other phones now), forget the old pairing first.</string>
     <string name="pairing_retry">Connect again</string>
     <string name="pairing_forget_and_retry">Forget pairing and connect</string>
+    <string name="no_permission_hint">The app needs the "Nearby devices" permission ("Location" on Android 11 and older) to find and control the lamp. Allow it in the app settings, then connect.</string>
+    <string name="no_permission_open_settings">Open settings</string>
     <string name="connection_lost_title">No connection to the lamp</string>
     <string name="connection_lost_retrying">Reconnecting, attempt %1$d of %2$d…</string>
     <string name="connection_lost_hint">Make sure the lamp is powered and nearby. The lamp serves one phone at a time: close the app on other phones connected to it.</string>
@@ -159,7 +162,7 @@
     <string name="settings_wifi_state_error">Could not connect: wrong password or network not found</string>
     <string name="settings_name">Lamp name</string>
     <string name="settings_name_label">Name on the air</string>
-    <string name="settings_name_hint">Up to %1$d bytes; empty - the default FireLamp-XXXX. Takes effect after a reboot</string>
+    <string name="settings_name_hint" tools:ignore="PluralsCandidate">Up to %1$d bytes; empty - the default FireLamp-XXXX. Takes effect after a reboot</string>
     <string name="settings_time">Time</string>
     <string name="settings_time_not_set">Not set</string>
     <string name="settings_time_source_none">no source</string>

@@ -9,7 +9,7 @@ import kotlinx.coroutines.launch
 /**
  * Rate-limits writes driven by a slider: at most one write per [intervalMs] for each key,
  * values arriving meanwhile are dropped except the latest one, which is always written.
- * (The lamp saves settings 3 s after the last change, so frequent writes do not wear its flash,
+ * (The lamp saves settings 15 s after the last change, so frequent writes do not wear its flash,
  * but the BLE queue would lag behind the finger.)
  */
 class Throttle<K, V>(

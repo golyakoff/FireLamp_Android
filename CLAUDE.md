@@ -29,6 +29,7 @@ at the top of `app/build.gradle.kts`.
 export JAVA_HOME=~/opt/jdk-21.0.12.1+1   # not set globally on the Linux dev box
 ./gradlew testDebugUnitTest   # JVM unit tests (protocol codec, time zone mapping)
 ./gradlew assembleDebug       # debug APK: app/build/outputs/apk/debug/firelamp-vX.Y.Z-debug.apk
+./gradlew lintDebug           # must stay free of errors (app/lint.xml lists the accepted ignores)
 ```
 
 The Linux dev box has ~4 GB RAM: machine-local Gradle limits live in `~/.gradle/gradle.properties`.
@@ -112,3 +113,6 @@ MVVM + Hilt + single-Activity Compose Navigation, as in the sibling apps:
 - WiFi settings: the password is never read back (length byte `0` / `0xFF`); writing length
   `0xFF` keeps the stored one. The period must be `1..24` even in the off mode.
 - LED settings, hardware settings and the device name apply only after a reboot (Command `0x01`).
+- The user can revoke the Bluetooth permissions at any time: Bluetooth calls go through
+  `BlePermissions.granted()` / `isBonded()` or catch `SecurityException`
+  (`ConnectionState.NoPermission` sends the user to the app settings).

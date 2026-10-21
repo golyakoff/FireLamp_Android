@@ -1,6 +1,5 @@
 package net.agolyakov.firelamp.service.bluetooth
 
-import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothGattCharacteristic
 import android.content.Context
@@ -60,7 +59,7 @@ class FireLampBleManager(context: Context) : BleManager(context) {
         // first access would fail with Insufficient Encryption and Android would start pairing
         // by itself, but an explicit bond is easier to follow (and to fail clearly).
         // createBondInsecure completes at once when the phone is already bonded.
-        if (bluetoothDevice?.bondState != BluetoothDevice.BOND_BONDED) {
+        if (bluetoothDevice?.isBonded() != true) {
             createBondInsecure().enqueue()
         }
         for (uuid in FireLampGatt.NOTIFYING) {

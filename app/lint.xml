@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lint>
+    <!-- Base64 certificates of the Google Fonts provider, not words -->
+    <issue id="Typos">
+        <ignore path="src/main/res/values/font_certs.xml" />
+    </issue>
+    <!-- The adaptive icon stays in mipmap-anydpi-v26, as in Android Studio's template (aapt did
+         not resolve it from mipmap-anydpi) -->
+    <issue id="ObsoleteSdkInt">
+        <ignore path="src/main/res/mipmap-anydpi-v26" />
+    </issue>
+    <!-- Released as APKs from GitHub, not as app bundles: the in-app language switch keeps all locales -->
+    <issue id="AppBundleLocaleChanges" severity="ignore" />
+</lint>

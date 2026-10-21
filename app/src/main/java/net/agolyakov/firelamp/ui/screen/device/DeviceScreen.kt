@@ -1,6 +1,9 @@
 package net.agolyakov.firelamp.ui.screen.device
 
 import android.app.Activity
+import android.content.Intent
+import android.net.Uri
+import android.provider.Settings
 import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
@@ -238,6 +241,7 @@ fun DeviceScreenContent(
                     onRetry = onRetry,
                     onForgetAndRetry = onForgetAndRetry
                 )
+                ConnectionState.NoPermission -> NoPermissionCard(onRetry)
                 is ConnectionState.UnsupportedProtocol -> MessageCard(
                     title = stringResource(R.string.state_unsupported_protocol),
                     text = stringResource(R.string.unsupported_protocol_hint, connectionState.version)
@@ -277,6 +281,7 @@ private fun ConnectionHeader(state: ConnectionState) {
         ConnectionState.Disconnecting -> stringResource(R.string.state_disconnecting)
         is ConnectionState.PairingRejected -> stringResource(R.string.state_pairing_rejected)
         is ConnectionState.UnsupportedProtocol -> stringResource(R.string.state_unsupported_protocol)
+        ConnectionState.NoPermission -> stringResource(R.string.state_no_permission)
         is ConnectionState.Error -> stringResource(R.string.state_error, state.message)
     }
     Row(
@@ -322,6 +327,28 @@ private fun PairingRejectedCard(
             OutlinedButton(onClick = onForgetAndRetry, modifier = Modifier.fillMaxWidth()) {
                 Text(stringResource(R.string.pairing_forget_and_retry))
             }
+        }
+    }
+}
+
+/** The permissions were revoked in the system settings: send the user there. */
+@Composable
+private fun NoPermissionCard(onRetry: () -> Unit) {
+    val context = LocalContext.current
+    MessageCard(
+        title = stringResource(R.string.state_no_permission),
+        text = stringResource(R.string.no_permission_hint)
+    ) {
+        Button(
+            onClick = {
+                context.startActivity(
+                    Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", context.packageName, null))
+                )
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) { Text(stringResource(R.string.no_permission_open_settings)) }
+        OutlinedButton(onClick = onRetry, modifier = Modifier.fillMaxWidth()) {
+            Text(stringResource(R.string.connection_reconnect))
         }
     }
 }
