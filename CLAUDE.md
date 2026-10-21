@@ -63,6 +63,15 @@ MVVM + Hilt + single-Activity Compose Navigation, as in the sibling apps:
     to `errors`) and read back / rely on notifications. Pairing failures map to
     `ConnectionState.PairingRejected` (a fresh bond dropped by the lamp → the stale bond is
     removed; a bonded phone the lamp forgot → the user can "forget and connect").
+- **`service/firmware/FirmwareUpdater`** (singleton, own scope, a `State` flow) — both update
+  ways of `APP_INTEGRATION.md` §9. From the phone: `manifest.json` of the latest
+  FireLamp_ESP32 release → the build for `<chip>-<variant>` (none → "no official firmware") →
+  download, size + SHA-256 check → OTA start with SHA-256, wait for "receiving" (the lamp erases
+  first) → `MTU - 3` chunks with response → end → "success". By the lamp: Command `0x07`, progress
+  from OTA status notifications. Then it waits for the lamp to come back (the Device screen
+  reconnects, with more attempts while `State.Rebooting`) and compares the version (an old one
+  = the bootloader rolled back). UI: `FirmwareSection` on the Hardware tab; no separate route,
+  so the Device screen stays in the foreground and keeps reconnecting.
 - **`data/local/`** — `EffectCatalogRepository` (effect descriptions cached per lamp MAC +
   firmware build, Gson file), `KnownLamps` (MACs this app connected to), friendly names,
   language.

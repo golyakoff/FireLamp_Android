@@ -21,14 +21,16 @@ import net.agolyakov.firelamp.protocol.Schedule
 import net.agolyakov.firelamp.protocol.TimeZoneMapper
 import net.agolyakov.firelamp.protocol.WifiSettingsUpdate
 import net.agolyakov.firelamp.service.bluetooth.BluetoothService
+import net.agolyakov.firelamp.service.firmware.FirmwareUpdater
 import net.agolyakov.firelamp.ui.viewmodel.Throttle
 import java.time.ZoneId
 import javax.inject.Inject
 
 @HiltViewModel
 class DeviceViewModel @Inject constructor(
-    private val bluetoothService: BluetoothService
-) : ViewModel(), SettingsTabActions {
+    private val bluetoothService: BluetoothService,
+    private val firmwareUpdater: FirmwareUpdater,
+) : ViewModel(), SettingsTabActions, FirmwareActions {
 
     val connectionState = bluetoothService.connectionState
     val deviceInfo = bluetoothService.deviceInfo
@@ -129,6 +131,22 @@ class DeviceViewModel @Inject constructor(
         viewModelScope.launch { bluetoothService.factoryReset() }
     }
 
+    // ---------- Firmware update (Hardware tab) ----------
+
+    val firmwareState = firmwareUpdater.state
+    val updateInfo = bluetoothService.updateInfo
+
+    override fun check() = firmwareUpdater.checkForUpdate()
+
+    override fun installFromPhone(available: FirmwareUpdater.State.Available) =
+        firmwareUpdater.installFromPhone(available.version, available.build)
+
+    override fun askLampToCheck() = firmwareUpdater.askLampToCheck()
+
+    override fun installByLamp(version: String?) = firmwareUpdater.installByLamp(version)
+
+    override fun cancel() = firmwareUpdater.cancel()
+
     // ---------- Hardware tab ----------
 
     val ledSettings = bluetoothService.ledSettings
@@ -158,6 +176,7 @@ class DeviceViewModel @Inject constructor(
     private val foreground = MutableStateFlow(false)
 
     init {
+        firmwareUpdater.reset()
         viewModelScope.launch {
             combine(connectionState, foreground) { state, fg -> state to fg }.collectLatest { (state, fg) ->
                 when {
@@ -168,8 +187,14 @@ class DeviceViewModel @Inject constructor(
                     !fg || device == null -> {}
                     state is ConnectionState.Disconnected || state is ConnectionState.Error -> {
                         val attempt = _reconnect.value.attempt
-                        if (attempt < RECONNECT_ATTEMPTS) {
-                            delay(RECONNECT_DELAY_MS shl attempt)
+                        // A lamp rebooting into new firmware may take longer: keep trying
+                        val maxAttempts = if (firmwareUpdater.state.value is FirmwareUpdater.State.Rebooting) {
+                            REBOOT_RECONNECT_ATTEMPTS
+                        } else {
+                            RECONNECT_ATTEMPTS
+                        }
+                        if (attempt < maxAttempts) {
+                            delay(RECONNECT_DELAY_MS shl attempt.coerceAtMost(2))
                             _reconnect.value = Reconnect(attempt + 1)
                             device?.let { bluetoothService.connect(it) }
                         } else {
@@ -218,7 +243,8 @@ class DeviceViewModel @Inject constructor(
     companion object {
         private const val BOND_REMOVAL_DELAY_MS = 1000L
         const val RECONNECT_ATTEMPTS = 3
-        /** Doubled for every next attempt: 2, 4, 8 s. */
+        private const val REBOOT_RECONNECT_ATTEMPTS = 20
+        /** Doubled for every next attempt: 2, 4, 8, 8... s. */
         private const val RECONNECT_DELAY_MS = 2000L
     }
 }

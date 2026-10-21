@@ -178,4 +178,46 @@
     <string name="settings_factory_reset">Сброс к заводским настройкам</string>
     <string name="settings_factory_reset_confirm">Все настройки вернутся к значениям по умолчанию, лампа забудет все сопряжённые телефоны, и этот тоже. После перезагрузки этот телефон снова сопряжётся автоматически. Продолжить?</string>
     <string name="settings_reset_do">Сбросить</string>
+
+    <!-- Firmware update -->
+    <string name="fw_title">Обновление прошивки</string>
+    <string name="fw_current">Установлена: %1$s</string>
+    <string name="fw_check">Проверить обновление</string>
+    <string name="fw_up_to_date">Установлена последняя прошивка</string>
+    <string name="fw_available">Доступна версия %1$s</string>
+    <string name="fw_no_official_build">Для этой лампы нет официальной прошивки (%1$s, последний релиз %2$s): она собрана под другое железо.</string>
+    <string name="fw_install_from_phone">Установить с телефона</string>
+    <string name="fw_install_by_lamp">Пусть лампа установит через WiFi</string>
+    <string name="fw_ask_lamp_to_check">Пусть лампа проверит через WiFi</string>
+    <string name="fw_hint_both">С телефона обновление идёт по Bluetooth и занимает несколько минут; через WiFi лампа скачивает его сама и продолжит, даже если телефон уйдёт.</string>
+    <string name="fw_hint_phone_only">Обновление идёт по Bluetooth и занимает несколько минут. Настройте WiFi, чтобы лампа могла обновляться сама.</string>
+    <string name="fw_lamp_found">Лампа нашла версию %1$s</string>
+    <string name="fw_lamp_up_to_date">Лампа проверила: обновлений нет</string>
+    <string name="fw_lamp_checking">Лампа проверяет…</string>
+    <string name="fw_lamp_check_failed">Лампе не удалось проверить обновления</string>
+    <string name="fw_done">Обновлено до %1$s</string>
+    <string name="fw_rolled_back">Новая прошивка не запустилась, лампа вернулась к %1$s</string>
+    <string name="fw_error_no_internet">Не удалось скачать обновление: проверьте подключение к интернету</string>
+    <string name="fw_error_bad_file">Скачанный файл повреждён, попробуйте ещё раз</string>
+    <string name="fw_error_not_connected">Лампа не подключена</string>
+    <string name="fw_error_timeout">Лампа перестала отвечать; старая прошивка продолжает работать</string>
+    <string name="fw_error_not_verified">Лампа не вернулась после перезагрузки; подключитесь снова, чтобы проверить версию</string>
+    <string name="fw_error_cancelled">Отменено; старая прошивка продолжает работать</string>
+    <string name="fw_error_lamp">Лампа сообщила об ошибке: %1$s</string>
+    <string name="fw_progress_checking">Проверка обновления…</string>
+    <string name="fw_progress_downloading">Скачивание прошивки…</string>
+    <string name="fw_progress_preparing">Лампа готовит память…</string>
+    <string name="fw_progress_uploading">Передача в лампу: %1$d из %2$d КБ</string>
+    <string name="fw_progress_lamp_checking">Лампа ищет обновление…</string>
+    <string name="fw_progress_lamp_downloading">Лампа скачивает: %1$d из %2$d КБ</string>
+    <string name="fw_progress_rebooting">Лампа перезапускается с новой прошивкой…</string>
+    <string name="fw_progress_keep_close">Держите телефон рядом с лампой и не закрывайте приложение</string>
+    <string name="ota_error_busy">обновление уже идёт</string>
+    <string name="ota_error_bad_size">файл не помещается</string>
+    <string name="ota_error_flash">ошибка записи во flash</string>
+    <string name="ota_error_image">файл не является прошивкой</string>
+    <string name="ota_error_sha">не совпала контрольная сумма</string>
+    <string name="ota_error_timeout">слишком долго не было данных</string>
+    <string name="ota_error_too_much">данных больше, чем заявлено</string>
+    <string name="ota_error_download">не удалось скачать</string>
 </resources>

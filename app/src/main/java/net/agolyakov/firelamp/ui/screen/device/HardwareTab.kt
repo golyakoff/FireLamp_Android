@@ -51,11 +51,13 @@ fun HardwareTab(
     onSaveLedSettings: (LedSettings) -> Unit,
     onSaveHardwareSettings: (Controls, buttonsActiveHigh: Boolean) -> Unit,
     onReboot: () -> Unit,
+    firmware: @Composable () -> Unit = {},
 ) {
     LazyColumn(
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+        item { firmware() }
         ledSettings?.let { item { MatrixSection(it, onSaveLedSettings) } }
         hardwareSettings?.let { item { ControlsSection(it, onSaveHardwareSettings) } }
         deviceInfo?.let { item { LampInfoSection(it) } }

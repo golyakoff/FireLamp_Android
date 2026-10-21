@@ -54,6 +54,7 @@ import androidx.navigation.NavHostController
 import net.agolyakov.firelamp.R
 import net.agolyakov.firelamp.data.model.ble.ConnectionState
 import net.agolyakov.firelamp.data.model.ble.FireLampDevice
+import net.agolyakov.firelamp.protocol.WifiMode
 import net.agolyakov.firelamp.ui.theme.FireLampTheme
 
 // ----------------------------------------------------------------------------
@@ -90,6 +91,8 @@ fun DeviceScreen(
     val timeZone by viewModel.timeZone.collectAsState()
     val ledSettings by viewModel.ledSettings.collectAsState()
     val hardwareSettings by viewModel.hardwareSettings.collectAsState()
+    val firmwareState by viewModel.firmwareState.collectAsState()
+    val updateInfo by viewModel.updateInfo.collectAsState()
     val context = LocalContext.current
 
     LaunchedEffect(device) {
@@ -175,6 +178,17 @@ fun DeviceScreen(
                 onSaveLedSettings = viewModel::saveLedSettings,
                 onSaveHardwareSettings = viewModel::saveHardwareSettings,
                 onReboot = viewModel::reboot,
+                firmware = {
+                    deviceInfo?.let { info ->
+                        FirmwareSection(
+                            info = info,
+                            state = firmwareState,
+                            updateInfo = updateInfo,
+                            wifiConfigured = wifiSettings?.let { it.mode != WifiMode.OFF && it.ssid.isNotEmpty() } == true,
+                            actions = viewModel,
+                        )
+                    }
+                },
             )
         },
     )

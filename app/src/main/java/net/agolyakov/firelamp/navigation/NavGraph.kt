@@ -9,7 +9,6 @@ import androidx.navigation.compose.composable
 import kotlinx.coroutines.delay
 import net.agolyakov.firelamp.data.model.ble.FireLampDevice
 import net.agolyakov.firelamp.ui.screen.device.DeviceScreen
-import net.agolyakov.firelamp.ui.screen.firmware.FirmwareScreen
 import net.agolyakov.firelamp.ui.screen.home.HomeScreen
 import net.agolyakov.firelamp.ui.screen.home.HomeViewModel
 
@@ -36,12 +35,6 @@ fun SetupNavGraph(
                 navController.previousBackStackEntry?.savedStateHandle?.get<FireLampDevice>("device")
 
             DeviceScreen(navController, device)
-        }
-
-        composable(route = Screen.FirmwareUpdate.route) {
-            FirmwareScreen(
-                onBack = { navController.popBackStack() }
-            )
         }
     }
 }

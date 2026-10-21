@@ -178,4 +178,46 @@
     <string name="settings_factory_reset">Factory reset</string>
     <string name="settings_factory_reset_confirm">All settings go back to defaults and the lamp forgets all paired phones, this one too. After the reboot this phone pairs again automatically. Continue?</string>
     <string name="settings_reset_do">Reset</string>
+
+    <!-- Firmware update -->
+    <string name="fw_title">Firmware update</string>
+    <string name="fw_current">Installed: %1$s</string>
+    <string name="fw_check">Check for an update</string>
+    <string name="fw_up_to_date">The latest firmware is installed</string>
+    <string name="fw_available">Version %1$s is available</string>
+    <string name="fw_no_official_build">There is no official firmware for this lamp (%1$s, the latest release is %2$s): it was built for other hardware.</string>
+    <string name="fw_install_from_phone">Install from the phone</string>
+    <string name="fw_install_by_lamp">Let the lamp install it over WiFi</string>
+    <string name="fw_ask_lamp_to_check">Let the lamp check over WiFi</string>
+    <string name="fw_hint_both">From the phone the update goes over Bluetooth and takes a few minutes; over WiFi the lamp downloads it itself and goes on even if the phone leaves.</string>
+    <string name="fw_hint_phone_only">The update goes over Bluetooth and takes a few minutes. Set up WiFi to let the lamp update itself.</string>
+    <string name="fw_lamp_found">The lamp found version %1$s</string>
+    <string name="fw_lamp_up_to_date">The lamp checked: up to date</string>
+    <string name="fw_lamp_checking">The lamp is checking…</string>
+    <string name="fw_lamp_check_failed">The lamp could not check for updates</string>
+    <string name="fw_done">Updated to %1$s</string>
+    <string name="fw_rolled_back">The new firmware did not start, the lamp went back to %1$s</string>
+    <string name="fw_error_no_internet">Could not download the update: check the internet connection</string>
+    <string name="fw_error_bad_file">The downloaded file is damaged, try again</string>
+    <string name="fw_error_not_connected">The lamp is not connected</string>
+    <string name="fw_error_timeout">The lamp stopped answering; the old firmware keeps working</string>
+    <string name="fw_error_not_verified">The lamp did not come back after the reboot; connect again to check its version</string>
+    <string name="fw_error_cancelled">Cancelled; the old firmware keeps working</string>
+    <string name="fw_error_lamp">The lamp reported an error: %1$s</string>
+    <string name="fw_progress_checking">Checking for an update…</string>
+    <string name="fw_progress_downloading">Downloading the firmware…</string>
+    <string name="fw_progress_preparing">The lamp is preparing its memory…</string>
+    <string name="fw_progress_uploading">Sending to the lamp: %1$d of %2$d KB</string>
+    <string name="fw_progress_lamp_checking">The lamp is looking for the update…</string>
+    <string name="fw_progress_lamp_downloading">The lamp is downloading: %1$d of %2$d KB</string>
+    <string name="fw_progress_rebooting">The lamp restarts with the new firmware…</string>
+    <string name="fw_progress_keep_close">Keep the phone near the lamp and the app open</string>
+    <string name="ota_error_busy">an update is already running</string>
+    <string name="ota_error_bad_size">the file does not fit</string>
+    <string name="ota_error_flash">flash write error</string>
+    <string name="ota_error_image">not a valid firmware image</string>
+    <string name="ota_error_sha">checksum mismatch</string>
+    <string name="ota_error_timeout">no data for too long</string>
+    <string name="ota_error_too_much">more data than announced</string>
+    <string name="ota_error_download">download failed</string>
 </resources>
