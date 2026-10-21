@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <!-- If you say the feature is required for your app, then the Google Play store
+         will hide your app from users on devices lacking those features.
+         For this reason, you should only set the required attribute to `true`
+         if your app can't work without the feature.
+         TODO then make it false to check in runtime
+         TODO https://developer.android.com/guide/topics/connectivity/bluetooth/permissions#availability-->
+    <uses-feature android:name="android.hardware.bluetooth_le" android:required="true"/>
+
+    <!-- GitHub Releases API: app update check and firmware download -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- Android 12+ -->
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN"
+        android:usesPermissionFlags="neverForLocation"
+        tools:targetApi="S" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"
+        tools:targetApi="S" />
+
+    <!-- Android <= 11 -->
+    <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" android:maxSdkVersion="30" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" android:maxSdkVersion="30" />
+
+    <application
+        android:name=".MainApplication"
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>

@@ -1,0 +1,63 @@
+﻿<resources>
+    <string name="app_name">FireLamp</string>
+
+    <!-- Permissions -->
+    <string name="perm_bluetooth_is_off">Приложению нужен включённый Bluetooth</string>
+    <string name="perm_not_enough_permissions">Приложение не получило необходимых разрешений</string>
+
+    <!-- Home -->
+    <string name="rename">Переименовать</string>
+    <string name="rename_device">Переименовать лампу</string>
+    <string name="dialog_device_name">Название лампы</string>
+    <string name="dialog_save">Сохранить</string>
+    <string name="dialog_cancel">Отмена</string>
+    <string name="app_version">Версия %1$s</string>
+    <string name="app_update_available">Доступна новая версия %1$s</string>
+    <string name="app_update_download">Скачать</string>
+    <string name="home_connected_not_advertising">Подключена к этому телефону</string>
+    <string name="lang_english">English</string>
+    <string name="lang_russian">Русский</string>
+
+    <!-- Connection -->
+    <string name="state_disconnected">Не подключено</string>
+    <string name="state_connecting">Подключение…</string>
+    <string name="state_bonding">Сопряжение: подтвердите системный запрос</string>
+    <string name="state_loading">Загрузка…</string>
+    <string name="state_ready">Подключено</string>
+    <string name="state_disconnecting">Отключение…</string>
+    <string name="state_pairing_rejected">Лампа не приняла этот телефон</string>
+    <string name="state_unsupported_protocol">Неподдерживаемая лампа</string>
+    <string name="state_error">Ошибка: %1$s</string>
+
+    <string name="pairing_rejected_title">Сейчас сопряжение недоступно</string>
+    <string name="pairing_rejected_hint">Новый телефон можно сопрячь с лампой только в течение 2 минут после её включения или после 5 нажатий её основной кнопки (лампа мигнёт). Откройте окно сопряжения и подключитесь снова.</string>
+    <string name="pairing_rejected_forget_hint">Если этот телефон уже был сопряжён с лампой (лампу сбросили или она теперь помнит другие телефоны), сначала забудьте старое сопряжение.</string>
+    <string name="pairing_retry">Подключиться снова</string>
+    <string name="pairing_forget_and_retry">Забыть сопряжение и подключиться</string>
+    <string name="connection_lost_title">Нет связи с лампой</string>
+    <string name="connection_lost_retrying">Переподключение, попытка %1$d из %2$d…</string>
+    <string name="connection_lost_hint">Проверьте, что лампа включена и находится рядом. Лампа работает с одним телефоном за раз: закройте приложение на других телефонах, подключённых к ней.</string>
+    <string name="connection_reconnect">Подключиться</string>
+    <string name="unsupported_protocol_hint">Лампа использует протокол версии %1$d, неизвестный этому приложению. Обновите приложение.</string>
+
+    <!-- Device screen tabs -->
+    <string name="tab_lamp">Лампа</string>
+    <string name="tab_schedule">Расписание</string>
+    <string name="tab_settings">Настройки</string>
+    <string name="tab_hardware">Железо</string>
+    <string name="coming_soon">В разработке</string>
+
+    <string name="operation_failed">Лампа не приняла изменение</string>
+    <string name="reboot_required">Изменения вступят в силу после перезагрузки</string>
+    <string name="reboot_now">Перезагрузить</string>
+
+    <!-- Lamp tab -->
+    <string name="lamp_on">Включена</string>
+    <string name="lamp_off">Выключена</string>
+    <string name="lamp_brightness">Яркость</string>
+    <string name="lamp_previous_effect">Предыдущий эффект</string>
+    <string name="lamp_next_effect">Следующий эффект</string>
+    <string name="lamp_demo">Демо-режим</string>
+    <string name="lamp_demo_hint">Эффекты сменяют друг друга</string>
+    <string name="lamp_effects">Эффекты</string>
+</resources>
