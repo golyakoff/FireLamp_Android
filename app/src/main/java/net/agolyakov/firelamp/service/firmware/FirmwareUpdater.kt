@@ -10,6 +10,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -167,6 +169,8 @@ class FirmwareUpdater @Inject constructor(
                     val buffer = ByteArray(16 * 1024)
                     var done = 0L
                     while (true) {
+                        // Blocking reads never notice a cancel by themselves
+                        ensureActive()
                         val n = input.read(buffer)
                         if (n < 0) break
                         output.write(buffer, 0, n)
@@ -206,6 +210,9 @@ class FirmwareUpdater @Inject constructor(
             file.inputStream().use { input ->
                 val buffer = ByteArray(chunkSize)
                 while (true) {
+                    // The BLE write (ble-ktx suspend()) is not cancellable: without this check
+                    // Cancel would only take effect once the whole file was sent
+                    currentCoroutineContext().ensureActive()
                     val n = input.read(buffer)
                     if (n < 0) break
                     // The write response arrives once the chunk is queued for the flash: flow control
