@@ -48,6 +48,14 @@ class FireLampBleManager(context: Context) : BleManager(context) {
         return missing.isEmpty()
     }
 
+    /**
+     * Android caches the GATT table of a bonded device and does not discover it again, and the
+     * lamp does not indicate Service Changed after a firmware update: characteristics added by a
+     * newer firmware (e.g. WiFi networks, 0.1.5) would stay invisible. Dropping the cache on
+     * every disconnect makes the next connection discover the real table (a fraction of a second).
+     */
+    override fun shouldClearCacheWhenDisconnected(): Boolean = true
+
     override fun onServicesInvalidated() {
         characteristics = emptyMap()
     }
