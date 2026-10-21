@@ -1,5 +1,7 @@
 package net.agolyakov.firelamp.ui.screen.device
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -9,8 +11,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material.icons.filled.WifiFind
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
@@ -27,6 +31,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -42,11 +47,14 @@ import net.agolyakov.firelamp.protocol.LampState
 import net.agolyakov.firelamp.protocol.LampTime
 import net.agolyakov.firelamp.protocol.TimeSource
 import net.agolyakov.firelamp.protocol.WifiMode
+import net.agolyakov.firelamp.protocol.WifiScan
+import net.agolyakov.firelamp.protocol.WifiScanState
 import net.agolyakov.firelamp.protocol.WifiSettings
 import net.agolyakov.firelamp.protocol.WifiSettingsUpdate
 import net.agolyakov.firelamp.protocol.WifiState
 import net.agolyakov.firelamp.protocol.WifiStatus
 import net.agolyakov.firelamp.protocol.utf8Length
+import net.agolyakov.firelamp.service.wifi.PhoneWifi
 import net.agolyakov.firelamp.ui.component.ChoiceRow
 import net.agolyakov.firelamp.ui.component.NumberField
 import net.agolyakov.firelamp.ui.component.SaveButton
@@ -65,6 +73,8 @@ data class SettingsTabState(
     val demoSettings: DemoSettings?,
     val wifiSettings: WifiSettings?,
     val wifiStatus: WifiStatus?,
+    val wifiScan: WifiScan?,
+    val wifiScanSupported: Boolean,
     val deviceName: String?,
     val lampTime: LampTime?,
     val timeZone: String?,
@@ -75,6 +85,7 @@ interface SettingsTabActions {
     fun saveDemoSettings(settings: DemoSettings)
     fun setDemoIncluded(effectCode: String, include: Boolean)
     fun saveWifiSettings(update: WifiSettingsUpdate)
+    fun startWifiScan()
     fun saveDeviceName(name: String)
     fun syncTimeFromPhone()
     fun setFps(fps: Int)
@@ -89,7 +100,11 @@ fun SettingsTab(state: SettingsTabState, actions: SettingsTabActions) {
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         state.demoSettings?.let { item { DemoSection(it, state.effects, actions) } }
-        state.wifiSettings?.let { item { WifiSection(it, state.wifiStatus, actions::saveWifiSettings) } }
+        state.wifiSettings?.let {
+            item {
+                WifiSection(it, state.wifiStatus, state.wifiScan, state.wifiScanSupported, actions::startWifiScan, actions::saveWifiSettings)
+            }
+        }
         state.deviceName?.let { item { NameSection(it, actions::saveDeviceName) } }
         item { TimeSection(state.lampTime, state.timeZone, state.phoneTimeZone, actions::syncTimeFromPhone) }
         state.lampState?.let { item { FpsSection(it.fps, actions::setFps) } }
@@ -165,7 +180,14 @@ private fun DemoSection(saved: DemoSettings, effects: List<EffectInfo>, actions:
 // ---------- WiFi ----------
 
 @Composable
-private fun WifiSection(saved: WifiSettings, status: WifiStatus?, onSave: (WifiSettingsUpdate) -> Unit) {
+private fun WifiSection(
+    saved: WifiSettings,
+    status: WifiStatus?,
+    scan: WifiScan?,
+    scanSupported: Boolean,
+    onScan: () -> Unit,
+    onSave: (WifiSettingsUpdate) -> Unit,
+) {
     var mode by remember(saved) { mutableStateOf(saved.mode) }
     // The lamp checks the period even in the off mode; a stored 0 would be rejected back
     var period by remember(saved) { mutableStateOf(saved.periodHours.coerceIn(1, 24)) }
@@ -173,10 +195,15 @@ private fun WifiSection(saved: WifiSettings, status: WifiStatus?, onSave: (WifiS
     var ssid by remember(saved) { mutableStateOf(saved.ssid) }
     var password by remember(saved) { mutableStateOf("") }
     var showPassword by remember { mutableStateOf(false) }
+    // Picked from the lamp's scan: an open network needs no password (and clears a stored one)
+    var pickedOpen by remember(saved) { mutableStateOf(false) }
+    var showPicker by remember { mutableStateOf(false) }
+    var phoneNote by remember { mutableStateOf<String?>(null) }
 
     val ssidValid = ssid.utf8Length() <= WifiSettings.MAX_SSID_BYTES && (mode == WifiMode.OFF || ssid.isNotEmpty())
     val passwordValid = password.utf8Length() <= WifiSettings.MAX_PASSWORD_BYTES
-    val changed = mode != saved.mode || period != saved.periodHours || ssid != saved.ssid || password.isNotEmpty()
+    val changed = mode != saved.mode || period != saved.periodHours || ssid != saved.ssid || password.isNotEmpty() ||
+        (pickedOpen && saved.passwordStored)
 
     SettingsSection(stringResource(R.string.settings_wifi)) {
         status?.let { WifiStatusLine(it) }
@@ -218,38 +245,115 @@ private fun WifiSection(saved: WifiSettings, status: WifiStatus?, onSave: (WifiS
         }
         OutlinedTextField(
             value = ssid,
-            onValueChange = { ssid = it },
+            onValueChange = {
+                ssid = it
+                pickedOpen = false
+            },
             label = { Text(stringResource(R.string.settings_wifi_ssid)) },
+            supportingText = { Text(stringResource(R.string.wifi_band_hint)) },
             isError = !ssidValid,
             singleLine = true,
-            modifier = Modifier.fillMaxWidth()
-        )
-        OutlinedTextField(
-            value = password,
-            onValueChange = { password = it },
-            label = { Text(stringResource(R.string.settings_wifi_password)) },
-            placeholder = {
-                Text(stringResource(if (saved.passwordStored) R.string.settings_wifi_password_kept else R.string.settings_wifi_password_none))
-            },
-            isError = !passwordValid,
-            singleLine = true,
-            visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-            trailingIcon = {
-                IconButton(onClick = { showPassword = !showPassword }) {
-                    Icon(if (showPassword) Icons.Filled.VisibilityOff else Icons.Filled.Visibility, contentDescription = null)
+            trailingIcon = if (scanSupported) {
+                {
+                    IconButton(onClick = {
+                        showPicker = true
+                        if (scan?.state != WifiScanState.SCANNING) onScan()
+                    }) {
+                        Icon(Icons.Filled.WifiFind, contentDescription = stringResource(R.string.wifi_picker_title))
+                    }
                 }
-            },
+            } else null,
             modifier = Modifier.fillMaxWidth()
         )
+        if (!scanSupported) {
+            PhoneNetworkButton(
+                onNetwork = { network, note ->
+                    ssid = network
+                    pickedOpen = false
+                    phoneNote = note
+                },
+                onFailure = { phoneNote = it }
+            )
+        }
+        phoneNote?.let {
+            Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
+        }
+        if (!pickedOpen) {
+            OutlinedTextField(
+                value = password,
+                onValueChange = { password = it },
+                label = { Text(stringResource(R.string.settings_wifi_password)) },
+                placeholder = {
+                    Text(stringResource(if (saved.passwordStored) R.string.settings_wifi_password_kept else R.string.settings_wifi_password_none))
+                },
+                isError = !passwordValid,
+                singleLine = true,
+                visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                trailingIcon = {
+                    IconButton(onClick = { showPassword = !showPassword }) {
+                        Icon(if (showPassword) Icons.Filled.VisibilityOff else Icons.Filled.Visibility, contentDescription = null)
+                    }
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
         SaveButton(
             text = stringResource(R.string.save),
             enabled = changed && ssidValid && passwordValid && (mode != WifiMode.PERIODIC || periodValid),
             onClick = {
-                // An empty field keeps the stored password (it is never read back)
-                onSave(WifiSettingsUpdate(mode, period, ssid, password.ifEmpty { null }))
+                // An empty field keeps the stored password (it is never read back); an open
+                // network picked from the scan clears it
+                val newPassword = if (pickedOpen) "" else password.ifEmpty { null }
+                onSave(WifiSettingsUpdate(mode, period, ssid, newPassword))
             }
         )
+    }
+
+    if (showPicker) {
+        WifiNetworkPicker(
+            scan = scan,
+            onRescan = onScan,
+            onPick = { network ->
+                ssid = network.ssid
+                pickedOpen = !network.needsPassword
+                password = ""
+                phoneNote = null
+                if (mode == WifiMode.OFF) mode = WifiMode.PERIODIC
+                showPicker = false
+            },
+            onManual = { showPicker = false },
+            onDismiss = { showPicker = false }
+        )
+    }
+}
+
+/**
+ * Firmware without the WiFi scan: take the network the phone is on. Android tells the SSID only
+ * with the location permission, asked here and only for this.
+ */
+@Composable
+private fun PhoneNetworkButton(onNetwork: (String, note: String?) -> Unit, onFailure: (String) -> Unit) {
+    val context = LocalContext.current
+    val notFound = stringResource(R.string.wifi_phone_not_found)
+    val is5GHz = stringResource(R.string.wifi_phone_5ghz)
+    fun take() {
+        val network = PhoneWifi.current(context)
+        when {
+            network == null -> onFailure(notFound)
+            network.is24GHz -> onNetwork(network.ssid, null)
+            // Often the same router serves 2.4 GHz under the same name: fill it in, but warn
+            else -> onNetwork(network.ssid, is5GHz.format(network.ssid))
+        }
+    }
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
+        if (PhoneWifi.hasPermission(context)) take() else onFailure(notFound)
+    }
+    TextButton(onClick = {
+        if (PhoneWifi.hasPermission(context)) take() else launcher.launch(PhoneWifi.PERMISSIONS)
+    }) {
+        Icon(Icons.Filled.PhoneAndroid, contentDescription = null)
+        Text(stringResource(R.string.wifi_phone_network), modifier = Modifier.padding(start = 8.dp))
     }
 }
 
@@ -398,6 +502,8 @@ private fun SettingsTabPreview() {
                 demoSettings = DemoSettings(DemoOrder.RANDOM, 300, 60),
                 wifiSettings = WifiSettings(WifiMode.PERIODIC, 12, "home", passwordStored = true),
                 wifiStatus = WifiStatus(WifiState.OFF, null, 0),
+                wifiScan = null,
+                wifiScanSupported = true,
                 deviceName = "",
                 lampTime = LampTime(1_793_000_000, valid = true, source = TimeSource.BLE),
                 timeZone = "MSK-3",
@@ -407,6 +513,7 @@ private fun SettingsTabPreview() {
                 override fun saveDemoSettings(settings: DemoSettings) {}
                 override fun setDemoIncluded(effectCode: String, include: Boolean) {}
                 override fun saveWifiSettings(update: WifiSettingsUpdate) {}
+                override fun startWifiScan() {}
                 override fun saveDeviceName(name: String) {}
                 override fun syncTimeFromPhone() {}
                 override fun setFps(fps: Int) {}

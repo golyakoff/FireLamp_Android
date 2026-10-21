@@ -255,6 +255,16 @@ object FireLampCodec {
         WifiStatus(state, ip = ip.takeIf { it.any { b -> b != 0 } }?.joinToString("."), rssi = rssi)
     }
 
+    // ---------- 0x0014 WiFi networks ----------
+
+    fun decodeWifiScan(bytes: ByteArray): WifiScan = with(ByteReader(bytes)) {
+        val state = codedOf(u8(), WifiScanState.UNKNOWN)
+        val networks = List(u8()) {
+            WifiNetwork(ssid = str8(), rssi = i8(), auth = codedOf(u8(), WifiAuth.UNKNOWN), channel = u8())
+        }
+        WifiScan(state, networks)
+    }
+
     // ---------- 0x000B Device name ----------
 
     /** An empty name restores the default `FireLamp-XXXX`. */

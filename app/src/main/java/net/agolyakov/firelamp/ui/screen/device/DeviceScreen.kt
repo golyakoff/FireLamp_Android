@@ -90,6 +90,8 @@ fun DeviceScreen(
     val demoSettings by viewModel.demoSettings.collectAsState()
     val wifiSettings by viewModel.wifiSettings.collectAsState()
     val wifiStatus by viewModel.wifiStatus.collectAsState()
+    val wifiScan by viewModel.wifiScan.collectAsState()
+    val wifiScanSupported by viewModel.wifiScanSupported.collectAsState()
     val lampName by viewModel.deviceName.collectAsState()
     val timeZone by viewModel.timeZone.collectAsState()
     val ledSettings by viewModel.ledSettings.collectAsState()
@@ -165,6 +167,8 @@ fun DeviceScreen(
                     demoSettings = demoSettings,
                     wifiSettings = wifiSettings,
                     wifiStatus = wifiStatus,
+                    wifiScan = wifiScan,
+                    wifiScanSupported = wifiScanSupported,
                     deviceName = lampName,
                     lampTime = lampTime,
                     timeZone = timeZone,

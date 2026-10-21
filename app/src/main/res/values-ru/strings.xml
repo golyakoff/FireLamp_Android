@@ -159,7 +159,7 @@
     <string name="settings_wifi_state_off">Не подключена</string>
     <string name="settings_wifi_state_connecting">Подключение…</string>
     <string name="settings_wifi_state_connected">Подключена: %1$s, %2$d дБм</string>
-    <string name="settings_wifi_state_error">Не удалось подключиться: неверный пароль или сеть не найдена</string>
+    <string name="settings_wifi_state_error">Не удалось подключиться: неверный пароль или сеть не найдена (лампе нужна сеть 2,4 ГГц)</string>
     <string name="settings_name">Имя лампы</string>
     <string name="settings_name_label">Имя в эфире</string>
     <string name="settings_name_hint">До %1$d байт; пустое - стандартное FireLamp-XXXX. Вступает в силу после перезагрузки</string>
@@ -223,4 +223,18 @@
     <string name="ota_error_timeout">слишком долго не было данных</string>
     <string name="ota_error_too_much">данных больше, чем заявлено</string>
     <string name="ota_error_download">не удалось скачать</string>
+
+    <!-- WiFi network picker -->
+    <string name="wifi_band_hint">Лампа работает только с WiFi 2,4 ГГц</string>
+    <string name="wifi_picker_title">Сети рядом с лампой</string>
+    <string name="wifi_picker_rescan">Искать снова</string>
+    <string name="wifi_picker_scanning">Лампа ищет сети…</string>
+    <string name="wifi_picker_empty">Лампа не нашла сетей. Сети 5 ГГц ей не видны.</string>
+    <string name="wifi_picker_error">Лампе не удалось найти сети</string>
+    <string name="wifi_picker_manual">Ввести вручную (скрытая сеть)</string>
+    <string name="wifi_auth_open">Открытая, без пароля</string>
+    <string name="wifi_auth_enterprise">Корпоративная сеть: лампа не поддерживает</string>
+    <string name="wifi_phone_network">Сеть телефона</string>
+    <string name="wifi_phone_not_found">Не удалось узнать сеть телефона: нужно разрешение на местоположение, включённая геолокация и подключение телефона к WiFi</string>
+    <string name="wifi_phone_5ghz">Телефон подключён к «%1$s» в диапазоне 5 ГГц. Лампе нужна сеть 2,4 ГГц: если у роутера есть сеть 2,4 ГГц с тем же именем, оставьте; иначе выберите его сеть 2,4 ГГц (часто с 2G или 2.4 в имени).</string>
 </resources>

@@ -106,6 +106,13 @@ class DeviceViewModel @Inject constructor(
         viewModelScope.launch { bluetoothService.setDemoIncluded(effectCode, include) }
     }
 
+    val wifiScan = bluetoothService.wifiScan
+    val wifiScanSupported = bluetoothService.wifiScanSupported
+
+    override fun startWifiScan() {
+        viewModelScope.launch { bluetoothService.startWifiScan() }
+    }
+
     override fun saveWifiSettings(update: WifiSettingsUpdate) {
         viewModelScope.launch { bluetoothService.setWifiSettings(update) }
     }

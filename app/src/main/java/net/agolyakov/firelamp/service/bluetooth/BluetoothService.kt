@@ -40,6 +40,7 @@ import net.agolyakov.firelamp.protocol.Schedule
 import net.agolyakov.firelamp.protocol.TimeZoneMapper
 import net.agolyakov.firelamp.protocol.UnsupportedProtocolException
 import net.agolyakov.firelamp.protocol.UpdateInfo
+import net.agolyakov.firelamp.protocol.WifiScan
 import net.agolyakov.firelamp.protocol.WifiSettings
 import net.agolyakov.firelamp.protocol.WifiSettingsUpdate
 import net.agolyakov.firelamp.protocol.WifiStatus
@@ -120,6 +121,13 @@ class BluetoothService @Inject constructor(
     private val _updateInfo = MutableStateFlow<UpdateInfo?>(null)
     val updateInfo: StateFlow<UpdateInfo?> = _updateInfo.asStateFlow()
 
+    /** Null when the firmware cannot scan for WiFi networks (no WiFi networks characteristic). */
+    private val _wifiScan = MutableStateFlow<WifiScan?>(null)
+    val wifiScan: StateFlow<WifiScan?> = _wifiScan.asStateFlow()
+
+    private val _wifiScanSupported = MutableStateFlow(false)
+    val wifiScanSupported: StateFlow<Boolean> = _wifiScanSupported.asStateFlow()
+
     private val _otaStatus = MutableStateFlow<OtaStatus?>(null)
     val otaStatus: StateFlow<OtaStatus?> = _otaStatus.asStateFlow()
 
@@ -154,6 +162,8 @@ class BluetoothService @Inject constructor(
         _demoSettings.value = null
         _updateInfo.value = null
         _otaStatus.value = null
+        _wifiScan.value = null
+        _wifiScanSupported.value = false
         _rebootRequired.value = false
     }
 
@@ -373,6 +383,10 @@ class BluetoothService @Inject constructor(
         readInto(FireLampGatt.WIFI_SETTINGS) { _wifiSettings.value = FireLampCodec.decodeWifiSettings(it) }
         readInto(FireLampGatt.WIFI_STATUS) { _wifiStatus.value = FireLampCodec.decodeWifiStatus(it) }
         readInto(FireLampGatt.UPDATE_INFO) { _updateInfo.value = FireLampCodec.decodeUpdateInfo(it) }
+        if (bleManager.has(FireLampGatt.WIFI_NETWORKS)) {
+            _wifiScanSupported.value = true
+            readInto(FireLampGatt.WIFI_NETWORKS) { _wifiScan.value = FireLampCodec.decodeWifiScan(it) }
+        }
     }
 
     private val effectInfoMutex = Mutex()
@@ -425,6 +439,7 @@ class BluetoothService @Inject constructor(
                 FireLampGatt.WIFI_STATUS -> _wifiStatus.value = FireLampCodec.decodeWifiStatus(value)
                 FireLampGatt.OTA_CONTROL -> _otaStatus.value = FireLampCodec.decodeOtaStatus(value)
                 FireLampGatt.UPDATE_INFO -> _updateInfo.value = FireLampCodec.decodeUpdateInfo(value)
+                FireLampGatt.WIFI_NETWORKS -> _wifiScan.value = FireLampCodec.decodeWifiScan(value)
             }
         } catch (e: Exception) {
             Log.w(tag, "Bad notification from $uuid", e)
@@ -532,6 +547,15 @@ class BluetoothService @Inject constructor(
         bleManager.write(FireLampGatt.DEVICE_NAME, FireLampCodec.encodeDeviceName(name))
         _deviceName.value = FireLampCodec.decodeDeviceName(bleManager.read(FireLampGatt.DEVICE_NAME))
         _rebootRequired.value = true
+    }
+
+    /**
+     * Asks the lamp to scan (2-3 s, it hears 2.4 GHz networks only); progress and the result come
+     * as WiFi networks notifications. Firmware without the scan has no such characteristic.
+     */
+    suspend fun startWifiScan(): Boolean {
+        if (!bleManager.has(FireLampGatt.WIFI_NETWORKS)) return false
+        return sendCommand(Command.SCAN_WIFI)
     }
 
     suspend fun setWifiSettings(update: WifiSettingsUpdate): Boolean = guarded(FireLampGatt.WIFI_SETTINGS) {

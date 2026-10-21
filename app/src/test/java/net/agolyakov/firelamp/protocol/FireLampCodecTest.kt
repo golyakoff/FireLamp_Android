@@ -22,7 +22,9 @@ class FireLampCodecTest {
     fun uuids() {
         assertEquals("f1a70000-b390-49c3-8770-a1dfc323d1af", FireLampGatt.SERVICE.toString())
         assertEquals("f1a70013-b390-49c3-8770-a1dfc323d1af", FireLampGatt.HARDWARE_SETTINGS.toString())
-        assertEquals(18, FireLampGatt.ALL.toSet().size)
+        assertEquals(18, FireLampGatt.REQUIRED.toSet().size)
+        assertEquals("f1a70014-b390-49c3-8770-a1dfc323d1af", FireLampGatt.WIFI_NETWORKS.toString())
+        assertEquals(19, FireLampGatt.ALL.toSet().size)
     }
 
     // ---------- Device info ----------
@@ -256,6 +258,25 @@ class FireLampCodecTest {
         assertEquals(WifiStatus(WifiState.OFF, null, 0), FireLampCodec.decodeWifiStatus(hex("00 00 00 00 00 00")))
     }
 
+    @Test
+    fun wifiScan() {
+        val scan = FireLampCodec.decodeWifiScan(
+            hex("02 03 " + str8("HomeNet") + " c4 02 06 " + str8("Cafe") + " b5 00 0b " + str8("Office") + " a6 03 01")
+        )
+        assertEquals(WifiScanState.DONE, scan.state)
+        assertEquals(
+            listOf(
+                WifiNetwork("HomeNet", -60, WifiAuth.PERSONAL, 6),
+                WifiNetwork("Cafe", -75, WifiAuth.OPEN, 11),
+                WifiNetwork("Office", -90, WifiAuth.ENTERPRISE, 1),
+            ),
+            scan.networks
+        )
+        assertFalse(scan.networks[1].needsPassword)
+        assertFalse(scan.networks[2].usable)
+        assertEquals(WifiScan(WifiScanState.SCANNING, emptyList()), FireLampCodec.decodeWifiScan(hex("01 00")))
+    }
+
     // ---------- Name, commands, demo ----------
 
     @Test
@@ -274,6 +295,7 @@ class FireLampCodecTest {
     fun commands() {
         assertArrayEquals(hex("01"), FireLampCodec.encodeCommand(Command.REBOOT))
         assertArrayEquals(hex("07"), FireLampCodec.encodeCommand(Command.INSTALL_UPDATE))
+        assertArrayEquals(hex("08"), FireLampCodec.encodeCommand(Command.SCAN_WIFI))
     }
 
     @Test

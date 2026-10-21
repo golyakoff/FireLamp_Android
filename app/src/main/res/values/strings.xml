@@ -159,7 +159,7 @@
     <string name="settings_wifi_state_off">Not connected</string>
     <string name="settings_wifi_state_connecting">Connecting…</string>
     <string name="settings_wifi_state_connected">Connected: %1$s, %2$d dBm</string>
-    <string name="settings_wifi_state_error">Could not connect: wrong password or network not found</string>
+    <string name="settings_wifi_state_error">Could not connect: wrong password, or the network is not found (the lamp needs 2.4 GHz)</string>
     <string name="settings_name">Lamp name</string>
     <string name="settings_name_label">Name on the air</string>
     <string name="settings_name_hint" tools:ignore="PluralsCandidate">Up to %1$d bytes; empty - the default FireLamp-XXXX. Takes effect after a reboot</string>
@@ -223,4 +223,18 @@
     <string name="ota_error_timeout">no data for too long</string>
     <string name="ota_error_too_much">more data than announced</string>
     <string name="ota_error_download">download failed</string>
+
+    <!-- WiFi network picker -->
+    <string name="wifi_band_hint">The lamp works with 2.4 GHz WiFi only</string>
+    <string name="wifi_picker_title">Networks near the lamp</string>
+    <string name="wifi_picker_rescan">Scan again</string>
+    <string name="wifi_picker_scanning">The lamp is looking for networks…</string>
+    <string name="wifi_picker_empty">The lamp found no networks. 5 GHz networks are not visible to it.</string>
+    <string name="wifi_picker_error">The lamp could not scan for networks</string>
+    <string name="wifi_picker_manual">Enter manually (hidden network)</string>
+    <string name="wifi_auth_open">Open, no password</string>
+    <string name="wifi_auth_enterprise">Enterprise network: not supported by the lamp</string>
+    <string name="wifi_phone_network">The phone\'s network</string>
+    <string name="wifi_phone_not_found">Could not get the phone\'s network: it needs the location permission and location turned on, and the phone connected to WiFi</string>
+    <string name="wifi_phone_5ghz">The phone is on \"%1$s\" in the 5 GHz band. The lamp needs 2.4 GHz: if the router has a 2.4 GHz network under the same name, keep it; otherwise pick its 2.4 GHz network (often named with 2G or 2.4).</string>
 </resources>

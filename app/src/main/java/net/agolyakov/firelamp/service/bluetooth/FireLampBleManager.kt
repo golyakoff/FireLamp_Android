@@ -42,7 +42,8 @@ class FireLampBleManager(context: Context) : BleManager(context) {
     override fun isRequiredServiceSupported(gatt: BluetoothGatt): Boolean {
         val service = gatt.getService(FireLampGatt.SERVICE) ?: return false
         characteristics = FireLampGatt.ALL.mapNotNull { uuid -> service.getCharacteristic(uuid)?.let { uuid to it } }.toMap()
-        val missing = FireLampGatt.ALL - characteristics.keys
+        // Optional ones (added to protocol 1 later) may be absent on older firmware
+        val missing = FireLampGatt.REQUIRED - characteristics.keys
         if (missing.isNotEmpty()) Log.w(tag, "Missing characteristics: $missing")
         return missing.isEmpty()
     }
@@ -63,7 +64,7 @@ class FireLampBleManager(context: Context) : BleManager(context) {
             createBondInsecure().enqueue()
         }
         for (uuid in FireLampGatt.NOTIFYING) {
-            val characteristic = characteristics.getValue(uuid)
+            val characteristic = characteristics[uuid] ?: continue
             setNotificationCallback(characteristic).with { _, data ->
                 data.value?.let { _notifications.tryEmit(Notification(uuid, it)) }
             }
@@ -90,6 +91,9 @@ class FireLampBleManager(context: Context) : BleManager(context) {
         }
         disconnect().enqueue()
     }
+
+    /** Whether the connected lamp has this (optional) characteristic. */
+    fun has(uuid: UUID): Boolean = uuid in characteristics
 
     private fun characteristic(uuid: UUID): BluetoothGattCharacteristic =
         characteristics[uuid] ?: throw IllegalStateException("Not connected (no characteristic $uuid)")

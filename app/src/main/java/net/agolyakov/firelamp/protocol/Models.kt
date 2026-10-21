@@ -273,6 +273,43 @@ data class WifiStatus(
     val rssi: Int,
 )
 
+// ---------- 0x0014 WiFi networks (scan) ----------
+
+enum class WifiScanState(override val code: Int) : Coded {
+    /** No scan since boot. */
+    NONE(0),
+    SCANNING(1),
+    DONE(2),
+    ERROR(3),
+    UNKNOWN(-1)
+}
+
+enum class WifiAuth(override val code: Int) : Coded {
+    OPEN(0),
+    WEP(1),
+    /** WPA / WPA2 / WPA3 personal: a password. */
+    PERSONAL(2),
+    /** WPA2/WPA3 enterprise: the lamp cannot join it. */
+    ENTERPRISE(3),
+    UNKNOWN(-1)
+}
+
+data class WifiNetwork(
+    val ssid: String,
+    val rssi: Int,
+    val auth: WifiAuth,
+    val channel: Int,
+) {
+    val usable: Boolean get() = auth == WifiAuth.OPEN || auth == WifiAuth.WEP || auth == WifiAuth.PERSONAL
+    val needsPassword: Boolean get() = auth != WifiAuth.OPEN
+}
+
+/** Networks the lamp hears (2.4 GHz only), strongest first, one entry per SSID. */
+data class WifiScan(
+    val state: WifiScanState,
+    val networks: List<WifiNetwork>,
+)
+
 // ---------- 0x000C Command ----------
 
 enum class Command(override val code: Int) : Coded {
@@ -283,7 +320,9 @@ enum class Command(override val code: Int) : Coded {
     NEXT_EFFECT(0x04),
     PREVIOUS_EFFECT(0x05),
     CHECK_UPDATE(0x06),
-    INSTALL_UPDATE(0x07)
+    INSTALL_UPDATE(0x07),
+    /** Scan for WiFi networks; the result comes in WiFi networks (0x0014). */
+    SCAN_WIFI(0x08)
 }
 
 // ---------- 0x000D Demo settings ----------
