@@ -1,3 +1,9 @@
+# Release 0.3.1
+
+- The lamp list fills right after the Bluetooth permission is granted or Bluetooth is turned on, without restarting the app
+- No crash when the Bluetooth permission is revoked in the system settings: the lamp screen offers to open the app settings
+- Scanning stops while a lamp is open (less battery use, steadier connection)
+
 # Release 0.3.0
 
 - Firmware update on the Hardware tab: from the phone over Bluetooth (the release file for the lamp's chip is downloaded and checked first), or by the lamp itself over WiFi; the new version is checked after the lamp restarts, a rollback to the old firmware is reported
