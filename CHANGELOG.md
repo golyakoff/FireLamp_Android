@@ -1,3 +1,9 @@
+# Release 0.3.0
+
+- Firmware update on the Hardware tab: from the phone over Bluetooth (the release file for the lamp's chip is downloaded and checked first), or by the lamp itself over WiFi; the new version is checked after the lamp restarts, a rollback to the old firmware is reported
+- The screen stays on while the firmware is being sent; an upload from the phone can be cancelled
+- Build updated for the current Android Gradle plugin (no deprecated options)
+
 # Release 0.2.0
 
 - Schedule tab: power on and off by time and days of the week, dawn (the lamp turns on with an effect and slowly brightens to a set time), brightness by the hour
