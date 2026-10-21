@@ -1,3 +1,7 @@
+# Release 0.3.4
+
+- WiFi network list for lamp firmware 0.1.5 and newer: all networks the lamp finds (up to 64) are listed; earlier app versions show an empty list with that firmware
+
 # Release 0.3.3
 
 - WiFi network list: the full list of networks found by the lamp is shown even when the phone negotiated a small Bluetooth packet size
