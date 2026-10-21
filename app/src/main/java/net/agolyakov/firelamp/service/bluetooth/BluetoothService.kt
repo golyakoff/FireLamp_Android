@@ -41,6 +41,7 @@ import net.agolyakov.firelamp.protocol.TimeZoneMapper
 import net.agolyakov.firelamp.protocol.UnsupportedProtocolException
 import net.agolyakov.firelamp.protocol.UpdateInfo
 import net.agolyakov.firelamp.protocol.WifiScan
+import net.agolyakov.firelamp.protocol.WifiScanState
 import net.agolyakov.firelamp.protocol.WifiSettings
 import net.agolyakov.firelamp.protocol.WifiSettingsUpdate
 import net.agolyakov.firelamp.protocol.WifiStatus
@@ -439,7 +440,15 @@ class BluetoothService @Inject constructor(
                 FireLampGatt.WIFI_STATUS -> _wifiStatus.value = FireLampCodec.decodeWifiStatus(value)
                 FireLampGatt.OTA_CONTROL -> _otaStatus.value = FireLampCodec.decodeOtaStatus(value)
                 FireLampGatt.UPDATE_INFO -> _updateInfo.value = FireLampCodec.decodeUpdateInfo(value)
-                FireLampGatt.WIFI_NETWORKS -> _wifiScan.value = FireLampCodec.decodeWifiScan(value)
+                FireLampGatt.WIFI_NETWORKS -> {
+                    val scan = FireLampCodec.decodeWifiScan(value)
+                    _wifiScan.value = scan
+                    // A notification carries at most MTU - 3 bytes, so the lamp may cut the list
+                    // there: read the whole value once the scan is done
+                    if (scan.state == WifiScanState.DONE) {
+                        scope.launch { readInto(FireLampGatt.WIFI_NETWORKS) { _wifiScan.value = FireLampCodec.decodeWifiScan(it) } }
+                    }
+                }
             }
         } catch (e: Exception) {
             Log.w(tag, "Bad notification from $uuid", e)
