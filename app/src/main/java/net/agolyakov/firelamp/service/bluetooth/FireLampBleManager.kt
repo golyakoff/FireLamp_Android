@@ -72,6 +72,26 @@ class FireLampBleManager(context: Context) : BleManager(context) {
         }
     }
 
+    /**
+     * Turns the notifications off, then disconnects. Closing our GATT client does not drop the
+     * link when Android holds it for another client (or by itself after bonding), and the lamp
+     * keeps such a link while any notification is enabled: it would never time out as idle and
+     * never advertise again. The lamp also remembers the notification state of a bonded phone
+     * across connections, so a link opened later by the system would look subscribed too.
+     */
+    fun disconnectCleanly() {
+        if (isConnected) {
+            for (uuid in FireLampGatt.NOTIFYING) {
+                characteristics[uuid]?.let { characteristic ->
+                    disableNotifications(characteristic)
+                        .fail { _, status -> Log.w(tag, "Could not disable notifications of $uuid, status=$status") }
+                        .enqueue()
+                }
+            }
+        }
+        disconnect().enqueue()
+    }
+
     private fun characteristic(uuid: UUID): BluetoothGattCharacteristic =
         characteristics[uuid] ?: throw IllegalStateException("Not connected (no characteristic $uuid)")
 

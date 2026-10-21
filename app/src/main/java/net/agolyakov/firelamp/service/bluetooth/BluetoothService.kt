@@ -269,7 +269,7 @@ class BluetoothService @Inject constructor(
             } catch (e: UnsupportedProtocolException) {
                 Log.e(tag, "Unsupported protocol ${e.version}")
                 _connectionState.value = ConnectionState.UnsupportedProtocol(e.version)
-                bleManager.disconnect().enqueue()
+                bleManager.disconnectCleanly()
             } catch (e: kotlinx.coroutines.CancellationException) {
                 throw e
             } catch (e: DeviceDisconnectedException) {
@@ -286,7 +286,7 @@ class BluetoothService @Inject constructor(
                             ConnectionState.Error(e.message ?: e.javaClass.simpleName)
                         }
                 }
-                bleManager.disconnect().enqueue()
+                bleManager.disconnectCleanly()
             }
         }
     }
@@ -295,7 +295,7 @@ class BluetoothService @Inject constructor(
         connectJob?.cancel()
         val state = _connectionState.value
         if (state == ConnectionState.Disconnected || state == ConnectionState.Disconnecting) return
-        bleManager.disconnect().enqueue()
+        bleManager.disconnectCleanly()
         _currentDevice.value = null
         if (state !is ConnectionState.PairingRejected && state !is ConnectionState.UnsupportedProtocol) {
             _connectionState.value = ConnectionState.Disconnecting
