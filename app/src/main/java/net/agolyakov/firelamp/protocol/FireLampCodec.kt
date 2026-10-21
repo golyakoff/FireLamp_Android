@@ -257,13 +257,22 @@ object FireLampCodec {
 
     // ---------- 0x0014 WiFi networks ----------
 
+    /**
+     * One page: header (state, total, first index, N) and N networks. Notifications carry only
+     * the header (N = 0); the list is read page by page, writing the next page's first index.
+     */
     fun decodeWifiScan(bytes: ByteArray): WifiScan = with(ByteReader(bytes)) {
         val state = codedOf(u8(), WifiScanState.UNKNOWN)
+        val total = u8()
+        val first = u8()
         val networks = List(u8()) {
             WifiNetwork(ssid = str8(), rssi = i8(), auth = codedOf(u8(), WifiAuth.UNKNOWN), channel = u8())
         }
-        WifiScan(state, networks)
+        WifiScan(state, total, first, networks)
     }
+
+    /** Write: the first network of the page to read next (rejected until the scan is done). */
+    fun encodeWifiScanCursor(first: Int): ByteArray = bytesOf { u8(first) }
 
     // ---------- 0x000B Device name ----------
 

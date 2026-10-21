@@ -33,7 +33,7 @@ object FireLampGatt {
     val OTA_DATA: UUID = uuid(0x0011)          // W
     val UPDATE_INFO: UUID = uuid(0x0012)       // R, N
     val HARDWARE_SETTINGS: UUID = uuid(0x0013) // R, W
-    val WIFI_NETWORKS: UUID = uuid(0x0014)     // R, N; optional: firmware with the WiFi scan
+    val WIFI_NETWORKS: UUID = uuid(0x0014)     // R, W, N; optional: firmware >= 0.1.5 (WiFi scan)
 
     /** Present in every protocol version 1 firmware. */
     val REQUIRED: List<UUID> = listOf(

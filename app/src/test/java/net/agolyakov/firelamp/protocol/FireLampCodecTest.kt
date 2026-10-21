@@ -260,10 +260,13 @@ class FireLampCodecTest {
 
     @Test
     fun wifiScan() {
+        // Page: state 2 (done), 5 networks in total, this page starts at 2 and holds 3
         val scan = FireLampCodec.decodeWifiScan(
-            hex("02 03 " + str8("HomeNet") + " c4 02 06 " + str8("Cafe") + " b5 00 0b " + str8("Office") + " a6 03 01")
+            hex("02 05 02 03 " + str8("HomeNet") + " c4 02 06 " + str8("Cafe") + " b5 00 0b " + str8("Office") + " a6 03 01")
         )
         assertEquals(WifiScanState.DONE, scan.state)
+        assertEquals(5, scan.total)
+        assertEquals(2, scan.first)
         assertEquals(
             listOf(
                 WifiNetwork("HomeNet", -60, WifiAuth.PERSONAL, 6),
@@ -274,7 +277,9 @@ class FireLampCodecTest {
         )
         assertFalse(scan.networks[1].needsPassword)
         assertFalse(scan.networks[2].usable)
-        assertEquals(WifiScan(WifiScanState.SCANNING, emptyList()), FireLampCodec.decodeWifiScan(hex("01 00")))
+        // A notification: the header only
+        assertEquals(WifiScan(WifiScanState.SCANNING, 0, 0, emptyList()), FireLampCodec.decodeWifiScan(hex("01 00 00 00")))
+        assertArrayEquals(hex("05"), FireLampCodec.encodeWifiScanCursor(5))
     }
 
     // ---------- Name, commands, demo ----------

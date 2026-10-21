@@ -386,7 +386,7 @@ class BluetoothService @Inject constructor(
         readInto(FireLampGatt.UPDATE_INFO) { _updateInfo.value = FireLampCodec.decodeUpdateInfo(it) }
         if (bleManager.has(FireLampGatt.WIFI_NETWORKS)) {
             _wifiScanSupported.value = true
-            readInto(FireLampGatt.WIFI_NETWORKS) { _wifiScan.value = FireLampCodec.decodeWifiScan(it) }
+            guarded(FireLampGatt.WIFI_NETWORKS) { _wifiScan.value = readAllWifiNetworks() }
         }
     }
 
@@ -442,11 +442,11 @@ class BluetoothService @Inject constructor(
                 FireLampGatt.UPDATE_INFO -> _updateInfo.value = FireLampCodec.decodeUpdateInfo(value)
                 FireLampGatt.WIFI_NETWORKS -> {
                     val scan = FireLampCodec.decodeWifiScan(value)
-                    _wifiScan.value = scan
-                    // A notification carries at most MTU - 3 bytes, so the lamp may cut the list
-                    // there: read the whole value once the scan is done
+                    // Notifications carry only the header: read every page once the scan is done,
+                    // showing "scanning" until then rather than an empty list
+                    _wifiScan.value = if (scan.state == WifiScanState.DONE) scan.copy(state = WifiScanState.SCANNING) else scan
                     if (scan.state == WifiScanState.DONE) {
-                        scope.launch { readInto(FireLampGatt.WIFI_NETWORKS) { _wifiScan.value = FireLampCodec.decodeWifiScan(it) } }
+                        scope.launch { guarded(FireLampGatt.WIFI_NETWORKS) { _wifiScan.value = readAllWifiNetworks() } }
                     }
                 }
             }
@@ -556,6 +556,29 @@ class BluetoothService @Inject constructor(
         bleManager.write(FireLampGatt.DEVICE_NAME, FireLampCodec.encodeDeviceName(name))
         _deviceName.value = FireLampCodec.decodeDeviceName(bleManager.read(FireLampGatt.DEVICE_NAME))
         _rebootRequired.value = true
+    }
+
+    /** The page cursor is shared lamp state: one reader at a time. */
+    private val wifiNetworksMutex = Mutex()
+
+    /**
+     * The whole scan result: the first read gives page 0 (the lamp resets the cursor after every
+     * scan and on connecting); while first + N < total, write first + N and read the next page.
+     */
+    private suspend fun readAllWifiNetworks(): WifiScan = wifiNetworksMutex.withLock {
+        val head = FireLampCodec.decodeWifiScan(bleManager.read(FireLampGatt.WIFI_NETWORKS))
+        if (head.state != WifiScanState.DONE) return@withLock head
+        val networks = head.networks.toMutableList()
+        var page = head
+        while (page.first + page.networks.size < page.total && networks.size < page.total) {
+            bleManager.write(FireLampGatt.WIFI_NETWORKS, FireLampCodec.encodeWifiScanCursor(page.first + page.networks.size))
+            val next = FireLampCodec.decodeWifiScan(bleManager.read(FireLampGatt.WIFI_NETWORKS))
+            // A new scan started meanwhile, or no progress: keep what we have
+            if (next.state != WifiScanState.DONE || next.networks.isEmpty() || next.first != page.first + page.networks.size) break
+            networks += next.networks
+            page = next
+        }
+        head.copy(first = 0, networks = networks)
     }
 
     /**

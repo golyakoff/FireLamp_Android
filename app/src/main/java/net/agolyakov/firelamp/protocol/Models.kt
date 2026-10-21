@@ -304,9 +304,16 @@ data class WifiNetwork(
     val needsPassword: Boolean get() = auth != WifiAuth.OPEN
 }
 
-/** Networks the lamp hears (2.4 GHz only), strongest first, one entry per SSID. */
+/**
+ * Networks the lamp hears (2.4 GHz only), strongest first, one entry per SSID: one page of
+ * them as read (firmware >= 0.1.5), or all of them once BluetoothService has read every page.
+ */
 data class WifiScan(
     val state: WifiScanState,
+    /** All networks found (up to 64). */
+    val total: Int,
+    /** Index of the first network of this page. */
+    val first: Int,
     val networks: List<WifiNetwork>,
 )
 
