@@ -1,3 +1,7 @@
+# Release 0.3.3
+
+- WiFi network list: the full list of networks found by the lamp is shown even when the phone negotiated a small Bluetooth packet size
+
 # Release 0.3.2
 
 - WiFi settings: pick a network the lamp hears from a list (needs lamp firmware with the WiFi scan); with older firmware, "The phone's network" fills in the network name and warns when the phone is on 5 GHz; the 2.4 GHz requirement is shown
