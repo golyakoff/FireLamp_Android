@@ -16,15 +16,19 @@ The BLE contract is the firmware's `docs/BLE_PROTOCOL.md` (bytes) and `docs/APP_
 
 ## Build / test commands
 
-Gradle 9.6.1, AGP 9.2.1, Kotlin 2.2.10, Hilt via KSP, min/target/compile SDK 28/36/36, JVM
-target 11. `gradle.properties` carries AGP 9 compatibility flags (`android.builtInKotlin=false`,
-`android.newDsl=false`, ...) that keep the legacy variant API working — don't remove them without
-migrating `applicationVariants.all` in `app/build.gradle.kts` first.
+Gradle 9.6.1, AGP 9.2.1 with its built-in Kotlin (no `kotlin-android` plugin; compiler options
+in the `kotlin { compilerOptions }` block), Kotlin 2.2.10, Hilt 2.60.1 via KSP 2.3.x,
+min/target/compile SDK 28/36/36, JVM target 11. The project uses AGP 9's new DSL and none of
+the legacy compatibility flags (`android.newDsl=false`, `android.builtInKotlin=false`, ...):
+keep it that way, they are removed in AGP 10. Consequences: the APK name comes from
+`base.archivesName` (no `applicationVariants`), and there is no Parcelize (it needs a compiler
+plugin) - `FireLampDevice` is `Serializable`. The app version is `appVersionCode`/`appVersionName`
+at the top of `app/build.gradle.kts`.
 
 ```
 export JAVA_HOME=~/opt/jdk-21.0.12.1+1   # not set globally on the Linux dev box
 ./gradlew testDebugUnitTest   # JVM unit tests (protocol codec, time zone mapping)
-./gradlew assembleDebug       # debug APK: app/build/outputs/apk/debug/firelamp-debug-vX.Y.Z.apk
+./gradlew assembleDebug       # debug APK: app/build/outputs/apk/debug/firelamp-vX.Y.Z-debug.apk
 ```
 
 The Linux dev box has ~4 GB RAM: machine-local Gradle limits live in `~/.gradle/gradle.properties`.

@@ -1,6 +1,5 @@
 import java.util.Properties
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
 // Machine-local, not committed:
 // - `github.token=...` - optional GitHub API token (app update check: higher rate limits)
@@ -13,11 +12,18 @@ val localProperties = Properties().apply {
 
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.hilt)
     alias(libs.plugins.ksp)
-    alias(libs.plugins.parcelize)
+}
+
+// The app version: bump both together with a new section of CHANGELOG.md
+val appVersionCode = 2
+val appVersionName = "0.2.0"
+
+// APK name: firelamp-vX.Y.Z-<build type>.apk
+base {
+    archivesName = "firelamp-v$appVersionName"
 }
 
 android {
@@ -28,8 +34,8 @@ android {
         applicationId = "net.agolyakov.firelamp"
         minSdk = 28     // Android 9
         targetSdk = 36  // Android 16
-        versionCode = 2
-        versionName = "0.2.0"
+        versionCode = appVersionCode
+        versionName = appVersionName
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -38,15 +44,6 @@ android {
             "GITHUB_TOKEN",
             "\"${localProperties.getProperty("github.token") ?: ""}\""
         )
-    }
-
-    applicationVariants.all {
-        outputs.all {
-            val variantName = name
-            val apkOutput = this as com.android.build.gradle.internal.api.BaseVariantOutputImpl
-            apkOutput.outputFileName =
-                "firelamp-${variantName}-v${versionName}.apk"
-        }
     }
 
     val localSigning = localProperties.getProperty("signing.storeFile")
@@ -74,16 +71,18 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-    tasks.withType<KotlinJvmCompile>().configureEach {
-        compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_11)
-            freeCompilerArgs.add("-opt-in=kotlin.RequiresOptIn")
-            freeCompilerArgs.add("-Xannotation-default-target=param-property")
-        }
-    }
     buildFeatures {
         compose = true
         buildConfig = true
+    }
+}
+
+// AGP 9 compiles Kotlin itself (built-in Kotlin): no kotlin-android plugin
+kotlin {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_11)
+        freeCompilerArgs.add("-opt-in=kotlin.RequiresOptIn")
+        freeCompilerArgs.add("-Xannotation-default-target=param-property")
     }
 }
 
