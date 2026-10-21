@@ -211,6 +211,7 @@
     <string name="fw_progress_downloading">Скачивание прошивки…</string>
     <string name="fw_progress_preparing">Лампа готовит память…</string>
     <string name="fw_progress_uploading">Передача в лампу: %1$d из %2$d КБ</string>
+    <string name="fw_progress_verifying">Лампа проверяет прошивку…</string>
     <string name="fw_progress_lamp_checking">Лампа ищет обновление…</string>
     <string name="fw_progress_lamp_downloading">Лампа скачивает: %1$d из %2$d КБ</string>
     <string name="fw_progress_rebooting">Лампа перезапускается с новой прошивкой…</string>

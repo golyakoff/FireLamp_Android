@@ -70,6 +70,8 @@ class FirmwareUpdater @Inject constructor(
         /** Start sent: the lamp erases the OTA partition, that takes several seconds. */
         object Preparing : State()
         data class Uploading(val sent: Long, val total: Long) : State()
+        /** All sent, "end" written: the lamp verifies the image; past the point of no return. */
+        object Verifying : State()
         /** Lamp's own update from the internet. */
         object InternetChecking : State()
         data class InternetDownloading(val received: Long, val total: Long) : State()
@@ -81,7 +83,7 @@ class FirmwareUpdater @Inject constructor(
         data class Failed(val reason: Reason, val detail: String? = null) : State()
 
         val isBusy: Boolean
-            get() = this is Checking || this is Downloading || this is Preparing || this is Uploading ||
+            get() = this is Checking || this is Downloading || this is Preparing || this is Uploading || this is Verifying ||
                 this is InternetChecking || this is InternetDownloading || this is Rebooting
     }
 
@@ -225,6 +227,8 @@ class FirmwareUpdater @Inject constructor(
                 }
             }
 
+            // From here on the lamp finishes by itself: no cancel (the UI hides the button)
+            _state.value = State.Verifying
             if (!bluetoothService.writeOtaControl(FireLampCodec.encodeOtaEnd())) {
                 bluetoothService.otaStatus.value?.throwIfError()
                 throw UpdateFailure(Reason.LAMP_ERROR)
@@ -334,9 +338,14 @@ class FirmwareUpdater @Inject constructor(
         }
     }
 
-    /** Stops an upload from the phone (the lamp discards what it received). */
+    /**
+     * Stops an upload from the phone (the lamp discards what it received). Only before the "end"
+     * command: after it the lamp installs the image anyway, and a cancel would only make the app
+     * report "cancelled" for a lamp that updates; the lamp's own update cannot be cancelled.
+     */
     fun cancel() {
-        job?.cancel()
+        val state = _state.value
+        if (state is State.Downloading || state is State.Preparing || state is State.Uploading) job?.cancel()
     }
 
     private fun fail(reason: Reason, detail: String? = null) {

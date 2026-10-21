@@ -211,6 +211,7 @@
     <string name="fw_progress_downloading">Downloading the firmware…</string>
     <string name="fw_progress_preparing">The lamp is preparing its memory…</string>
     <string name="fw_progress_uploading">Sending to the lamp: %1$d of %2$d KB</string>
+    <string name="fw_progress_verifying">The lamp checks the firmware…</string>
     <string name="fw_progress_lamp_checking">The lamp is looking for the update…</string>
     <string name="fw_progress_lamp_downloading">The lamp is downloading: %1$d of %2$d KB</string>
     <string name="fw_progress_rebooting">The lamp restarts with the new firmware…</string>

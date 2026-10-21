@@ -170,6 +170,7 @@ private fun ProgressDialog(state: State, onCancel: () -> Unit) {
         State.Preparing -> stringResource(R.string.fw_progress_preparing) to null
         is State.Uploading -> stringResource(R.string.fw_progress_uploading, state.sent / 1024, state.total / 1024) to
             state.sent.toFloat() / state.total
+        State.Verifying -> stringResource(R.string.fw_progress_verifying) to null
         State.InternetChecking -> stringResource(R.string.fw_progress_lamp_checking) to null
         is State.InternetDownloading -> stringResource(R.string.fw_progress_lamp_downloading, state.received / 1024, state.total / 1024) to
             state.total.takeIf { it > 0 }?.let { state.received.toFloat() / it }
@@ -191,7 +192,7 @@ private fun ProgressDialog(state: State, onCancel: () -> Unit) {
                 } else {
                     CircularProgressIndicator()
                 }
-                if (state is State.Uploading || state is State.Preparing || state is State.Rebooting) {
+                if (state is State.Uploading || state is State.Preparing || state is State.Verifying || state is State.Rebooting) {
                     Text(
                         stringResource(R.string.fw_progress_keep_close),
                         style = MaterialTheme.typography.bodySmall,
