@@ -204,6 +204,13 @@ class FireLampCodecTest {
         assertEquals(settings, FireLampCodec.decodeLedSettings(bytes))
     }
 
+    @Test
+    fun minCurrentLimit() {
+        // ble_server.c: limit < width * height * CONFIG_FL_SINGLE_LED_CURRENT_MA / 50 is rejected
+        assertEquals(168, LedSettings.minCurrentLimitMa(16, 16))
+        assertEquals(675, LedSettings.minCurrentLimitMa(32, 32))
+    }
+
     @Test(expected = IllegalArgumentException::class)
     fun ledSettingsTooManyLeds() {
         FireLampCodec.encodeLedSettings(LedSettings(64, 32, LedType.WS2812, ColorOrder.GRB, Rotation.NONE, false, 2000, Wiring.SERPENTINE))

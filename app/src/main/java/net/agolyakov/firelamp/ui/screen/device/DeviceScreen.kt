@@ -81,6 +81,15 @@ fun DeviceScreen(
     val rebootRequired by viewModel.rebootRequired.collectAsState()
     val lampState by viewModel.lampState.collectAsState()
     val effects by viewModel.effects.collectAsState()
+    val schedule by viewModel.schedule.collectAsState()
+    val lampTime by viewModel.lampTime.collectAsState()
+    val demoSettings by viewModel.demoSettings.collectAsState()
+    val wifiSettings by viewModel.wifiSettings.collectAsState()
+    val wifiStatus by viewModel.wifiStatus.collectAsState()
+    val lampName by viewModel.deviceName.collectAsState()
+    val timeZone by viewModel.timeZone.collectAsState()
+    val ledSettings by viewModel.ledSettings.collectAsState()
+    val hardwareSettings by viewModel.hardwareSettings.collectAsState()
     val context = LocalContext.current
 
     LaunchedEffect(device) {
@@ -130,6 +139,44 @@ fun DeviceScreen(
                 )
             }
         },
+        scheduleTab = {
+            schedule?.let {
+                ScheduleTab(
+                    schedule = it,
+                    effects = effects,
+                    lampTime = lampTime,
+                    onSave = viewModel::saveSchedule,
+                )
+            }
+        },
+        settingsTab = {
+            // Demo flags in the cached effect list may be stale: re-read them once per opening
+            LaunchedEffect(Unit) { viewModel.refreshEffects() }
+            SettingsTab(
+                state = SettingsTabState(
+                    lampState = lampState,
+                    effects = effects,
+                    demoSettings = demoSettings,
+                    wifiSettings = wifiSettings,
+                    wifiStatus = wifiStatus,
+                    deviceName = lampName,
+                    lampTime = lampTime,
+                    timeZone = timeZone,
+                    phoneTimeZone = viewModel.phoneTimeZone,
+                ),
+                actions = viewModel,
+            )
+        },
+        hardwareTab = {
+            HardwareTab(
+                deviceInfo = deviceInfo,
+                ledSettings = ledSettings,
+                hardwareSettings = hardwareSettings,
+                onSaveLedSettings = viewModel::saveLedSettings,
+                onSaveHardwareSettings = viewModel::saveHardwareSettings,
+                onReboot = viewModel::reboot,
+            )
+        },
     )
 }
 
@@ -142,6 +189,9 @@ fun DeviceScreenContent(
     onForgetAndRetry: () -> Unit,
     onReboot: () -> Unit,
     lampTab: @Composable () -> Unit = {},
+    scheduleTab: @Composable () -> Unit = {},
+    settingsTab: @Composable () -> Unit = {},
+    hardwareTab: @Composable () -> Unit = {},
     initialTab: DeviceTab = DeviceTab.Lamp,
 ) {
     var selectedTab by rememberSaveable { mutableStateOf(initialTab) }
@@ -183,9 +233,9 @@ fun DeviceScreenContent(
                     Box(modifier = Modifier.weight(1f)) {
                         when (selectedTab) {
                             DeviceTab.Lamp -> lampTab()
-                            DeviceTab.Schedule,
-                            DeviceTab.Settings,
-                            DeviceTab.Hardware -> ComingSoon()
+                            DeviceTab.Schedule -> scheduleTab()
+                            DeviceTab.Settings -> settingsTab()
+                            DeviceTab.Hardware -> hardwareTab()
                         }
                     }
                 }
@@ -331,13 +381,6 @@ private fun RebootBanner(onReboot: () -> Unit) {
             )
             TextButton(onClick = onReboot) { Text(stringResource(R.string.reboot_now)) }
         }
-    }
-}
-
-@Composable
-private fun ComingSoon() {
-    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text(stringResource(R.string.coming_soon), color = MaterialTheme.colorScheme.outline)
     }
 }
 

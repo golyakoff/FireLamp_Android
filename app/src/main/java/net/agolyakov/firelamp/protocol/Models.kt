@@ -211,6 +211,18 @@ data class LedSettings(
         const val MIN_SIZE = 8
         const val MAX_SIZE = 128
         const val MAX_LEDS = 1024
+        const val MAX_CURRENT_LIMIT_MA = 0xFFFF
+
+        /** The firmware's default `CONFIG_FL_SINGLE_LED_CURRENT_MA` (a build option, not readable). */
+        const val DEFAULT_SINGLE_LED_CURRENT_MA = 33
+
+        /**
+         * The lowest current limit the lamp accepts for a matrix: enough for every LED at 1/50 of
+         * its full current. Computed with the default per-LED current, so it is a hint: a lamp
+         * built with another value checks its own.
+         */
+        fun minCurrentLimitMa(width: Int, height: Int): Int =
+            width * height * DEFAULT_SINGLE_LED_CURRENT_MA / 50
     }
 }
 

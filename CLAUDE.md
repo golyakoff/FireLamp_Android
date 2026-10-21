@@ -71,8 +71,14 @@ MVVM + Hilt + single-Activity Compose Navigation, as in the sibling apps:
   lamp itself); if exactly one such lamp exists at app start, its screen opens right away (once
   per process). `ui/screen/device`: `DeviceViewModel` (auto-reconnect: 3 attempts, 2/4/8 s, only
   while resumed; then a "Connect" button), `DeviceScreen` (state header, pairing/connection
-  cards, 4 tabs: Lamp / Schedule / Settings / Hardware), `LampTab`, `EffectNames` (code →
-  localized name, `res/values*/effects.xml`). Slider writes go through `ui/viewmodel/Throttle`
+  cards, 4 tabs), one file per tab: `LampTab` (power, brightness, effects, parameters, demo),
+  `ScheduleTab` (power on/off, dawn, hourly brightness - the whole schedule as one draft with
+  Save/Discard), `SettingsTab` (demo settings and effects, WiFi, name, time/time zone, FPS,
+  resets; state/actions passed as `SettingsTabState`/`SettingsTabActions`), `HardwareTab`
+  (matrix, controls, lamp info - reboot to apply). Sections that write a whole characteristic
+  are edited as drafts (`remember(saved)`), reset when the lamp's value comes back.
+  `EffectNames`: code → localized name (`res/values*/effects.xml`). Shared form pieces live in
+  `ui/component/SettingsComponents.kt`. Slider writes go through `ui/viewmodel/Throttle`
   (≤ 1 write per 100 ms per key) and `ui/component/SyncedSlider`.
 - **Effects are identified by text codes** (`fire`, `plasma_waves`), never by list position;
   the app may localize names by code and falls back to the English name from the lamp.

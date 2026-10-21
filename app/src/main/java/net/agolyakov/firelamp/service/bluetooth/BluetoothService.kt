@@ -443,6 +443,7 @@ class BluetoothService @Inject constructor(
     suspend fun setBrightness(brightness: Int) = updateLampState(LampStateUpdate(brightness = brightness))
     suspend fun setEffect(code: String) = updateLampState(LampStateUpdate(effectCode = code))
     suspend fun setDemo(on: Boolean) = updateLampState(LampStateUpdate(demo = on))
+    suspend fun setFps(fps: Int) = updateLampState(LampStateUpdate(fps = fps))
 
     /**
      * Writing the current value again gives no notification, so the value is applied
@@ -457,6 +458,18 @@ class BluetoothService @Inject constructor(
         bleManager.write(FireLampGatt.COMMAND, FireLampCodec.encodeCommand(command))
         if (command == Command.REBOOT) _rebootRequired.value = false
         if (command == Command.RESET_EFFECTS) refreshEffects()
+    }
+
+    /**
+     * Factory reset forgets all bonded phones, this one too: the phone's half of the bond is
+     * removed right away, so that after the reboot (which opens the pairing window) the app
+     * pairs anew instead of being rejected with stale keys.
+     */
+    suspend fun factoryReset(): Boolean {
+        val mac = _currentDevice.value?.macAddress ?: return false
+        if (!sendCommand(Command.FACTORY_RESET)) return false
+        forgetBond(mac)
+        return true
     }
 
     // ========================== Time ==========================

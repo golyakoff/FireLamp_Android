@@ -13,15 +13,22 @@ import kotlinx.coroutines.launch
 import net.agolyakov.firelamp.data.model.ble.ConnectionState
 import net.agolyakov.firelamp.data.model.ble.FireLampDevice
 import net.agolyakov.firelamp.protocol.Command
+import net.agolyakov.firelamp.protocol.Controls
+import net.agolyakov.firelamp.protocol.DemoSettings
 import net.agolyakov.firelamp.protocol.EffectParamChange
+import net.agolyakov.firelamp.protocol.LedSettings
+import net.agolyakov.firelamp.protocol.Schedule
+import net.agolyakov.firelamp.protocol.TimeZoneMapper
+import net.agolyakov.firelamp.protocol.WifiSettingsUpdate
 import net.agolyakov.firelamp.service.bluetooth.BluetoothService
 import net.agolyakov.firelamp.ui.viewmodel.Throttle
+import java.time.ZoneId
 import javax.inject.Inject
 
 @HiltViewModel
 class DeviceViewModel @Inject constructor(
     private val bluetoothService: BluetoothService
-) : ViewModel() {
+) : ViewModel(), SettingsTabActions {
 
     val connectionState = bluetoothService.connectionState
     val deviceInfo = bluetoothService.deviceInfo
@@ -61,6 +68,79 @@ class DeviceViewModel @Inject constructor(
 
     fun setEffectParam(effectCode: String, paramCode: String, value: Int) =
         paramWrites.submit(effectCode to paramCode, value)
+
+    // ---------- Schedule tab ----------
+
+    val schedule = bluetoothService.schedule
+    val lampTime = bluetoothService.lampTime
+
+    fun saveSchedule(schedule: Schedule) {
+        viewModelScope.launch { bluetoothService.setSchedule(schedule) }
+    }
+
+    // ---------- Settings tab ----------
+
+    val demoSettings = bluetoothService.demoSettings
+    val wifiSettings = bluetoothService.wifiSettings
+    val wifiStatus = bluetoothService.wifiStatus
+    val deviceName = bluetoothService.deviceName
+    val timeZone = bluetoothService.timeZone
+
+    /** The POSIX string the phone's zone maps to, to show a mismatch with the lamp's. */
+    val phoneTimeZone: String get() = TimeZoneMapper.toPosix(ZoneId.systemDefault())
+
+    private val fpsWrites = Throttle<Unit, Int>(viewModelScope) { _, value -> bluetoothService.setFps(value) }
+
+    /** The demo flags in the cached effect list may be stale: the Settings tab re-reads them. */
+    fun refreshEffects() {
+        viewModelScope.launch { bluetoothService.refreshEffects() }
+    }
+
+    override fun saveDemoSettings(settings: DemoSettings) {
+        viewModelScope.launch { bluetoothService.setDemoSettings(settings) }
+    }
+
+    override fun setDemoIncluded(effectCode: String, include: Boolean) {
+        viewModelScope.launch { bluetoothService.setDemoIncluded(effectCode, include) }
+    }
+
+    override fun saveWifiSettings(update: WifiSettingsUpdate) {
+        viewModelScope.launch { bluetoothService.setWifiSettings(update) }
+    }
+
+    override fun saveDeviceName(name: String) {
+        viewModelScope.launch { bluetoothService.setDeviceName(name) }
+    }
+
+    override fun syncTimeFromPhone() {
+        viewModelScope.launch {
+            bluetoothService.syncTime()
+            bluetoothService.setTimeZone(phoneTimeZone)
+        }
+    }
+
+    override fun setFps(fps: Int) = fpsWrites.submit(Unit, fps)
+
+    override fun resetEffects() {
+        viewModelScope.launch { bluetoothService.sendCommand(Command.RESET_EFFECTS) }
+    }
+
+    override fun factoryReset() {
+        viewModelScope.launch { bluetoothService.factoryReset() }
+    }
+
+    // ---------- Hardware tab ----------
+
+    val ledSettings = bluetoothService.ledSettings
+    val hardwareSettings = bluetoothService.hardwareSettings
+
+    fun saveLedSettings(settings: LedSettings) {
+        viewModelScope.launch { bluetoothService.setLedSettings(settings) }
+    }
+
+    fun saveHardwareSettings(controls: Controls, buttonsActiveHigh: Boolean) {
+        viewModelScope.launch { bluetoothService.setHardwareSettings(controls, buttonsActiveHigh) }
+    }
 
     // ---------- Connection ----------
 
