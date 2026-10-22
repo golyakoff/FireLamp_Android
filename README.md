@@ -1,48 +1,101 @@
 # FireLamp Android
 
-Android app for FireLamp, a DIY LED matrix lamp on ESP32 / ESP32-C3
-([FireLamp_ESP32](https://github.com/golyakoff/FireLamp_ESP32)). The app talks to the lamp over
-Bluetooth Low Energy; no cloud, no account, WiFi is optional.
+[![Release](https://img.shields.io/github/v/release/golyakoff/FireLamp_Android)](https://github.com/golyakoff/FireLamp_Android/releases/latest)
+![Android 9+](https://img.shields.io/badge/Android-9%2B-3ddc84)
 
-## What it does
+**Русский** | [English](README.en.md)
 
-- Finds lamps nearby and the one the phone is already connected to; pairs with a lamp (with
-  hints when the lamp's pairing window is closed) and reconnects in place when the link drops
-- **Lamp**: power, brightness, effects and their parameters, next/previous effect, demo mode
-- **Schedule**: power on and off by time and days of the week, dawn, brightness by the hour
-- **Settings**: demo mode, WiFi, lamp name, time and time zone, frame rate, resets
-- **Hardware**: LED matrix layout and current limit, buttons or touch pad, lamp information
-- **Firmware update**: from the phone over Bluetooth, or by the lamp itself over WiFi
+Приложение для Android, которым управляют «огненной лампой» — светодиодной матрицей на ESP32 /
+ESP32-C3 с прошивкой **[FireLamp ESP32](https://github.com/golyakoff/FireLamp_ESP32)**. Работает
+по Bluetooth Low Energy: без облака и аккаунтов, WiFi лампе не обязателен.
 
-English and Russian, switchable in the app.
+**[Скачать APK](https://github.com/golyakoff/FireLamp_Android/releases/latest)** ·
+[как собрать лампу](https://github.com/golyakoff/FireLamp_ESP32#быстрый-старт) ·
+[схемы подключения](https://github.com/golyakoff/FireLamp_ESP32#подключение)
 
-## Requirements
+<p align="center">
+  <img src="docs/screenshots/home.png" width="130" alt="Лампы рядом">
+  <img src="docs/screenshots/lamp.png" width="130" alt="Лампа: эффекты">
+  <img src="docs/screenshots/effect.png" width="130" alt="Параметры эффекта">
+  <img src="docs/screenshots/schedule.png" width="130" alt="Расписание">
+  <img src="docs/screenshots/settings.png" width="130" alt="Настройки">
+  <img src="docs/screenshots/system.png" width="130" alt="Система">
+</p>
 
-- Android 9 (API 28) or newer with Bluetooth Low Energy
-- A lamp with FireLamp firmware (BLE protocol version 1)
+## Что умеет
 
-New phones can pair with a lamp only within 2 minutes after it is powered on, or after
-5 clicks of its main button.
+- **Лампы рядом.** Находит лампы поблизости и ту, с которой телефон уже связан; спаривает с
+  подсказками, если у лампы закрыто окно спаривания; при обрыве связи переподключается на месте.
+- **Лампа.** Включение, яркость, эффекты плиткой с живыми превью, предыдущий/следующий, демо-режим.
+  Параметры эффекта — понятными элементами: цвет на цветовом круге, палитры плитками, режимы
+  кнопками, «Темп» в процентах; изменения сразу видны на лампе.
+- **Расписание.** Включение и выключение по времени и дням недели, «рассвет» с плавным набором
+  яркости и выбранным эффектом, яркость по часам.
+- **Настройки.** WiFi лампы (со списком сетей, которые она слышит), имя лампы в Bluetooth, время и
+  часовой пояс телефона.
+- **Система.** Обновление прошивки, светодиодная матрица (размер, тип, поворот, раскладка со
+  схемой ленты, ограничение тока), управление (одна кнопка, четыре кнопки или сенсор, как
+  подключены кнопки, пин кнопки), сведения о лампе, перезагрузка и сбросы.
+- **Обновление прошивки.** С телефона по Bluetooth (приложение само скачивает релиз и проверяет его)
+  или самой лампой через WiFi. Приложение также сообщает о новых версиях самого себя.
 
-## Building
+Русский и английский языки, переключаются в приложении.
+
+## Установка
+
+1. Скачайте `firelamp-vX.Y.Z-release.apk` из
+   [последнего релиза](https://github.com/golyakoff/FireLamp_Android/releases/latest) и установите
+   (Android попросит разрешить установку из этого источника).
+2. Включите лампу и в течение **2 минут** откройте приложение: лампа `FireLamp-XXXX` появится в
+   списке, нажмите на неё и подтвердите спаривание. Если окно спаривания закрылось — сделайте
+   **5 кликов** кнопкой лампы (она коротко мигнёт синим) и подключитесь снова.
+3. На вкладке «Система» настройте матрицу и кнопки, перезагрузите лампу.
+
+Приложение просит разрешение «Устройства поблизости» (Android 12+) или геолокацию (Android 9–11 —
+так Android требует для поиска Bluetooth-устройств). Геолокация на новых версиях нужна, только
+если вы попросите подставить WiFi-сеть телефона в настройки лампы.
+
+## Требования
+
+- Android 9 (API 28) или новее с Bluetooth Low Energy
+- Лампа с прошивкой [FireLamp ESP32](https://github.com/golyakoff/FireLamp_ESP32) (протокол BLE версии 1)
+
+Приложение работает и со старыми прошивками; новые возможности появляются, когда лампа их
+поддерживает:
+
+| Возможность | Прошивка лампы |
+|---|---|
+| Список WiFi-сетей при настройке | 0.1.5 |
+| Выбор пина кнопки | 0.4.3 |
+| «Темп» у эффектов без своей скорости | 0.5.0 |
+
+## Сборка
 
 ```bash
-./gradlew testDebugUnitTest   # JVM unit tests (BLE protocol codec, time zones, firmware manifest)
-./gradlew assembleDebug       # debug APK
+./gradlew testDebugUnitTest   # unit-тесты на JVM: кодек протокола, часовые пояса, манифест прошивки, эффекты
+./gradlew assembleDebug       # debug APK: app/build/outputs/apk/debug/
+./gradlew lintDebug
 ```
 
-Kotlin, Jetpack Compose (Material 3), Hilt, the
-[Nordic Android BLE library](https://github.com/NordicSemiconductor/Android-BLE-Library),
-OkHttp/Retrofit. The BLE contract is the firmware's `docs/BLE_PROTOCOL.md`; its byte layouts
-live in one place, `app/src/main/java/net/agolyakov/firelamp/protocol/`. See
-[CLAUDE.md](CLAUDE.md) for the architecture.
+Kotlin, Jetpack Compose (Material 3), Hilt,
+[Nordic Android BLE library](https://github.com/NordicSemiconductor/Android-BLE-Library), OkHttp/Retrofit,
+Coil. Контракт BLE — документы прошивки
+[BLE_PROTOCOL.md](https://github.com/golyakoff/FireLamp_ESP32/blob/main/docs/BLE_PROTOCOL.md) и
+[APP_INTEGRATION.md](https://github.com/golyakoff/FireLamp_ESP32/blob/main/docs/APP_INTEGRATION.md);
+весь формат байтов — в одном месте, `app/src/main/java/net/agolyakov/firelamp/protocol/`.
+Архитектура описана в [CLAUDE.md](CLAUDE.md).
 
-The launcher icon is generated: `python3 tools/icon_gen.py app/src/main/res preview.png`.
+Превью эффектов (GIF) берутся при сборке из папки `preview/` прошивки: из соседней копии
+репозитория, из `-Pfirelamp.previewsDir` или `$FIRELAMP_PREVIEWS_DIR`; без них приложение скачает
+превью с GitHub.
 
-## Releases
+Иконка генерируется: `python3 tools/icon_gen.py app/src/main/res preview.png`.
+Скриншоты для README вставляются в рамку телефона: `python3 tools/screenshots/frame.py <папка со скриншотами>`.
 
-Pushing a tag `vX.Y.Z` builds a signed release APK and publishes a GitHub Release with the
-notes of the matching `# Release X.Y.Z` section of [CHANGELOG.md](CHANGELOG.md). Bump
-`versionCode`/`versionName` in `app/build.gradle.kts` and add the changelog section first.
-The workflow needs the repository secrets `KEYSTORE_BASE64`, `KEYSTORE_PASSWORD`, `KEY_ALIAS`
-and `KEY_PASSWORD`.
+## Релизы
+
+Тег `vX.Y.Z` собирает подписанный APK и публикует релиз GitHub с текстом раздела
+`# Release X.Y.Z` из [CHANGELOG.md](CHANGELOG.md). Перед этим поднимите `appVersionCode` /
+`appVersionName` в `app/build.gradle.kts` и добавьте раздел в CHANGELOG. Теги пушатся по одному:
+приложение проверяет обновления по `releases/latest`. Workflow нужны секреты репозитория
+`KEYSTORE_BASE64`, `KEYSTORE_PASSWORD`, `KEY_ALIAS` и `KEY_PASSWORD`.
