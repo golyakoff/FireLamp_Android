@@ -357,5 +357,27 @@ class FireLampCodecTest {
         assertEquals(listOf(Controls.ONE_BUTTON, Controls.FOUR_BUTTONS), settings.supportedControls)
         assertFalse(settings.isSupported(Controls.TOUCH_PAD))
         assertArrayEquals(hex("02 01"), FireLampCodec.encodeHardwareSettings(Controls.TOUCH_PAD, true))
+        // before firmware 0.4.3: no Main button pin
+        assertNull(settings.mainButtonGpio)
+        assertTrue(settings.mainButtonGpios.isEmpty())
+        assertFalse(settings.mainButtonGpioConfigurable)
+    }
+
+    @Test
+    fun hardwareSettingsMainButtonGpio() {
+        // ESP32 reference pinout: GPIO 25 of 4, 13, 14, 18, 19, 23, 25, 32, 33
+        val settings = FireLampCodec.decodeHardwareSettings(hex("00 07 01 19 09 04 0d 0e 12 13 17 19 20 21"))
+        assertEquals(Controls.ONE_BUTTON, settings.controls)
+        assertTrue(settings.buttonsActiveHigh)
+        assertEquals(25, settings.mainButtonGpio)
+        assertEquals(listOf(4, 13, 14, 18, 19, 23, 25, 32, 33), settings.mainButtonGpios)
+        assertTrue(settings.mainButtonGpioConfigurable)
+        assertArrayEquals(hex("00 01 0d"), FireLampCodec.encodeHardwareSettings(Controls.ONE_BUTTON, true, 13))
+        assertArrayEquals(hex("01 00"), FireLampCodec.encodeHardwareSettings(Controls.FOUR_BUTTONS, false, null))
+    }
+
+    @Test(expected = ProtocolException::class)
+    fun hardwareSettingsTruncatedPins() {
+        FireLampCodec.decodeHardwareSettings(hex("00 07 01 19 03 04 19"))
     }
 }

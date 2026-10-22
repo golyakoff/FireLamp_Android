@@ -349,18 +349,27 @@ object FireLampCodec {
     // ---------- 0x0013 Hardware settings ----------
 
     fun decodeHardwareSettings(bytes: ByteArray): HardwareSettings = with(ByteReader(bytes)) {
-        HardwareSettings(
-            controls = codedOf(u8(), Controls.UNKNOWN),
-            supportedControlsMask = u8(),
-            buttonsActiveHigh = bool(),
-        )
+        val controls = codedOf(u8(), Controls.UNKNOWN)
+        val supported = u8()
+        val activeHigh = bool()
+        // firmware ≥ 0.4.3: Main button GPIO and the pins it can be moved to
+        if (remaining == 0) {
+            HardwareSettings(controls, supported, activeHigh)
+        } else {
+            val gpio = u8()
+            val gpios = List(u8()) { u8() }
+            HardwareSettings(controls, supported, activeHigh, gpio, gpios)
+        }
     }
 
-    fun encodeHardwareSettings(controls: Controls, buttonsActiveHigh: Boolean): ByteArray {
+    /** [mainButtonGpio] null: the 2 bytes form, the lamp keeps the pin (and older lamps know no other). */
+    fun encodeHardwareSettings(controls: Controls, buttonsActiveHigh: Boolean, mainButtonGpio: Int? = null): ByteArray {
         require(controls != Controls.UNKNOWN) { "Unknown controls" }
+        require(mainButtonGpio == null || mainButtonGpio in 0..255) { "GPIO out of range" }
         return bytesOf {
             u8(controls.code)
             bool(buttonsActiveHigh)
+            mainButtonGpio?.let { u8(it) }
         }
     }
 }

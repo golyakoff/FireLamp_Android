@@ -115,6 +115,10 @@
     <string name="hw_buttons_wiring">Buttons are wired</string>
     <string name="hw_buttons_to_gnd">To GND</string>
     <string name="hw_buttons_to_vcc">To +3.3 V, or a TTP223 module</string>
+    <string name="hw_main_button_pin">Button pin</string>
+    <string name="hw_main_button_pin_four">Main button pin</string>
+    <string name="hw_main_button_pin_hint">Pins with internal pull resistors that are free on this lamp</string>
+    <string name="hw_gpio">GPIO %1$d</string>
     <string name="hw_lamp_info">About the lamp</string>
     <string name="hw_info_firmware">Firmware</string>
     <string name="hw_info_build_date">Built</string>

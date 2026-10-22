@@ -115,6 +115,10 @@
     <string name="hw_buttons_wiring">Кнопки подключены</string>
     <string name="hw_buttons_to_gnd">На GND</string>
     <string name="hw_buttons_to_vcc">На +3,3 В или модуль TTP223</string>
+    <string name="hw_main_button_pin">Пин кнопки</string>
+    <string name="hw_main_button_pin_four">Пин основной кнопки</string>
+    <string name="hw_main_button_pin_hint">Пины с внутренней подтяжкой, свободные на этой лампе</string>
+    <string name="hw_gpio">GPIO %1$d</string>
     <string name="hw_lamp_info">О лампе</string>
     <string name="hw_info_firmware">Прошивка</string>
     <string name="hw_info_build_date">Сборка</string>

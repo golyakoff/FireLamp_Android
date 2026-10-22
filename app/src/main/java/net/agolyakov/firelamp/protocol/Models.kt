@@ -418,7 +418,15 @@ data class HardwareSettings(
     val supportedControlsMask: Int,
     /** Main/Up/Down buttons: true - active high (TTP223 or a button to +3.3 V), false - to GND. */
     val buttonsActiveHigh: Boolean,
+    /** GPIO of the Main button (one button / TTP223 / Main of four buttons); null before firmware 0.4.3. */
+    val mainButtonGpio: Int? = null,
+    /** GPIOs the Main button can be moved to, ascending; empty before firmware 0.4.3. */
+    val mainButtonGpios: List<Int> = emptyList(),
 ) {
+    /** The lamp lets the Main button pin be chosen (firmware ≥ 0.4.3). */
+    val mainButtonGpioConfigurable: Boolean
+        get() = mainButtonGpio != null && mainButtonGpios.isNotEmpty()
+
     fun isSupported(controls: Controls): Boolean =
         controls.code >= 0 && supportedControlsMask and (1 shl controls.code) != 0
 

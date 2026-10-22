@@ -16,9 +16,15 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -74,7 +80,7 @@ fun SystemTab(
     ledSettings: LedSettings?,
     hardwareSettings: HardwareSettings?,
     onSaveLedSettings: (LedSettings) -> Unit,
-    onSaveHardwareSettings: (Controls, buttonsActiveHigh: Boolean) -> Unit,
+    onSaveHardwareSettings: (Controls, buttonsActiveHigh: Boolean, mainButtonGpio: Int?) -> Unit,
     onReboot: () -> Unit,
     onResetEffects: () -> Unit,
     onFactoryReset: () -> Unit,
@@ -275,10 +281,12 @@ private val DIAGRAM_CELL = 32.dp
 @Composable
 private fun ControlsSection(
     saved: HardwareSettings,
-    onSave: (Controls, Boolean) -> Unit,
+    onSave: (Controls, Boolean, Int?) -> Unit,
 ) {
     var controls by rememberSaveable(saved) { mutableStateOf(saved.controls) }
     var activeHigh by rememberSaveable(saved) { mutableStateOf(saved.buttonsActiveHigh) }
+    // null for lamps without the setting: they get the 2 bytes form and keep their pin
+    var mainGpio by rememberSaveable(saved) { mutableStateOf(saved.mainButtonGpio) }
 
     SettingsSection(stringResource(R.string.hw_controls)) {
         Column {
@@ -306,12 +314,59 @@ private fun ControlsSection(
                     onClick = { activeHigh = true }
                 )
             }
+            if (saved.mainButtonGpioConfigurable) {
+                GpioDropdown(
+                    label = stringResource(
+                        if (controls == Controls.FOUR_BUTTONS) R.string.hw_main_button_pin_four else R.string.hw_main_button_pin
+                    ),
+                    gpios = saved.mainButtonGpios,
+                    selected = mainGpio ?: saved.mainButtonGpios.first(),
+                    onSelect = { mainGpio = it }
+                )
+            }
         }
         SaveButton(
             text = stringResource(R.string.save),
-            enabled = saved.isSupported(controls) && (controls != saved.controls || activeHigh != saved.buttonsActiveHigh),
-            onClick = { onSave(controls, activeHigh) }
+            enabled = saved.isSupported(controls) &&
+                (controls != saved.controls || activeHigh != saved.buttonsActiveHigh || mainGpio != saved.mainButtonGpio),
+            onClick = { onSave(controls, activeHigh, mainGpio) }
         )
+    }
+}
+
+/** The pins the lamp lists for the Main button, "GPIO 25" style. */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun GpioDropdown(
+    label: String,
+    gpios: List<Int>,
+    selected: Int,
+    onSelect: (Int) -> Unit,
+) {
+    var expanded by remember { mutableStateOf(false) }
+    ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = it }) {
+        OutlinedTextField(
+            value = stringResource(R.string.hw_gpio, selected),
+            onValueChange = {},
+            readOnly = true,
+            label = { Text(label) },
+            supportingText = { Text(stringResource(R.string.hw_main_button_pin_hint)) },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .menuAnchor(MenuAnchorType.PrimaryNotEditable)
+        )
+        ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            gpios.forEach { gpio ->
+                DropdownMenuItem(
+                    text = { Text(stringResource(R.string.hw_gpio, gpio)) },
+                    onClick = {
+                        onSelect(gpio)
+                        expanded = false
+                    }
+                )
+            }
+        }
     }
 }
 
@@ -385,9 +440,9 @@ private fun SystemTabPreview() {
         SystemTab(
             deviceInfo = DeviceInfo(1, Chip.ESP32_C3, 4, 0b1101, 16, 16, 32, Controls.ONE_BUTTON, "0.1.1", "Oct 21 2026 22:42:08", "default"),
             ledSettings = LedSettings(16, 16, LedType.WS2812, ColorOrder.GRB, Rotation.NONE, false, 2000, Wiring.SERPENTINE),
-            hardwareSettings = HardwareSettings(Controls.ONE_BUTTON, 0b011, false),
+            hardwareSettings = HardwareSettings(Controls.ONE_BUTTON, 0b011, false, 4, listOf(1, 4)),
             onSaveLedSettings = {},
-            onSaveHardwareSettings = { _, _ -> },
+            onSaveHardwareSettings = { _, _, _ -> },
             onReboot = {},
             onResetEffects = {},
             onFactoryReset = {},

@@ -163,8 +163,8 @@ class DeviceViewModel @Inject constructor(
         viewModelScope.launch { bluetoothService.setLedSettings(settings) }
     }
 
-    fun saveHardwareSettings(controls: Controls, buttonsActiveHigh: Boolean) {
-        viewModelScope.launch { bluetoothService.setHardwareSettings(controls, buttonsActiveHigh) }
+    fun saveHardwareSettings(controls: Controls, buttonsActiveHigh: Boolean, mainButtonGpio: Int?) {
+        viewModelScope.launch { bluetoothService.setHardwareSettings(controls, buttonsActiveHigh, mainButtonGpio) }
     }
 
     // ---------- Connection ----------

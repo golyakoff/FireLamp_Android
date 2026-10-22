@@ -545,9 +545,13 @@ class BluetoothService @Inject constructor(
         _rebootRequired.value = true
     }
 
-    suspend fun setHardwareSettings(controls: Controls, buttonsActiveHigh: Boolean): Boolean =
+    /** [mainButtonGpio] null keeps the pin (always null for lamps older than firmware 0.4.3). */
+    suspend fun setHardwareSettings(controls: Controls, buttonsActiveHigh: Boolean, mainButtonGpio: Int?): Boolean =
         guarded(FireLampGatt.HARDWARE_SETTINGS) {
-            bleManager.write(FireLampGatt.HARDWARE_SETTINGS, FireLampCodec.encodeHardwareSettings(controls, buttonsActiveHigh))
+            bleManager.write(
+                FireLampGatt.HARDWARE_SETTINGS,
+                FireLampCodec.encodeHardwareSettings(controls, buttonsActiveHigh, mainButtonGpio)
+            )
             _hardwareSettings.value = FireLampCodec.decodeHardwareSettings(bleManager.read(FireLampGatt.HARDWARE_SETTINGS))
             _rebootRequired.value = true
         }
