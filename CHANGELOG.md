@@ -1,3 +1,7 @@
+# Release 0.5.1
+
+- System tab, controls: the button pin is chosen from a list of the pins the lamp offers (lamp firmware 0.4.3 or newer); older lamps keep their fixed pin
+
 # Release 0.5.0
 
 - Effect previews: the effect list is a grid of animated tiles made from the firmware's previews; tapping a tile switches the lamp to that effect and plays its preview, the others show their first frame
