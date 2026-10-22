@@ -45,6 +45,11 @@ them from GitHub (`EffectPreviews`, Coil 3, disk-cached).
 
 CI (`.github/workflows/release.yml`) builds a signed release APK and publishes a GitHub Release
 on a `v*.*.*` tag; the notes come from the `# Release X.Y.Z` section of `CHANGELOG.md`.
+Releasing: bump `appVersionCode`/`appVersionName`, add the CHANGELOG section, commit
+"Release X.Y.Z", tag `vX.Y.Z`, push. Push **one tag at a time** and wait for its release to be
+published: GitHub marks the most recently *published* release as Latest, and the app's update
+check reads `releases/latest` — parallel builds once made v0.3.5 "Latest" over v0.4.0. Check
+with `gh release list` afterwards. Commit messages carry no trailers (no Co-Authored-By).
 
 ## Architecture
 
