@@ -130,6 +130,7 @@
     <string name="hw_info_storage_eeprom">EEPROM</string>
     <string name="hw_info_storage_flash">Internal flash</string>
     <string name="hw_info_protocol">BLE protocol</string>
+    <string name="hw_info_copy">Copy</string>
     <string name="hw_reboot">Reboot the lamp</string>
 
     <!-- Schedule tab -->

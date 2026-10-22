@@ -106,18 +106,24 @@ fun LampTab(
         item {
             PowerCard(lampState, onPowerChange, onBrightnessChange, onFpsChange)
         }
+        // The lamp is off: effects stay at hand, dimmed
+        val offAlpha = if (lampState.on) 1f else 0.6f
         item {
-            CurrentEffectCard(
-                lampState = lampState,
-                effect = current,
-                onNextEffect = onNextEffect,
-                onDemoChange = onDemoChange,
-                onDemoSettings = { demoSettingsOpen = true },
-                onParamChange = onParamChange
-            )
+            Box(Modifier.alpha(offAlpha)) {
+                CurrentEffectCard(
+                    lampState = lampState,
+                    effect = current,
+                    onNextEffect = onNextEffect,
+                    onDemoChange = onDemoChange,
+                    onDemoSettings = { demoSettingsOpen = true },
+                    onParamChange = onParamChange
+                )
+            }
         }
         item {
-            EffectList(effects, lampState.effectCode, onSelectEffect)
+            Box(Modifier.alpha(offAlpha)) {
+                EffectList(effects, lampState.effectCode, onSelectEffect)
+            }
         }
     }
 }

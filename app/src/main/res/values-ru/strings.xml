@@ -130,6 +130,7 @@
     <string name="hw_info_storage_eeprom">EEPROM</string>
     <string name="hw_info_storage_flash">Внутренней flash</string>
     <string name="hw_info_protocol">Протокол BLE</string>
+    <string name="hw_info_copy">Скопировать</string>
     <string name="hw_reboot">Перезагрузить лампу</string>
 
     <!-- Schedule tab -->

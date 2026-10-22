@@ -170,7 +170,7 @@ private fun Message(text: String) {
 }
 
 /** Signal bars, roughly as Android shows them. */
-private fun signalIcon(rssi: Int): ImageVector = when {
+internal fun signalIcon(rssi: Int): ImageVector = when {
     rssi >= -60 -> Icons.Filled.Wifi
     rssi >= -72 -> Icons.Filled.Wifi2Bar
     rssi >= -85 -> Icons.Filled.Wifi1Bar

@@ -2,21 +2,25 @@ package net.agolyakov.firelamp.ui.screen.home
 
 import android.app.Activity
 import androidx.annotation.StringRes
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Lightbulb
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
@@ -191,12 +195,7 @@ fun Device(
             modifier = Modifier
                 .padding(vertical = 16.dp, horizontal = 24.dp)
         ) {
-            Icon(
-                Icons.Outlined.Lightbulb,
-                tint = MaterialTheme.colorScheme.primary,
-                contentDescription = null,
-                modifier = Modifier.size(48.dp)
-            )
+            LampIcon()
 
             Spacer(Modifier.width(16.dp))
 
@@ -213,7 +212,7 @@ fun Device(
                 )
                 Text(
                     text = device.macAddress,
-                    style = MaterialTheme.typography.titleSmall,
+                    style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.outline
                 )
                 // Not seen on the air: the phone holds a link to it (the system or another app)
@@ -237,6 +236,26 @@ fun Device(
                 )
             }
         }
+    }
+}
+
+/** The app icon (the lamp), as on the launcher. */
+@Composable
+private fun LampIcon() {
+    Box(
+        modifier = Modifier
+            .size(56.dp)
+            .clip(RoundedCornerShape(16.dp))
+    ) {
+        Image(painterResource(R.drawable.ic_launcher_background), contentDescription = null, modifier = Modifier.fillMaxSize())
+        // Launchers show the middle 72 of the adaptive icon's 108 dp: zoom in the same way
+        Image(
+            painterResource(R.drawable.ic_launcher_foreground),
+            contentDescription = null,
+            modifier = Modifier
+                .fillMaxSize()
+                .scale(1.5f)
+        )
     }
 }
 

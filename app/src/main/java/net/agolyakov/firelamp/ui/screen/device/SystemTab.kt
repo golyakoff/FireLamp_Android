@@ -1,5 +1,6 @@
 package net.agolyakov.firelamp.ui.screen.device
 
+import android.content.ClipData
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -8,9 +9,14 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -19,6 +25,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -28,9 +35,12 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.ClipEntry
+import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 import net.agolyakov.firelamp.R
 import net.agolyakov.firelamp.protocol.Chip
 import net.agolyakov.firelamp.protocol.ColorOrder
@@ -319,31 +329,39 @@ private fun controlsHint(controls: Controls) = when (controls) {
     Controls.UNKNOWN -> R.string.unknown
 }
 
+/** What the lamp is, with a button that copies it all as text (for a bug report). */
 @Composable
 private fun LampInfoSection(info: DeviceInfo) {
     val yes = stringResource(R.string.hw_info_found)
     val no = stringResource(R.string.hw_info_not_found)
+    val rows = listOf(
+        stringResource(R.string.hw_info_firmware) to info.firmwareVersion,
+        stringResource(R.string.hw_info_build_date) to info.buildDate,
+        stringResource(R.string.hw_info_variant) to info.buildVariant,
+        stringResource(R.string.hw_info_chip) to when (info.chip) {
+            Chip.ESP32 -> "ESP32"
+            Chip.ESP32_C3 -> "ESP32-C3"
+            Chip.UNKNOWN -> stringResource(R.string.unknown)
+        },
+        stringResource(R.string.hw_info_flash) to stringResource(R.string.unit_mb, info.flashSizeMb),
+        stringResource(R.string.hw_info_matrix) to "${info.matrixWidth} × ${info.matrixHeight}",
+        stringResource(R.string.hw_info_effects) to info.effectCount.toString(),
+        stringResource(R.string.hw_info_rtc) to if (info.hasRtc) yes else no,
+        stringResource(R.string.hw_info_storage) to
+            stringResource(if (info.hasEeprom) R.string.hw_info_storage_eeprom else R.string.hw_info_storage_flash),
+        stringResource(R.string.hw_info_protocol) to info.protocolVersion.toString(),
+    )
+    val clipboard = LocalClipboard.current
+    val scope = rememberCoroutineScope()
     SettingsSection(stringResource(R.string.hw_lamp_info)) {
-        InfoRow(stringResource(R.string.hw_info_firmware), info.firmwareVersion)
-        InfoRow(stringResource(R.string.hw_info_build_date), info.buildDate)
-        InfoRow(stringResource(R.string.hw_info_variant), info.buildVariant)
-        InfoRow(
-            stringResource(R.string.hw_info_chip),
-            when (info.chip) {
-                Chip.ESP32 -> "ESP32"
-                Chip.ESP32_C3 -> "ESP32-C3"
-                Chip.UNKNOWN -> stringResource(R.string.unknown)
-            }
-        )
-        InfoRow(stringResource(R.string.hw_info_flash), stringResource(R.string.unit_mb, info.flashSizeMb))
-        InfoRow(stringResource(R.string.hw_info_matrix), "${info.matrixWidth} × ${info.matrixHeight}")
-        InfoRow(stringResource(R.string.hw_info_effects), info.effectCount.toString())
-        InfoRow(stringResource(R.string.hw_info_rtc), if (info.hasRtc) yes else no)
-        InfoRow(
-            stringResource(R.string.hw_info_storage),
-            stringResource(if (info.hasEeprom) R.string.hw_info_storage_eeprom else R.string.hw_info_storage_flash)
-        )
-        InfoRow(stringResource(R.string.hw_info_protocol), info.protocolVersion.toString())
+        rows.forEach { (label, value) -> InfoRow(label, value) }
+        TextButton(onClick = {
+            val text = rows.joinToString("\n") { (label, value) -> "$label: $value" }
+            scope.launch { clipboard.setClipEntry(ClipEntry(ClipData.newPlainText("FireLamp", text))) }
+        }) {
+            Icon(Icons.Filled.ContentCopy, contentDescription = null, modifier = Modifier.size(18.dp))
+            Text(stringResource(R.string.hw_info_copy), modifier = Modifier.padding(start = 8.dp))
+        }
     }
 }
 
