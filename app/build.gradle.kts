@@ -18,8 +18,8 @@ plugins {
 }
 
 // The app version: bump both together with a new section of CHANGELOG.md
-val appVersionCode = 8
-val appVersionName = "0.3.5"
+val appVersionCode = 9
+val appVersionName = "0.4.0"
 
 // APK name: firelamp-vX.Y.Z-<build type>.apk
 base {

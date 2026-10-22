@@ -1,3 +1,15 @@
+# Release 0.4.0
+
+- Effect colors are picked on a color wheel instead of number sliders: red/green/blue of the Color lamp (with brightness and white presets), hue + saturation pairs in the lamp's own rainbow; a lone hue slider shows the rainbow; changes show on the lamp live
+- Palettes as tiles with their colors and names; effect modes and directions as named buttons; parameters that do not apply in the current mode are dimmed
+- The Hardware tab is now System: firmware update, matrix, controls, lamp info, reboot and resets; a dot on the tab when a firmware update is available
+- Demo mode settings open from the demo switch on the Lamp tab; frame rate is under More on the Lamp tab
+- Schedule: each entry folds into one line ("Weekdays, 07:00") when off, quick day sets, draw the hourly brightness by dragging across the bars
+- Matrix settings show how the LED strip must run for the chosen wiring, rotation and mirror
+- Unsaved changes survive switching tabs; errors name what the lamp rejected
+- Steady numbers: the firmware upload progress line and slider values no longer jump; the time zone reads as UTC+1 / UTC+2 in summer; times follow the phone's 12/24-hour setting
+- Home shows a hint while no lamp is found yet; clearer names (name in this phone vs the lamp's Bluetooth name, button wiring, demo durations); lamp info can be copied
+
 # Release 0.3.5
 
 - After a lamp firmware update the app sees the new firmware's features (such as the WiFi network list of firmware 0.1.5): Android's cached list of the lamp's services is refreshed on every reconnection
