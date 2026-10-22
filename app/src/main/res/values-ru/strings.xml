@@ -50,7 +50,7 @@
     <string name="tab_lamp">Лампа</string>
     <string name="tab_schedule">Расписание</string>
     <string name="tab_settings">Настройки</string>
-    <string name="tab_hardware">Железо</string>
+    <string name="tab_system">Система</string>
 
     <string name="operation_failed">Лампа не приняла изменение: %1$s</string>
     <string name="reboot_required">Изменения вступят в силу после перезагрузки</string>
@@ -79,6 +79,8 @@
     <string name="lamp_demo">Демо-режим</string>
     <string name="lamp_demo_hint">Эффекты сменяют друг друга</string>
     <string name="lamp_effects">Эффекты</string>
+    <string name="lamp_more">Ещё</string>
+    <string name="lamp_demo_settings">Настроить демо-режим</string>
 
     <!-- Common -->
     <string name="save">Сохранить</string>
@@ -87,7 +89,7 @@
     <string name="unit_mb">%1$d МБ</string>
     <string name="unit_dbm">%1$d дБм</string>
 
-    <!-- Hardware tab -->
+    <!-- System tab -->
     <string name="hw_matrix">Светодиодная матрица</string>
     <string name="hw_width">Ширина</string>
     <string name="hw_height">Высота</string>
@@ -100,7 +102,7 @@
     <string name="hw_wiring_progressive">Построчно</string>
     <string name="hw_rotation">Поворот</string>
     <string name="hw_mirror">Отразить по горизонтали</string>
-    <string name="hw_orientation_hint">Первый светодиод в левом нижнем углу, лента идёт по строкам: змейкой — каждая следующая строка идёт обратно, построчно — каждая строка начинается с одной стороны. Другие варианты: матрицу, собранную по столбцам, поверните на 90°, начинающуюся справа внизу — отразите.</string>
+    <string name="hw_orientation_hint">Вид спереди, картинка стоит прямо: так должна идти лента. Крупная точка — первый светодиод, к нему подходит провод данных.</string>
     <string name="hw_current_limit">Ограничение тока всех светодиодов</string>
     <string name="hw_current_limit_hint">Для этой матрицы не меньше примерно %1$d мА; не больше, чем даёт блок питания</string>
     <string name="hw_controls">Управление</string>
@@ -137,7 +139,13 @@
     <string name="schedule_time_not_set">Лампа пока не знает время, расписание не работает. Время устанавливается при каждом подключении из этого приложения.</string>
     <string name="schedule_power_on">Включение</string>
     <string name="schedule_power_off">Выключение</string>
-    <string name="schedule_enabled">Включено</string>
+    <string name="schedule_on">Включено</string>
+    <string name="schedule_off">Выключено</string>
+    <string name="schedule_summary">%1$s, %2$s</string>
+    <string name="schedule_every_day">Каждый день</string>
+    <string name="schedule_workdays">Будни</string>
+    <string name="schedule_weekend">Выходные</string>
+    <string name="schedule_no_days">Дни не выбраны</string>
     <string name="schedule_at">Время</string>
     <string name="schedule_dawn">Рассвет</string>
     <string name="schedule_dawn_hint">Лампа включается с выбранным эффектом и плавно набирает яркость, достигая итоговой к заданному времени. Любое ручное управление останавливает рассвет.</string>
@@ -161,6 +169,7 @@
     <string name="settings_demo_random_addition">Случайная добавка до</string>
     <string name="settings_demo_duration_hint">Каждый эффект играет свою длительность плюс случайную добавку: 10…3600 с и 0…3600 с</string>
     <string name="settings_demo_effects">Эффекты в демо-режиме</string>
+    <string name="settings_demo_effects_hint">Отметки применяются сразу</string>
     <string name="settings_wifi">WiFi</string>
     <string name="settings_wifi_mode">Режим</string>
     <string name="settings_wifi_off">Выключен</string>

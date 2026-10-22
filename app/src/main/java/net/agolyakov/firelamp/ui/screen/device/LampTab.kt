@@ -3,23 +3,6 @@ package net.agolyakov.firelamp.ui.screen.device
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.Brush
-import net.agolyakov.firelamp.ui.color.ColorButton
-import net.agolyakov.firelamp.ui.color.HueSaturationDialog
-import net.agolyakov.firelamp.ui.color.LampRainbow
-import net.agolyakov.firelamp.ui.color.RgbColorDialog
-import net.agolyakov.firelamp.ui.color.lampHueColor
-import net.agolyakov.firelamp.ui.color.rgbColor
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,15 +12,23 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.NavigateBefore
 import androidx.compose.material.icons.automirrored.filled.NavigateNext
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.PowerSettingsNew
+import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.Card
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
@@ -47,9 +38,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -61,6 +59,12 @@ import net.agolyakov.firelamp.protocol.EffectInfo
 import net.agolyakov.firelamp.protocol.EffectParam
 import net.agolyakov.firelamp.protocol.LampState
 import net.agolyakov.firelamp.protocol.ParamType
+import net.agolyakov.firelamp.ui.color.ColorButton
+import net.agolyakov.firelamp.ui.color.HueSaturationDialog
+import net.agolyakov.firelamp.ui.color.LampRainbow
+import net.agolyakov.firelamp.ui.color.RgbColorDialog
+import net.agolyakov.firelamp.ui.color.lampHueColor
+import net.agolyakov.firelamp.ui.color.rgbColor
 import net.agolyakov.firelamp.ui.component.SliderRow
 import net.agolyakov.firelamp.ui.component.SliderValue
 import net.agolyakov.firelamp.ui.component.SliderValueWidth
@@ -87,15 +91,20 @@ fun LampTab(
     onNextEffect: (forward: Boolean) -> Unit,
     onDemoChange: (Boolean) -> Unit,
     onParamChange: (effectCode: String, paramCode: String, value: Int) -> Unit,
+    onFpsChange: (Int) -> Unit = {},
+    /** The demo settings sheet, opened from the demo switch; gets its dismiss callback. */
+    demoSettingsSheet: @Composable (onDismiss: () -> Unit) -> Unit = {},
 ) {
     val current = effects.firstOrNull { it.code == lampState.effectCode }
+    var demoSettingsOpen by rememberSaveable { mutableStateOf(false) }
+    if (demoSettingsOpen) demoSettingsSheet { demoSettingsOpen = false }
 
     LazyColumn(
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         item {
-            PowerCard(lampState, onPowerChange, onBrightnessChange)
+            PowerCard(lampState, onPowerChange, onBrightnessChange, onFpsChange)
         }
         item {
             CurrentEffectCard(
@@ -103,6 +112,7 @@ fun LampTab(
                 effect = current,
                 onNextEffect = onNextEffect,
                 onDemoChange = onDemoChange,
+                onDemoSettings = { demoSettingsOpen = true },
                 onParamChange = onParamChange
             )
         }
@@ -117,7 +127,9 @@ private fun PowerCard(
     lampState: LampState,
     onPowerChange: (Boolean) -> Unit,
     onBrightnessChange: (Int) -> Unit,
+    onFpsChange: (Int) -> Unit,
 ) {
+    var more by rememberSaveable { mutableStateOf(false) }
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -141,6 +153,41 @@ private fun PowerCard(
                 onValueChange = onBrightnessChange,
                 valueLabel = { SliderValue(brightnessPercent(it)) }
             )
+            // Rarely changed: folded away
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(8.dp))
+                    .clickable { more = !more }
+                    .padding(vertical = 4.dp)
+            ) {
+                Text(
+                    stringResource(R.string.lamp_more),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.weight(1f)
+                )
+                Icon(
+                    if (more) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
+            if (more) {
+                SliderRow(
+                    label = stringResource(R.string.settings_fps),
+                    value = lampState.fps,
+                    range = 1..120,
+                    onValueChange = onFpsChange,
+                    valueLabel = { SliderValue(stringResource(R.string.unit_fps, it)) }
+                )
+                Text(
+                    stringResource(R.string.settings_fps_hint),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.outline
+                )
+            }
         }
     }
 }
@@ -151,6 +198,7 @@ private fun CurrentEffectCard(
     effect: EffectInfo?,
     onNextEffect: (Boolean) -> Unit,
     onDemoChange: (Boolean) -> Unit,
+    onDemoSettings: () -> Unit,
     onParamChange: (String, String, Int) -> Unit,
 ) {
     Card(modifier = Modifier.fillMaxWidth()) {
@@ -171,12 +219,20 @@ private fun CurrentEffectCard(
                 }
             }
 
-            SwitchRow(
-                label = stringResource(R.string.lamp_demo),
-                hint = stringResource(R.string.lamp_demo_hint),
-                checked = lampState.demo,
-                onCheckedChange = onDemoChange
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(stringResource(R.string.lamp_demo), style = MaterialTheme.typography.bodyLarge)
+                    Text(
+                        stringResource(R.string.lamp_demo_hint),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.outline
+                    )
+                }
+                IconButton(onClick = onDemoSettings) {
+                    Icon(Icons.Filled.Tune, contentDescription = stringResource(R.string.lamp_demo_settings))
+                }
+                Switch(checked = lampState.demo, onCheckedChange = onDemoChange)
+            }
 
             if (effect != null && effect.params.isNotEmpty()) {
                 HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))

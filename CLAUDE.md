@@ -78,7 +78,7 @@ MVVM + Hilt + single-Activity Compose Navigation, as in the sibling apps:
   first) → `MTU - 3` chunks with response → end → "success". By the lamp: Command `0x07`, progress
   from OTA status notifications. Then it waits for the lamp to come back (the Device screen
   reconnects, with more attempts while `State.Rebooting`) and compares the version (an old one
-  = the bootloader rolled back). UI: `FirmwareSection` on the Hardware tab; no separate route,
+  = the bootloader rolled back). UI: `FirmwareSection` on the System tab; no separate route,
   so the Device screen stays in the foreground and keeps reconnecting.
 - **`data/local/`** — `EffectCatalogRepository` (effect descriptions cached per lamp MAC +
   firmware build, Gson file), `KnownLamps` (MACs this app connected to), friendly names,
@@ -88,11 +88,13 @@ MVVM + Hilt + single-Activity Compose Navigation, as in the sibling apps:
   lamp itself); if exactly one such lamp exists at app start, its screen opens right away (once
   per process). `ui/screen/device`: `DeviceViewModel` (auto-reconnect: 3 attempts, 2/4/8 s, only
   while resumed; then a "Connect" button), `DeviceScreen` (state header, pairing/connection
-  cards, 4 tabs), one file per tab: `LampTab` (power, brightness, effects, parameters, demo),
-  `ScheduleTab` (power on/off, dawn, hourly brightness - the whole schedule as one draft with
-  Save/Discard), `SettingsTab` (demo settings and effects, WiFi, name, time/time zone, FPS,
-  resets; state/actions passed as `SettingsTabState`/`SettingsTabActions`), `HardwareTab`
-  (matrix, controls, lamp info - reboot to apply). Sections that write a whole characteristic
+  cards, 4 tabs), one file per tab: `LampTab` (power, brightness, folded FPS, effects, parameters,
+  demo switch + `DemoSettingsSheet` for demo timing and effects), `ScheduleTab` (power on/off,
+  dawn, hourly brightness as cards that unfold when switched on - the whole schedule as one
+  draft with Save/Discard), `SettingsTab` (WiFi, Bluetooth name, time/time zone;
+  state/actions passed as `SettingsTabState`/`SettingsTabActions`), `SystemTab` (firmware
+  update, matrix with the strip diagram of `MatrixLayout`, controls, lamp info, reboot, resets;
+  a badge on the tab when an update is available). Sections that write a whole characteristic
   are edited as drafts (`rememberSaveable(saved)`), reset when the lamp's value comes back;
   `DeviceScreenContent` wraps the selected tab in a `SaveableStateProvider`, so drafts survive
   a tab switch (draft models are `java.io.Serializable` for that). Never put a password there.

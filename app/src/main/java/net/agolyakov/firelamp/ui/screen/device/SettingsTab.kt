@@ -3,9 +3,7 @@ package net.agolyakov.firelamp.ui.screen.device
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -15,8 +13,6 @@ import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.filled.WifiFind
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -30,7 +26,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -40,11 +35,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import net.agolyakov.firelamp.R
-import net.agolyakov.firelamp.protocol.DemoOrder
-import net.agolyakov.firelamp.protocol.DemoSettings
-import net.agolyakov.firelamp.protocol.EffectInfo
 import net.agolyakov.firelamp.protocol.FireLampCodec
-import net.agolyakov.firelamp.protocol.LampState
 import net.agolyakov.firelamp.protocol.LampTime
 import net.agolyakov.firelamp.protocol.TimeSource
 import net.agolyakov.firelamp.protocol.TimeZoneMapper
@@ -61,19 +52,14 @@ import net.agolyakov.firelamp.ui.component.ChoiceRow
 import net.agolyakov.firelamp.ui.component.NumberField
 import net.agolyakov.firelamp.ui.component.SaveButton
 import net.agolyakov.firelamp.ui.component.SettingsSection
-import net.agolyakov.firelamp.ui.component.SliderValue
-import net.agolyakov.firelamp.ui.component.SyncedSlider
 import net.agolyakov.firelamp.ui.theme.FireLampTheme
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 
-/** Everything the lamp keeps that is not hardware: demo mode, WiFi, name, time, resets. */
+/** The lamp's connection to the world: WiFi, its Bluetooth name, time. */
 data class SettingsTabState(
-    val lampState: LampState?,
-    val effects: List<EffectInfo>,
-    val demoSettings: DemoSettings?,
     val wifiSettings: WifiSettings?,
     val wifiStatus: WifiStatus?,
     val wifiScan: WifiScan?,
@@ -85,15 +71,10 @@ data class SettingsTabState(
 )
 
 interface SettingsTabActions {
-    fun saveDemoSettings(settings: DemoSettings)
-    fun setDemoIncluded(effectCode: String, include: Boolean)
     fun saveWifiSettings(update: WifiSettingsUpdate)
     fun startWifiScan()
     fun saveDeviceName(name: String)
     fun syncTimeFromPhone()
-    fun setFps(fps: Int)
-    fun resetEffects()
-    fun factoryReset()
 }
 
 @Composable
@@ -102,7 +83,6 @@ fun SettingsTab(state: SettingsTabState, actions: SettingsTabActions) {
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        state.demoSettings?.let { item { DemoSection(it, state.effects, actions) } }
         state.wifiSettings?.let {
             item {
                 WifiSection(it, state.wifiStatus, state.wifiScan, state.wifiScanSupported, actions::startWifiScan, actions::saveWifiSettings)
@@ -110,73 +90,6 @@ fun SettingsTab(state: SettingsTabState, actions: SettingsTabActions) {
         }
         state.deviceName?.let { item { NameSection(it, actions::saveDeviceName) } }
         item { TimeSection(state.lampTime, state.timeZone, state.phoneTimeZone, actions::syncTimeFromPhone) }
-        state.lampState?.let { item { FpsSection(it.fps, actions::setFps) } }
-        item { ResetSection(actions) }
-    }
-}
-
-// ---------- Demo mode ----------
-
-@Composable
-private fun DemoSection(saved: DemoSettings, effects: List<EffectInfo>, actions: SettingsTabActions) {
-    var draft by rememberSaveable(saved) { mutableStateOf(saved) }
-    var durationValid by remember(saved) { mutableStateOf(true) }
-    var additionValid by remember(saved) { mutableStateOf(true) }
-
-    SettingsSection(stringResource(R.string.settings_demo)) {
-        ChoiceRow(
-            label = stringResource(R.string.settings_demo_order),
-            options = DemoOrder.entries,
-            selected = draft.order,
-            optionLabel = {
-                stringResource(if (it == DemoOrder.SEQUENTIAL) R.string.settings_demo_sequential else R.string.settings_demo_random)
-            },
-            onSelect = { draft = draft.copy(order = it) }
-        )
-        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            NumberField(
-                label = stringResource(R.string.settings_demo_duration),
-                value = draft.durationSeconds,
-                range = DemoSettings.DURATION_RANGE,
-                onValueChange = { v -> durationValid = v != null; v?.let { draft = draft.copy(durationSeconds = it) } },
-                suffix = stringResource(R.string.unit_seconds),
-                modifier = Modifier.fillMaxWidth()
-            )
-            NumberField(
-                label = stringResource(R.string.settings_demo_random_addition),
-                value = draft.randomAdditionSeconds,
-                range = DemoSettings.RANDOM_ADDITION_RANGE,
-                onValueChange = { v -> additionValid = v != null; v?.let { draft = draft.copy(randomAdditionSeconds = it) } },
-                suffix = stringResource(R.string.unit_seconds),
-                modifier = Modifier.fillMaxWidth()
-            )
-        }
-        Text(
-            stringResource(R.string.settings_demo_duration_hint),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.outline
-        )
-        SaveButton(
-            text = stringResource(R.string.save),
-            enabled = durationValid && additionValid && draft != saved,
-            onClick = { actions.saveDemoSettings(draft) }
-        )
-
-        Text(stringResource(R.string.settings_demo_effects), style = MaterialTheme.typography.bodyMedium)
-        val included = effects.count { it.inDemo }
-        Column {
-            effects.forEach { effect ->
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Checkbox(
-                        checked = effect.inDemo,
-                        // The lamp rejects excluding the last included effect
-                        enabled = !(effect.inDemo && included == 1),
-                        onCheckedChange = { actions.setDemoIncluded(effect.code, it) }
-                    )
-                    Text(effectName(effect), style = MaterialTheme.typography.bodyLarge)
-                }
-            }
-        }
     }
 }
 
@@ -455,67 +368,12 @@ private fun zoneText(posix: String): String {
         ?: standard
 }
 
-// ---------- Frame rate ----------
-
-@Composable
-private fun FpsSection(fps: Int, onChange: (Int) -> Unit) {
-    SettingsSection(stringResource(R.string.settings_fps)) {
-        SyncedSlider(
-            value = fps,
-            range = 1..120,
-            onValueChange = onChange,
-            valueLabel = { SliderValue(stringResource(R.string.unit_fps, it)) }
-        )
-        Text(
-            stringResource(R.string.settings_fps_hint),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.outline
-        )
-    }
-}
-
-// ---------- Resets ----------
-
-@Composable
-private fun ResetSection(actions: SettingsTabActions) {
-    var confirm by remember { mutableStateOf<Int?>(null) }
-    SettingsSection(stringResource(R.string.settings_reset)) {
-        OutlinedButton(onClick = { confirm = R.string.settings_reset_effects_confirm }, modifier = Modifier.fillMaxWidth()) {
-            Text(stringResource(R.string.settings_reset_effects))
-        }
-        OutlinedButton(onClick = { confirm = R.string.settings_factory_reset_confirm }, modifier = Modifier.fillMaxWidth()) {
-            Text(stringResource(R.string.settings_factory_reset), color = MaterialTheme.colorScheme.error)
-        }
-    }
-    confirm?.let { message ->
-        AlertDialog(
-            onDismissRequest = { confirm = null },
-            text = { Text(stringResource(message)) },
-            confirmButton = {
-                TextButton(onClick = {
-                    if (message == R.string.settings_factory_reset_confirm) actions.factoryReset() else actions.resetEffects()
-                    confirm = null
-                }) { Text(stringResource(R.string.settings_reset_do)) }
-            },
-            dismissButton = {
-                TextButton(onClick = { confirm = null }) { Text(stringResource(R.string.dialog_cancel)) }
-            }
-        )
-    }
-}
-
-@Preview(showBackground = true, heightDp = 2200)
+@Preview(showBackground = true, heightDp = 1400)
 @Composable
 private fun SettingsTabPreview() {
     FireLampTheme {
         SettingsTab(
             state = SettingsTabState(
-                lampState = LampState(true, 128, 60, false, "fire"),
-                effects = listOf(
-                    EffectInfo(0, 2, "fire", "Fire", true, emptyList()),
-                    EffectInfo(1, 2, "rain", "Rain", false, emptyList()),
-                ),
-                demoSettings = DemoSettings(DemoOrder.RANDOM, 300, 60),
                 wifiSettings = WifiSettings(WifiMode.PERIODIC, 12, "home", passwordStored = true),
                 wifiStatus = WifiStatus(WifiState.OFF, null, 0),
                 wifiScan = null,
@@ -526,15 +384,10 @@ private fun SettingsTabPreview() {
                 phoneTimeZone = "CET-1CEST,M3.5.0,M10.5.0/3",
             ),
             actions = object : SettingsTabActions {
-                override fun saveDemoSettings(settings: DemoSettings) {}
-                override fun setDemoIncluded(effectCode: String, include: Boolean) {}
                 override fun saveWifiSettings(update: WifiSettingsUpdate) {}
                 override fun startWifiScan() {}
                 override fun saveDeviceName(name: String) {}
                 override fun syncTimeFromPhone() {}
-                override fun setFps(fps: Int) {}
-                override fun resetEffects() {}
-                override fun factoryReset() {}
             }
         )
     }

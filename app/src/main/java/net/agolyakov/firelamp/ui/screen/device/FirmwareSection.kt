@@ -48,7 +48,7 @@ interface FirmwareActions {
 }
 
 /**
- * Firmware update card of the Hardware tab: the phone checks the release manifest and uploads
+ * Firmware update card of the System tab: the phone checks the release manifest and uploads
  * over BLE, or the lamp updates itself over WiFi. A running update is shown in a dialog that
  * cannot be dismissed (cancel is possible while the phone uploads).
  */

@@ -1,21 +1,33 @@
 package net.agolyakov.firelamp.ui.screen.device
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -36,19 +48,26 @@ import net.agolyakov.firelamp.ui.component.SaveButton
 import net.agolyakov.firelamp.ui.component.SettingsSection
 import net.agolyakov.firelamp.ui.component.SwitchRow
 import net.agolyakov.firelamp.ui.theme.FireLampTheme
+import kotlin.math.PI
+import kotlin.math.atan2
+import kotlin.math.cos
+import kotlin.math.sin
 
 /**
- * Matrix (LED settings), controls (buttons / touch pad) and what the lamp is. Everything here
- * takes effect after a reboot: the screen shows a banner with "Reboot now" once saved.
+ * The lamp as a device: firmware update, matrix (LED settings), controls (buttons / touch pad),
+ * what the lamp is, reboot and resets. Matrix and controls take effect after a reboot: the
+ * screen shows a banner with "Reboot now" once saved.
  */
 @Composable
-fun HardwareTab(
+fun SystemTab(
     deviceInfo: DeviceInfo?,
     ledSettings: LedSettings?,
     hardwareSettings: HardwareSettings?,
     onSaveLedSettings: (LedSettings) -> Unit,
     onSaveHardwareSettings: (Controls, buttonsActiveHigh: Boolean) -> Unit,
     onReboot: () -> Unit,
+    onResetEffects: () -> Unit,
+    onFactoryReset: () -> Unit,
     firmware: @Composable () -> Unit = {},
 ) {
     LazyColumn(
@@ -64,6 +83,37 @@ fun HardwareTab(
                 Text(stringResource(R.string.hw_reboot))
             }
         }
+        item { ResetSection(onResetEffects, onFactoryReset) }
+    }
+}
+
+// ---------- Resets ----------
+
+@Composable
+private fun ResetSection(onResetEffects: () -> Unit, onFactoryReset: () -> Unit) {
+    var confirm by remember { mutableStateOf<Int?>(null) }
+    SettingsSection(stringResource(R.string.settings_reset)) {
+        OutlinedButton(onClick = { confirm = R.string.settings_reset_effects_confirm }, modifier = Modifier.fillMaxWidth()) {
+            Text(stringResource(R.string.settings_reset_effects))
+        }
+        OutlinedButton(onClick = { confirm = R.string.settings_factory_reset_confirm }, modifier = Modifier.fillMaxWidth()) {
+            Text(stringResource(R.string.settings_factory_reset), color = MaterialTheme.colorScheme.error)
+        }
+    }
+    confirm?.let { message ->
+        AlertDialog(
+            onDismissRequest = { confirm = null },
+            text = { Text(stringResource(message)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    if (message == R.string.settings_factory_reset_confirm) onFactoryReset() else onResetEffects()
+                    confirm = null
+                }) { Text(stringResource(R.string.settings_reset_do)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { confirm = null }) { Text(stringResource(R.string.dialog_cancel)) }
+            }
+        )
     }
 }
 
@@ -139,6 +189,7 @@ private fun MatrixSection(saved: LedSettings, onSave: (LedSettings) -> Unit) {
             checked = draft.mirror,
             onCheckedChange = { draft = draft.copy(mirror = it) }
         )
+        MatrixDiagram(draft)
         Text(
             stringResource(R.string.hw_orientation_hint),
             style = MaterialTheme.typography.bodySmall,
@@ -162,6 +213,54 @@ private fun MatrixSection(saved: LedSettings, onSave: (LedSettings) -> Unit) {
         )
     }
 }
+
+/**
+ * The strip's path over the upright picture for the chosen wiring, rotation and mirror, on a
+ * small model of the matrix (same shape: wide, tall or square). The big dot is the first LED.
+ */
+@Composable
+private fun MatrixDiagram(settings: LedSettings) {
+    val modelWidth = if (settings.width > settings.height) 5 else 4
+    val modelHeight = if (settings.height > settings.width) 5 else 4
+    val path = remember(modelWidth, modelHeight, settings.rotation, settings.mirror, settings.wiring) {
+        MatrixLayout.stripPath(modelWidth, modelHeight, settings.rotation, settings.mirror, settings.wiring)
+    }
+    val (pictureWidth, pictureHeight) = MatrixLayout.pictureSize(modelWidth, modelHeight, settings.rotation)
+    val lineColor = MaterialTheme.colorScheme.primary
+    val dotColor = MaterialTheme.colorScheme.outline
+    val startColor = MaterialTheme.colorScheme.tertiary
+    Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxWidth()) {
+        Canvas(
+            modifier = Modifier
+                .width(DIAGRAM_CELL * pictureWidth)
+                .height(DIAGRAM_CELL * pictureHeight)
+        ) {
+            val cell = size.width / pictureWidth
+            // Picture y = 0 is the bottom row
+            fun center(c: MatrixLayout.Cell) = Offset((c.x + 0.5f) * cell, (pictureHeight - 1 - c.y + 0.5f) * cell)
+
+            path.forEach { drawCircle(dotColor, cell * 0.1f, center(it)) }
+            val line = Path().apply {
+                moveTo(center(path.first()).x, center(path.first()).y)
+                path.drop(1).forEach { lineTo(center(it).x, center(it).y) }
+            }
+            val stroke = 3.dp.toPx()
+            drawPath(line, lineColor, style = Stroke(width = stroke, cap = StrokeCap.Round, join = StrokeJoin.Round))
+            // Arrowhead at the end of the strip
+            val end = center(path.last())
+            val before = center(path[path.size - 2])
+            val angle = atan2(end.y - before.y, end.x - before.x)
+            val head = cell * 0.3f
+            for (side in listOf(-1, 1)) {
+                val a = angle + PI.toFloat() + side * 0.5f
+                drawLine(lineColor, end, end + Offset(cos(a), sin(a)) * head, stroke, StrokeCap.Round)
+            }
+            drawCircle(startColor, cell * 0.22f, center(path.first()))
+        }
+    }
+}
+
+private val DIAGRAM_CELL = 32.dp
 
 @Composable
 private fun ControlsSection(
@@ -263,15 +362,17 @@ private fun InfoRow(label: String, value: String) {
 
 @Preview(showBackground = true, heightDp = 1600)
 @Composable
-private fun HardwareTabPreview() {
+private fun SystemTabPreview() {
     FireLampTheme {
-        HardwareTab(
+        SystemTab(
             deviceInfo = DeviceInfo(1, Chip.ESP32_C3, 4, 0b1101, 16, 16, 32, Controls.ONE_BUTTON, "0.1.1", "Oct 21 2026 22:42:08", "default"),
             ledSettings = LedSettings(16, 16, LedType.WS2812, ColorOrder.GRB, Rotation.NONE, false, 2000, Wiring.SERPENTINE),
             hardwareSettings = HardwareSettings(Controls.ONE_BUTTON, 0b011, false),
             onSaveLedSettings = {},
             onSaveHardwareSettings = { _, _ -> },
             onReboot = {},
+            onResetEffects = {},
+            onFactoryReset = {},
         )
     }
 }

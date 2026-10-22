@@ -93,16 +93,16 @@ class DeviceViewModel @Inject constructor(
 
     private val fpsWrites = Throttle<Unit, Int>(viewModelScope) { _, value -> bluetoothService.setFps(value) }
 
-    /** The demo flags in the cached effect list may be stale: the Settings tab re-reads them. */
+    /** The demo flags in the cached effect list may be stale: the demo settings sheet re-reads them. */
     fun refreshEffects() {
         viewModelScope.launch { bluetoothService.refreshEffects() }
     }
 
-    override fun saveDemoSettings(settings: DemoSettings) {
+    fun saveDemoSettings(settings: DemoSettings) {
         viewModelScope.launch { bluetoothService.setDemoSettings(settings) }
     }
 
-    override fun setDemoIncluded(effectCode: String, include: Boolean) {
+    fun setDemoIncluded(effectCode: String, include: Boolean) {
         viewModelScope.launch { bluetoothService.setDemoIncluded(effectCode, include) }
     }
 
@@ -128,17 +128,17 @@ class DeviceViewModel @Inject constructor(
         }
     }
 
-    override fun setFps(fps: Int) = fpsWrites.submit(Unit, fps)
+    fun setFps(fps: Int) = fpsWrites.submit(Unit, fps)
 
-    override fun resetEffects() {
+    fun resetEffects() {
         viewModelScope.launch { bluetoothService.sendCommand(Command.RESET_EFFECTS) }
     }
 
-    override fun factoryReset() {
+    fun factoryReset() {
         viewModelScope.launch { bluetoothService.factoryReset() }
     }
 
-    // ---------- Firmware update (Hardware tab) ----------
+    // ---------- Firmware update (System tab) ----------
 
     val firmwareState = firmwareUpdater.state
     val updateInfo = bluetoothService.updateInfo
@@ -154,7 +154,7 @@ class DeviceViewModel @Inject constructor(
 
     override fun cancel() = firmwareUpdater.cancel()
 
-    // ---------- Hardware tab ----------
+    // ---------- System tab ----------
 
     val ledSettings = bluetoothService.ledSettings
     val hardwareSettings = bluetoothService.hardwareSettings

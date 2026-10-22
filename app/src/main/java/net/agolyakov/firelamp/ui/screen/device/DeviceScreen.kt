@@ -20,6 +20,8 @@ import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material.icons.filled.Memory
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -42,8 +44,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -61,22 +63,25 @@ import net.agolyakov.firelamp.R
 import net.agolyakov.firelamp.data.model.ble.ConnectionState
 import net.agolyakov.firelamp.data.model.ble.FireLampDevice
 import net.agolyakov.firelamp.protocol.FireLampGatt
+import net.agolyakov.firelamp.protocol.UpdateCheckState
 import net.agolyakov.firelamp.protocol.WifiMode
+import net.agolyakov.firelamp.service.firmware.FirmwareUpdater
 import net.agolyakov.firelamp.ui.theme.FireLampTheme
 import java.util.UUID
 
 // ----------------------------------------------------------------------------
 // Tabs of the device screen, grouped by purpose:
-//  - Lamp:     power, brightness, effects and their parameters, demo mode
+//  - Lamp:     power, brightness, FPS, effects and their parameters, demo mode (+ its sheet)
 //  - Schedule: power on/off, dawn, hourly brightness
-//  - Settings: demo settings, WiFi, name, time zone, resets
-//  - Hardware: matrix (LED settings), controls (buttons/touch), lamp info
+//  - Settings: WiFi, Bluetooth name, time and time zone
+//  - System:   firmware update, matrix (LED settings), controls (buttons/touch), lamp info,
+//              reboot, resets
 // ----------------------------------------------------------------------------
 enum class DeviceTab(@StringRes val labelRes: Int, val icon: ImageVector) {
     Lamp(R.string.tab_lamp, Icons.Filled.Lightbulb),
     Schedule(R.string.tab_schedule, Icons.Filled.Schedule),
     Settings(R.string.tab_settings, Icons.Filled.Settings),
-    Hardware(R.string.tab_hardware, Icons.Filled.Memory)
+    System(R.string.tab_system, Icons.Filled.Memory)
 }
 
 @Composable
@@ -124,7 +129,7 @@ fun DeviceScreen(
         }
     }
 
-    // The lamp name in the action bar (the firmware version is on the Hardware tab)
+    // The lamp name in the action bar (the firmware version is on the System tab)
     val deviceName = device?.getDisplayName()
     DisposableEffect(deviceName) {
         val activity = context as? Activity
@@ -140,6 +145,8 @@ fun DeviceScreen(
         onForgetAndRetry = viewModel::forgetBondAndReconnect,
         onReboot = viewModel::reboot,
         snackbarHostState = snackbarHostState,
+        updateAvailable = firmwareState is FirmwareUpdater.State.Available ||
+            updateInfo?.state == UpdateCheckState.AVAILABLE,
         lampTab = {
             lampState?.let { state ->
                 LampTab(
@@ -151,6 +158,18 @@ fun DeviceScreen(
                     onNextEffect = viewModel::nextEffect,
                     onDemoChange = viewModel::setDemo,
                     onParamChange = viewModel::setEffectParam,
+                    onFpsChange = viewModel::setFps,
+                    demoSettingsSheet = { onDismiss ->
+                        // Demo flags in the cached effect list may be stale: re-read them once per opening
+                        LaunchedEffect(Unit) { viewModel.refreshEffects() }
+                        DemoSettingsSheet(
+                            saved = demoSettings,
+                            effects = effects,
+                            onSave = viewModel::saveDemoSettings,
+                            onSetIncluded = viewModel::setDemoIncluded,
+                            onDismiss = onDismiss
+                        )
+                    },
                 )
             }
         },
@@ -165,13 +184,8 @@ fun DeviceScreen(
             }
         },
         settingsTab = {
-            // Demo flags in the cached effect list may be stale: re-read them once per opening
-            LaunchedEffect(Unit) { viewModel.refreshEffects() }
             SettingsTab(
                 state = SettingsTabState(
-                    lampState = lampState,
-                    effects = effects,
-                    demoSettings = demoSettings,
                     wifiSettings = wifiSettings,
                     wifiStatus = wifiStatus,
                     wifiScan = wifiScan,
@@ -184,14 +198,16 @@ fun DeviceScreen(
                 actions = viewModel,
             )
         },
-        hardwareTab = {
-            HardwareTab(
+        systemTab = {
+            SystemTab(
                 deviceInfo = deviceInfo,
                 ledSettings = ledSettings,
                 hardwareSettings = hardwareSettings,
                 onSaveLedSettings = viewModel::saveLedSettings,
                 onSaveHardwareSettings = viewModel::saveHardwareSettings,
                 onReboot = viewModel::reboot,
+                onResetEffects = viewModel::resetEffects,
+                onFactoryReset = viewModel::factoryReset,
                 firmware = {
                     deviceInfo?.let { info ->
                         FirmwareSection(
@@ -220,7 +236,9 @@ fun DeviceScreenContent(
     lampTab: @Composable () -> Unit = {},
     scheduleTab: @Composable () -> Unit = {},
     settingsTab: @Composable () -> Unit = {},
-    hardwareTab: @Composable () -> Unit = {},
+    systemTab: @Composable () -> Unit = {},
+    /** A firmware update is available: a dot on the System tab. */
+    updateAvailable: Boolean = false,
     initialTab: DeviceTab = DeviceTab.Lamp,
 ) {
     var selectedTab by rememberSaveable { mutableStateOf(initialTab) }
@@ -236,7 +254,11 @@ fun DeviceScreenContent(
                     NavigationBarItem(
                         selected = selectedTab == tab,
                         onClick = { selectedTab = tab },
-                        icon = { Icon(tab.icon, contentDescription = stringResource(tab.labelRes)) },
+                        icon = {
+                            BadgedBox(badge = { if (tab == DeviceTab.System && updateAvailable) Badge() }) {
+                                Icon(tab.icon, contentDescription = stringResource(tab.labelRes))
+                            }
+                        },
                         label = { Text(stringResource(tab.labelRes)) }
                     )
                 }
@@ -273,7 +295,7 @@ fun DeviceScreenContent(
                                 DeviceTab.Lamp -> lampTab()
                                 DeviceTab.Schedule -> scheduleTab()
                                 DeviceTab.Settings -> settingsTab()
-                                DeviceTab.Hardware -> hardwareTab()
+                                DeviceTab.System -> systemTab()
                             }
                         }
                     }
