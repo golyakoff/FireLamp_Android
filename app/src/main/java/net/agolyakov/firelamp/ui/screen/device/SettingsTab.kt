@@ -28,6 +28,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -46,6 +47,7 @@ import net.agolyakov.firelamp.protocol.FireLampCodec
 import net.agolyakov.firelamp.protocol.LampState
 import net.agolyakov.firelamp.protocol.LampTime
 import net.agolyakov.firelamp.protocol.TimeSource
+import net.agolyakov.firelamp.protocol.TimeZoneMapper
 import net.agolyakov.firelamp.protocol.WifiMode
 import net.agolyakov.firelamp.protocol.WifiScan
 import net.agolyakov.firelamp.protocol.WifiScanState
@@ -59,6 +61,7 @@ import net.agolyakov.firelamp.ui.component.ChoiceRow
 import net.agolyakov.firelamp.ui.component.NumberField
 import net.agolyakov.firelamp.ui.component.SaveButton
 import net.agolyakov.firelamp.ui.component.SettingsSection
+import net.agolyakov.firelamp.ui.component.SliderValue
 import net.agolyakov.firelamp.ui.component.SyncedSlider
 import net.agolyakov.firelamp.ui.theme.FireLampTheme
 import java.time.Instant
@@ -116,7 +119,7 @@ fun SettingsTab(state: SettingsTabState, actions: SettingsTabActions) {
 
 @Composable
 private fun DemoSection(saved: DemoSettings, effects: List<EffectInfo>, actions: SettingsTabActions) {
-    var draft by remember(saved) { mutableStateOf(saved) }
+    var draft by rememberSaveable(saved) { mutableStateOf(saved) }
     var durationValid by remember(saved) { mutableStateOf(true) }
     var additionValid by remember(saved) { mutableStateOf(true) }
 
@@ -130,14 +133,14 @@ private fun DemoSection(saved: DemoSettings, effects: List<EffectInfo>, actions:
             },
             onSelect = { draft = draft.copy(order = it) }
         )
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             NumberField(
                 label = stringResource(R.string.settings_demo_duration),
                 value = draft.durationSeconds,
                 range = DemoSettings.DURATION_RANGE,
                 onValueChange = { v -> durationValid = v != null; v?.let { draft = draft.copy(durationSeconds = it) } },
                 suffix = stringResource(R.string.unit_seconds),
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.fillMaxWidth()
             )
             NumberField(
                 label = stringResource(R.string.settings_demo_random_addition),
@@ -145,7 +148,7 @@ private fun DemoSection(saved: DemoSettings, effects: List<EffectInfo>, actions:
                 range = DemoSettings.RANDOM_ADDITION_RANGE,
                 onValueChange = { v -> additionValid = v != null; v?.let { draft = draft.copy(randomAdditionSeconds = it) } },
                 suffix = stringResource(R.string.unit_seconds),
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.fillMaxWidth()
             )
         }
         Text(
@@ -188,15 +191,16 @@ private fun WifiSection(
     onScan: () -> Unit,
     onSave: (WifiSettingsUpdate) -> Unit,
 ) {
-    var mode by remember(saved) { mutableStateOf(saved.mode) }
+    var mode by rememberSaveable(saved) { mutableStateOf(saved.mode) }
     // The lamp checks the period even in the off mode; a stored 0 would be rejected back
-    var period by remember(saved) { mutableStateOf(saved.periodHours.coerceIn(1, 24)) }
+    var period by rememberSaveable(saved) { mutableStateOf(saved.periodHours.coerceIn(1, 24)) }
     var periodValid by remember(saved) { mutableStateOf(true) }
-    var ssid by remember(saved) { mutableStateOf(saved.ssid) }
+    var ssid by rememberSaveable(saved) { mutableStateOf(saved.ssid) }
+    // Not saveable: a password does not belong in the saved instance state
     var password by remember(saved) { mutableStateOf("") }
     var showPassword by remember { mutableStateOf(false) }
     // Picked from the lamp's scan: an open network needs no password (and clears a stored one)
-    var pickedOpen by remember(saved) { mutableStateOf(false) }
+    var pickedOpen by rememberSaveable(saved) { mutableStateOf(false) }
     var showPicker by remember { mutableStateOf(false) }
     var phoneNote by remember { mutableStateOf<String?>(null) }
 
@@ -292,7 +296,10 @@ private fun WifiSection(
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 trailingIcon = {
                     IconButton(onClick = { showPassword = !showPassword }) {
-                        Icon(if (showPassword) Icons.Filled.VisibilityOff else Icons.Filled.Visibility, contentDescription = null)
+                        Icon(
+                            if (showPassword) Icons.Filled.VisibilityOff else Icons.Filled.Visibility,
+                            contentDescription = stringResource(if (showPassword) R.string.password_hide else R.string.password_show)
+                        )
                     }
                 },
                 modifier = Modifier.fillMaxWidth()
@@ -381,7 +388,7 @@ private fun WifiStatusLine(status: WifiStatus) {
 
 @Composable
 private fun NameSection(saved: String, onSave: (String) -> Unit) {
-    var name by remember(saved) { mutableStateOf(saved) }
+    var name by rememberSaveable(saved) { mutableStateOf(saved) }
     val valid = name.utf8Length() <= FireLampCodec.DEVICE_NAME_MAX_BYTES && name.none { it < ' ' }
     SettingsSection(stringResource(R.string.settings_name)) {
         OutlinedTextField(
@@ -423,20 +430,29 @@ private fun TimeSection(lampTime: LampTime?, timeZone: String?, phoneTimeZone: S
         }
         Text(listOfNotNull(time, source).joinToString(" · "), style = MaterialTheme.typography.bodyLarge)
         Text(
-            stringResource(R.string.settings_time_zone, timeZone ?: "—"),
+            stringResource(R.string.settings_time_zone, timeZone?.let { zoneText(it) } ?: "—"),
             style = MaterialTheme.typography.bodyMedium
         )
         if (timeZone != null && timeZone != phoneTimeZone) {
             Text(
-                stringResource(R.string.settings_time_zone_phone, phoneTimeZone),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.error
+                stringResource(R.string.settings_time_zone_phone, zoneText(phoneTimeZone)),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.tertiary
             )
         }
         OutlinedButton(onClick = onSync, modifier = Modifier.fillMaxWidth()) {
             Text(stringResource(R.string.settings_time_sync))
         }
     }
+}
+
+/** The lamp's POSIX zone as people read it: "UTC+1, UTC+2 in summer" (the raw string if unknown). */
+@Composable
+private fun zoneText(posix: String): String {
+    val offsets = TimeZoneMapper.parseOffsets(posix) ?: return posix
+    val standard = TimeZoneMapper.formatUtc(offsets.standardMinutes)
+    return offsets.daylightMinutes?.let { stringResource(R.string.settings_time_zone_dst, standard, TimeZoneMapper.formatUtc(it)) }
+        ?: standard
 }
 
 // ---------- Frame rate ----------
@@ -448,7 +464,7 @@ private fun FpsSection(fps: Int, onChange: (Int) -> Unit) {
             value = fps,
             range = 1..120,
             onValueChange = onChange,
-            valueLabel = { Text(stringResource(R.string.unit_fps, it), modifier = Modifier.padding(start = 12.dp)) }
+            valueLabel = { SliderValue(stringResource(R.string.unit_fps, it)) }
         )
         Text(
             stringResource(R.string.settings_fps_hint),

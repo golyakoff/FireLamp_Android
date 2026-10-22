@@ -18,9 +18,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.NavigateBefore
 import androidx.compose.material.icons.automirrored.filled.NavigateNext
-import androidx.compose.material.icons.filled.BrightnessMedium
 import androidx.compose.material.icons.filled.PowerSettingsNew
-import androidx.compose.material.icons.filled.Shuffle
 import androidx.compose.material3.Card
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
@@ -44,7 +42,11 @@ import net.agolyakov.firelamp.protocol.EffectInfo
 import net.agolyakov.firelamp.protocol.EffectParam
 import net.agolyakov.firelamp.protocol.LampState
 import net.agolyakov.firelamp.protocol.ParamType
-import net.agolyakov.firelamp.ui.component.SyncedSlider
+import net.agolyakov.firelamp.ui.component.SliderRow
+import net.agolyakov.firelamp.ui.component.SliderValue
+import net.agolyakov.firelamp.ui.component.SliderValueWidth
+import net.agolyakov.firelamp.ui.component.SwitchRow
+import net.agolyakov.firelamp.ui.component.brightnessPercent
 import net.agolyakov.firelamp.ui.theme.FireLampTheme
 
 /** Localized name of an effect, or the English one from the lamp for an unknown code. */
@@ -98,7 +100,7 @@ private fun PowerCard(
     onBrightnessChange: (Int) -> Unit,
 ) {
     Card(modifier = Modifier.fillMaxWidth()) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
                     Icons.Filled.PowerSettingsNew,
@@ -113,21 +115,13 @@ private fun PowerCard(
                 )
                 Switch(checked = lampState.on, onCheckedChange = onPowerChange)
             }
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    Icons.Filled.BrightnessMedium,
-                    contentDescription = stringResource(R.string.lamp_brightness),
-                    tint = MaterialTheme.colorScheme.outline
-                )
-                Spacer(Modifier.width(12.dp))
-                SyncedSlider(
-                    value = lampState.brightness,
-                    range = 1..255,
-                    onValueChange = onBrightnessChange,
-                    modifier = Modifier.weight(1f),
-                    valueLabel = { ValueLabel("${(it * 100 + 254) / 255}%") }
-                )
-            }
+            SliderRow(
+                label = stringResource(R.string.lamp_brightness),
+                value = lampState.brightness,
+                range = 1..255,
+                onValueChange = onBrightnessChange,
+                valueLabel = { SliderValue(brightnessPercent(it)) }
+            )
         }
     }
 }
@@ -158,24 +152,19 @@ private fun CurrentEffectCard(
                 }
             }
 
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Filled.Shuffle, contentDescription = null, tint = MaterialTheme.colorScheme.outline)
-                Spacer(Modifier.width(12.dp))
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(stringResource(R.string.lamp_demo), style = MaterialTheme.typography.bodyLarge)
-                    Text(
-                        stringResource(R.string.lamp_demo_hint),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.outline
-                    )
-                }
-                Switch(checked = lampState.demo, onCheckedChange = onDemoChange)
-            }
+            SwitchRow(
+                label = stringResource(R.string.lamp_demo),
+                hint = stringResource(R.string.lamp_demo_hint),
+                checked = lampState.demo,
+                onCheckedChange = onDemoChange
+            )
 
             if (effect != null && effect.params.isNotEmpty()) {
                 HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-                effect.params.forEach { param ->
-                    ParamRow(param) { onParamChange(effect.code, param.code, it) }
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    effect.params.forEach { param ->
+                        ParamRow(param) { onParamChange(effect.code, param.code, it) }
+                    }
                 }
             }
         }
@@ -185,24 +174,18 @@ private fun CurrentEffectCard(
 @Composable
 private fun ParamRow(param: EffectParam, onChange: (Int) -> Unit) {
     when (param.type) {
-        ParamType.BOOL -> Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(vertical = 4.dp)
-        ) {
-            Text(paramName(param), style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
-            Switch(checked = param.value != 0, onCheckedChange = { onChange(if (it) 1 else 0) })
-        }
-        ParamType.RANGE -> Column {
-            Text(paramName(param), style = MaterialTheme.typography.bodyMedium)
-            SyncedSlider(
-                value = param.value,
-                range = param.min..param.max,
-                onValueChange = onChange,
-                valueLabel = { value ->
-                    if (isHue(param)) HueSwatch(value) else ValueLabel(value.toString())
-                }
-            )
-        }
+        ParamType.BOOL -> SwitchRow(
+            label = paramName(param),
+            checked = param.value != 0,
+            onCheckedChange = { onChange(if (it) 1 else 0) }
+        )
+        ParamType.RANGE -> SliderRow(
+            label = paramName(param),
+            value = param.value,
+            range = param.min..param.max,
+            onValueChange = onChange,
+            valueLabel = { value -> if (isHue(param)) HueSwatch(value) else SliderValue(value.toString()) }
+        )
     }
 }
 
@@ -213,23 +196,14 @@ private fun isHue(param: EffectParam) =
 
 @Composable
 private fun HueSwatch(hue: Int) {
-    Box(
-        modifier = Modifier
-            .padding(start = 12.dp)
-            .size(24.dp)
-            .clip(CircleShape)
-            .background(Color.hsv(hue * 360f / 256f, 1f, 1f))
-    )
-}
-
-@Composable
-private fun ValueLabel(text: String) {
-    Text(
-        text = text,
-        style = MaterialTheme.typography.bodyMedium,
-        textAlign = TextAlign.End,
-        modifier = Modifier.width(48.dp)
-    )
+    Box(contentAlignment = Alignment.CenterEnd, modifier = Modifier.width(SliderValueWidth)) {
+        Box(
+            modifier = Modifier
+                .size(24.dp)
+                .clip(CircleShape)
+                .background(Color.hsv(hue * 360f / 256f, 1f, 1f))
+        )
+    }
 }
 
 @OptIn(ExperimentalLayoutApi::class)

@@ -1,5 +1,7 @@
 package net.agolyakov.firelamp.protocol
 
+import java.io.Serializable
+
 /**
  * Plain models of the FireLamp characteristic values, one section per characteristic of
  * `BLE_PROTOCOL.md`. No Android dependencies: [FireLampCodec] converts them to and from bytes.
@@ -144,13 +146,16 @@ data class LampTime(
 
 // ---------- 0x0007 Schedule ----------
 
+// Values edited as drafts on screen are Serializable: the drafts outlive a tab switch and an
+// activity restart in the saved instance state
+
 data class ScheduleTime(
     val enabled: Boolean = false,
     /** Bit 0 - Monday ... bit 6 - Sunday. */
     val days: Int = EVERY_DAY,
     val hour: Int = 0,
     val minute: Int = 0,
-) {
+) : Serializable {
     companion object {
         const val EVERY_DAY = 0x7F
         const val WORKDAYS = 0x1F
@@ -168,7 +173,7 @@ data class Schedule(
     /** 24 values `1..255`, for hours 0..23. */
     val hourlyBrightness: List<Int>,
     val dawnEffectCode: String,
-)
+) : Serializable
 
 // ---------- 0x0008 LED settings ----------
 
@@ -206,7 +211,7 @@ data class LedSettings(
     val mirror: Boolean,
     val currentLimitMa: Int,
     val wiring: Wiring,
-) {
+) : Serializable {
     companion object {
         const val MIN_SIZE = 8
         const val MAX_SIZE = 128
@@ -344,7 +349,7 @@ data class DemoSettings(
     val durationSeconds: Int,
     /** Every effect plays `duration + random(0..addition)`. */
     val randomAdditionSeconds: Int,
-) {
+) : Serializable {
     companion object {
         val DURATION_RANGE = 10..3600
         val RANDOM_ADDITION_RANGE = 0..3600

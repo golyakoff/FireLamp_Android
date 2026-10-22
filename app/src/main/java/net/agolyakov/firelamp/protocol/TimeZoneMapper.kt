@@ -45,6 +45,64 @@ object TimeZoneMapper {
         }
     }
 
+    /** The UTC offsets a POSIX TZ string describes, in minutes east of UTC (as people count). */
+    data class Offsets(val standardMinutes: Int, /** Null without daylight saving time. */ val daylightMinutes: Int?)
+
+    /**
+     * Reads the offsets back from a POSIX TZ string, to show the lamp's zone to a human:
+     * `CET-1CEST,M3.5.0,M10.5.0/3` -> UTC+1, UTC+2 in summer. Null when it is not one.
+     */
+    fun parseOffsets(posix: String): Offsets? {
+        var i = 0
+        fun name(): Boolean {
+            if (posix.getOrNull(i) == '<') {
+                val end = posix.indexOf('>', i)
+                if (end < 0) return false
+                i = end + 1
+                return true
+            }
+            val start = i
+            while (i < posix.length && posix[i].isLetter()) i++
+            return i - start >= 3
+        }
+        fun number(): Int? {
+            val start = i
+            while (i < posix.length && posix[i].isDigit()) i++
+            return if (i > start) posix.substring(start, i).toInt() else null
+        }
+        // [+-]h[:mm[:ss]], west of UTC: the sign is inverted
+        fun offset(): Int? {
+            val negative = posix.getOrNull(i) == '-'
+            if (posix.getOrNull(i) == '+' || negative) i++
+            var minutes = (number() ?: return null) * 60
+            if (posix.getOrNull(i) == ':') {
+                i++
+                minutes += number() ?: return null
+                if (posix.getOrNull(i) == ':') {
+                    i++
+                    number() ?: return null
+                }
+            }
+            return if (negative) minutes else -minutes
+        }
+
+        if (!name()) return null
+        val standard = offset() ?: return null
+        if (i == posix.length) return Offsets(standard, null)
+        if (!name()) return null
+        // The daylight offset may be left out: the standard one + 1 hour
+        val daylight = if (i == posix.length || posix[i] == ',') standard + 60 else offset() ?: return null
+        return Offsets(standard, daylight)
+    }
+
+    /** `UTC+3`, `UTC+5:30`, `UTC-8`, `UTC`. */
+    fun formatUtc(minutes: Int): String {
+        if (minutes == 0) return "UTC"
+        val sign = if (minutes < 0) '-' else '+'
+        val abs = kotlin.math.abs(minutes)
+        return if (abs % 60 == 0) "UTC$sign${abs / 60}" else "UTC$sign${abs / 60}:%02d".format(Locale.ROOT, abs % 60)
+    }
+
     /** POSIX offset: hours west of UTC, so the sign is inverted. */
     private fun offset(offset: ZoneOffset): String = signedTime(-offset.totalSeconds)
 

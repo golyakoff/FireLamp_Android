@@ -54,4 +54,33 @@ class TimeZoneMapperTest {
             assertTrue("$id: $tz", tz.all { it in ' '..'~' })
         }
     }
+
+    @Test
+    fun parseOffsets() {
+        assertEquals(TimeZoneMapper.Offsets(180, null), TimeZoneMapper.parseOffsets("MSK-3"))
+        assertEquals(TimeZoneMapper.Offsets(0, null), TimeZoneMapper.parseOffsets("UTC0"))
+        assertEquals(TimeZoneMapper.Offsets(330, null), TimeZoneMapper.parseOffsets("<+0530>-5:30"))
+        assertEquals(TimeZoneMapper.Offsets(60, 120), TimeZoneMapper.parseOffsets("CET-1CEST,M3.5.0,M10.5.0/3"))
+        assertEquals(TimeZoneMapper.Offsets(-300, -240), TimeZoneMapper.parseOffsets("EST5EDT,M3.2.0,M11.1.0"))
+        assertEquals(TimeZoneMapper.Offsets(630, 660), TimeZoneMapper.parseOffsets("<+1030>-10:30<+11>-11,M10.1.0,M4.1.0"))
+        assertEquals(null, TimeZoneMapper.parseOffsets("garbage"))
+        assertEquals(null, TimeZoneMapper.parseOffsets(""))
+    }
+
+    @Test
+    fun parsesWhatItBuilds() {
+        listOf("Europe/Berlin", "America/New_York", "Asia/Kolkata", "Australia/Sydney", "Europe/Moscow").forEach { zone ->
+            val rules = ZoneId.of(zone).rules
+            val offsets = TimeZoneMapper.parseOffsets(posix(zone))
+            assertEquals(zone, rules.getStandardOffset(java.time.Instant.now()).totalSeconds / 60, offsets?.standardMinutes)
+        }
+    }
+
+    @Test
+    fun formatUtc() {
+        assertEquals("UTC+3", TimeZoneMapper.formatUtc(180))
+        assertEquals("UTC+5:30", TimeZoneMapper.formatUtc(330))
+        assertEquals("UTC-8", TimeZoneMapper.formatUtc(-480))
+        assertEquals("UTC", TimeZoneMapper.formatUtc(0))
+    }
 }

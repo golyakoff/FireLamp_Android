@@ -35,12 +35,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import net.agolyakov.firelamp.R
 import net.agolyakov.firelamp.protocol.WifiAuth
 import net.agolyakov.firelamp.protocol.WifiNetwork
 import net.agolyakov.firelamp.protocol.WifiScan
 import net.agolyakov.firelamp.protocol.WifiScanState
+import net.agolyakov.firelamp.ui.component.tabular
 
 /**
  * Networks the lamp hears, strongest first: the lamp scans itself, so only 2.4 GHz networks it
@@ -141,15 +143,19 @@ private fun NetworkRow(network: WifiNetwork, onClick: () -> Unit) {
                 Text(detail, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.outline)
             }
         }
-        if (network.needsPassword) {
-            Icon(
-                Icons.Filled.Lock,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.outline,
-                modifier = Modifier.padding(end = 8.dp).size(16.dp)
-            )
+        // Fixed slots: the lock and the signal stay in columns down the list
+        Box(contentAlignment = Alignment.Center, modifier = Modifier.size(24.dp)) {
+            if (network.needsPassword) {
+                Icon(Icons.Filled.Lock, contentDescription = null, tint = MaterialTheme.colorScheme.outline, modifier = Modifier.size(16.dp))
+            }
         }
-        Text("${network.rssi} dBm", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.outline)
+        Text(
+            stringResource(R.string.unit_dbm, network.rssi),
+            style = MaterialTheme.typography.labelSmall.tabular(),
+            color = MaterialTheme.colorScheme.outline,
+            textAlign = TextAlign.End,
+            modifier = Modifier.width(56.dp)
+        )
     }
 }
 

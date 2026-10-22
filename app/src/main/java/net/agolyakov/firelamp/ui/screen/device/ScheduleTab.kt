@@ -36,6 +36,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -55,9 +56,13 @@ import net.agolyakov.firelamp.protocol.ScheduleTime
 import net.agolyakov.firelamp.protocol.TimeSource
 import net.agolyakov.firelamp.ui.component.SettingsSection
 import net.agolyakov.firelamp.ui.component.SwitchRow
-import net.agolyakov.firelamp.ui.component.SyncedSlider
+import net.agolyakov.firelamp.ui.component.SliderRow
+import net.agolyakov.firelamp.ui.component.SliderValue
+import net.agolyakov.firelamp.ui.component.brightnessPercent
 import net.agolyakov.firelamp.ui.theme.FireLampTheme
 import java.time.DayOfWeek
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.util.Locale
 
@@ -72,7 +77,8 @@ fun ScheduleTab(
     lampTime: LampTime?,
     onSave: (Schedule) -> Unit,
 ) {
-    var draft by remember(schedule) { mutableStateOf(schedule) }
+    // Saveable: the draft survives switching tabs (DeviceScreen keeps each tab's saved state)
+    var draft by rememberSaveable(schedule) { mutableStateOf(schedule) }
 
     Column(modifier = Modifier.fillMaxSize()) {
         LazyColumn(
@@ -154,7 +160,7 @@ private fun ScheduleTimeEditor(
 private fun TimeButton(hour: Int, minute: Int, enabled: Boolean, onPick: (Int, Int) -> Unit) {
     var open by remember { mutableStateOf(false) }
     OutlinedButton(onClick = { open = true }, enabled = enabled) {
-        Text("%02d:%02d".format(Locale.ROOT, hour, minute), style = MaterialTheme.typography.titleMedium)
+        Text(clockText(hour, minute), style = MaterialTheme.typography.titleMedium)
     }
     if (open) {
         val state = rememberTimePickerState(hour, minute, is24Hour = DateFormat.is24HourFormat(LocalContext.current))
@@ -172,6 +178,13 @@ private fun TimeButton(hour: Int, minute: Int, enabled: Boolean, onPick: (Int, I
             text = { TimePicker(state = state) }
         )
     }
+}
+
+/** A time of day in the phone's 12/24-hour format, as the time picker shows it. */
+@Composable
+private fun clockText(hour: Int, minute: Int): String {
+    val pattern = if (DateFormat.is24HourFormat(LocalContext.current)) "HH:mm" else "h:mm a"
+    return LocalTime.of(hour, minute).format(DateTimeFormatter.ofPattern(pattern, Locale.getDefault()))
 }
 
 /** Monday first, as the bits go: bit 0 - Monday ... bit 6 - Sunday. */
@@ -204,21 +217,21 @@ private fun DawnSection(draft: Schedule, effects: List<EffectInfo>, onChange: (S
             onChange(draft.copy(dawn = it))
         }
         val enabled = draft.dawn.enabled
-        Text(stringResource(R.string.schedule_dawn_duration), style = MaterialTheme.typography.bodyMedium)
-        SyncedSlider(
+        SliderRow(
+            label = stringResource(R.string.schedule_dawn_duration),
             value = draft.dawnDurationMinutes,
             range = 1..120,
             onValueChange = { onChange(draft.copy(dawnDurationMinutes = it)) },
             enabled = enabled,
-            valueLabel = { Text(stringResource(R.string.unit_minutes, it), modifier = Modifier.padding(start = 12.dp)) }
+            valueLabel = { SliderValue(stringResource(R.string.unit_minutes, it)) }
         )
-        Text(stringResource(R.string.schedule_dawn_brightness), style = MaterialTheme.typography.bodyMedium)
-        SyncedSlider(
+        SliderRow(
+            label = stringResource(R.string.schedule_dawn_brightness),
             value = draft.dawnBrightness,
             range = 1..255,
             onValueChange = { onChange(draft.copy(dawnBrightness = it)) },
             enabled = enabled,
-            valueLabel = { Text("${(it * 100 + 254) / 255}%", modifier = Modifier.padding(start = 12.dp)) }
+            valueLabel = { SliderValue(brightnessPercent(it)) }
         )
         EffectDropdown(
             label = stringResource(R.string.schedule_dawn_effect),
@@ -268,7 +281,7 @@ private fun EffectDropdown(
 
 @Composable
 private fun HourlySection(draft: Schedule, onChange: (Schedule) -> Unit) {
-    var hour by remember { mutableIntStateOf(java.time.LocalTime.now().hour) }
+    var hour by rememberSaveable { mutableIntStateOf(LocalTime.now().hour) }
     SettingsSection(stringResource(R.string.schedule_hourly)) {
         SwitchRow(
             label = stringResource(R.string.schedule_enabled),
@@ -277,18 +290,15 @@ private fun HourlySection(draft: Schedule, onChange: (Schedule) -> Unit) {
             onCheckedChange = { onChange(draft.copy(hourlyBrightnessEnabled = it)) }
         )
         HourBars(draft.hourlyBrightness, hour, enabled = draft.hourlyBrightnessEnabled) { hour = it }
-        Text(
-            stringResource(R.string.schedule_hourly_at, hour),
-            style = MaterialTheme.typography.bodyMedium
-        )
-        SyncedSlider(
+        SliderRow(
+            label = stringResource(R.string.schedule_hourly_at, clockText(hour, 0)),
             value = draft.hourlyBrightness[hour],
             range = 1..255,
             enabled = draft.hourlyBrightnessEnabled,
             onValueChange = { v ->
                 onChange(draft.copy(hourlyBrightness = draft.hourlyBrightness.toMutableList().also { it[hour] = v }))
             },
-            valueLabel = { Text("${(it * 100 + 254) / 255}%", modifier = Modifier.padding(start = 12.dp)) }
+            valueLabel = { SliderValue(brightnessPercent(it)) }
         )
     }
 }

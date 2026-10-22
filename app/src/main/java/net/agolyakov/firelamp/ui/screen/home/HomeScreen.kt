@@ -129,8 +129,37 @@ fun DeviceList(
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.surfaceContainer)
     ) {
+        if (deviceList.isEmpty()) {
+            item { SearchingCard() }
+        }
         itemsIndexed(deviceList) { _, item ->
             Device(item, navController, onRenameClick)
+        }
+    }
+}
+
+/** No lamp found yet: say that the app is looking, and what makes a lamp findable. */
+@Composable
+private fun SearchingCard() {
+    Card(
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+        ),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp, 16.dp, 16.dp, 0.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(vertical = 16.dp, horizontal = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
+                Spacer(Modifier.width(16.dp))
+                Text(stringResource(R.string.home_searching), style = MaterialTheme.typography.titleMedium)
+            }
+            Text(stringResource(R.string.home_searching_hint), style = MaterialTheme.typography.bodyMedium)
         }
     }
 }
@@ -325,6 +354,7 @@ fun RenameDeviceDialog(
                 value = text,
                 onValueChange = { text = it },
                 label = { Text(stringResource(R.string.dialog_device_name)) },
+                supportingText = { Text(stringResource(R.string.rename_device_hint)) },
                 singleLine = true
             )
         },

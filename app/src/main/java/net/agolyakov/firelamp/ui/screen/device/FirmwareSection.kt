@@ -3,7 +3,9 @@ package net.agolyakov.firelamp.ui.screen.device
 import android.app.Activity
 import android.view.WindowManager
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -30,6 +32,8 @@ import net.agolyakov.firelamp.service.firmware.FirmwareUpdater.Reason
 import net.agolyakov.firelamp.service.firmware.FirmwareUpdater.State
 import net.agolyakov.firelamp.service.firmware.otaErrorOf
 import net.agolyakov.firelamp.ui.component.SettingsSection
+import net.agolyakov.firelamp.ui.component.tabular
+import java.text.NumberFormat
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -154,6 +158,9 @@ private fun otaErrorText(error: OtaError) = when (error) {
     OtaError.NONE, OtaError.UNKNOWN -> R.string.unknown
 }
 
+/** Kilobytes with the locale's digit grouping: "1 520". */
+private fun kilobytes(bytes: Long): String = NumberFormat.getIntegerInstance().format(bytes / 1024)
+
 /** Not dismissable while the update runs; keeps the screen on (a sleeping phone may drop BLE). */
 @Composable
 private fun ProgressDialog(state: State, onCancel: () -> Unit) {
@@ -164,18 +171,26 @@ private fun ProgressDialog(state: State, onCancel: () -> Unit) {
         onDispose { window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON) }
     }
 
-    val (text, progress) = when (state) {
-        State.Checking -> stringResource(R.string.fw_progress_checking) to null
-        is State.Downloading -> stringResource(R.string.fw_progress_downloading) to state.fraction
-        State.Preparing -> stringResource(R.string.fw_progress_preparing) to null
-        is State.Uploading -> stringResource(R.string.fw_progress_uploading, state.sent / 1024, state.total / 1024) to
-            state.sent.toFloat() / state.total
-        State.Verifying -> stringResource(R.string.fw_progress_verifying) to null
-        State.InternetChecking -> stringResource(R.string.fw_progress_lamp_checking) to null
-        is State.InternetDownloading -> stringResource(R.string.fw_progress_lamp_downloading, state.received / 1024, state.total / 1024) to
-            state.total.takeIf { it > 0 }?.let { state.received.toFloat() / it }
-        is State.Rebooting -> stringResource(R.string.fw_progress_rebooting) to null
-        else -> "" to null
+    val text = when (state) {
+        State.Checking -> stringResource(R.string.fw_progress_checking)
+        is State.Downloading -> stringResource(R.string.fw_progress_downloading)
+        State.Preparing -> stringResource(R.string.fw_progress_preparing)
+        is State.Uploading -> stringResource(R.string.fw_progress_uploading)
+        State.Verifying -> stringResource(R.string.fw_progress_verifying)
+        State.InternetChecking -> stringResource(R.string.fw_progress_lamp_checking)
+        is State.InternetDownloading -> stringResource(R.string.fw_progress_lamp_downloading)
+        is State.Rebooting -> stringResource(R.string.fw_progress_rebooting)
+        else -> ""
+    }
+    // Bytes done and total, when known
+    val amount: Pair<Long, Long>? = when (state) {
+        is State.Uploading -> state.sent to state.total
+        is State.InternetDownloading -> (state.received to state.total).takeIf { state.total > 0 }
+        else -> null
+    }
+    val progress: Float? = when (state) {
+        is State.Downloading -> state.fraction
+        else -> amount?.let { (done, total) -> done.toFloat() / total }
     }
     // Only an upload from the phone can be cancelled: the lamp's own update goes on without us
     val cancellable = state is State.Downloading || state is State.Preparing || state is State.Uploading
@@ -185,12 +200,31 @@ private fun ProgressDialog(state: State, onCancel: () -> Unit) {
         properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false),
         title = { Text(stringResource(R.string.fw_title)) },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 Text(text, style = MaterialTheme.typography.bodyLarge)
                 if (progress != null) {
-                    LinearProgressIndicator(progress = { progress }, modifier = Modifier.fillMaxWidth())
+                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        LinearProgressIndicator(progress = { progress }, modifier = Modifier.fillMaxWidth())
+                        // Tabular digits and fixed ends: the line does not shift as the numbers grow
+                        Row(modifier = Modifier.fillMaxWidth()) {
+                            Text(
+                                amount?.let { (done, total) ->
+                                    stringResource(R.string.fw_progress_amount, kilobytes(done), kilobytes(total))
+                                } ?: "",
+                                style = MaterialTheme.typography.bodyMedium.tabular(),
+                                color = MaterialTheme.colorScheme.outline,
+                                modifier = Modifier.weight(1f)
+                            )
+                            Text(
+                                "${(progress * 100).toInt().coerceIn(0, 100)} %",
+                                style = MaterialTheme.typography.bodyMedium.tabular()
+                            )
+                        }
+                    }
                 } else {
-                    CircularProgressIndicator()
+                    Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxWidth()) {
+                        CircularProgressIndicator()
+                    }
                 }
                 if (state is State.Uploading || state is State.Preparing || state is State.Verifying || state is State.Rebooting) {
                     Text(

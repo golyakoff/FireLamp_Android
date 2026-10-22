@@ -6,12 +6,15 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
@@ -24,7 +27,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 
 /** A titled card holding one group of settings. */
@@ -88,6 +94,74 @@ fun SwitchRow(
         Switch(checked = checked, onCheckedChange = onCheckedChange, enabled = enabled)
     }
 }
+
+/** One option of a group, with an optional hint under the label. */
+@Composable
+fun RadioRow(
+    label: String,
+    selected: Boolean,
+    onClick: () -> Unit,
+    hint: String? = null,
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .selectable(selected = selected, role = Role.RadioButton, onClick = onClick)
+    ) {
+        RadioButton(selected = selected, onClick = null)
+        Column(modifier = Modifier.weight(1f)) {
+            Text(label, style = MaterialTheme.typography.bodyLarge)
+            if (hint != null) {
+                Text(hint, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.outline)
+            }
+        }
+    }
+}
+
+/** Digits of equal width: a changing number (progress, a slider value) does not shift the text around it. */
+fun TextStyle.tabular(): TextStyle = copy(fontFeatureSettings = "tnum")
+
+/** Width of the value shown after a slider: the same everywhere, so sliders line up. */
+val SliderValueWidth = 64.dp
+
+/**
+ * The value after a slider: fixed width, right-aligned, tabular digits - the slider keeps its
+ * length while dragged ("9" -> "120").
+ */
+@Composable
+fun SliderValue(text: String) {
+    Text(
+        text = text,
+        style = MaterialTheme.typography.bodyMedium.tabular(),
+        textAlign = TextAlign.End,
+        maxLines = 1,
+        modifier = Modifier.width(SliderValueWidth)
+    )
+}
+
+/** A label above a [SyncedSlider]; the value is shown after the slider. */
+@Composable
+fun SliderRow(
+    label: String,
+    value: Int,
+    range: IntRange,
+    onValueChange: (Int) -> Unit,
+    enabled: Boolean = true,
+    valueLabel: @Composable (Int) -> Unit = { SliderValue(it.toString()) },
+) {
+    Column {
+        Text(
+            label,
+            style = MaterialTheme.typography.bodyLarge,
+            color = if (enabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.outline
+        )
+        SyncedSlider(value = value, range = range, onValueChange = onValueChange, enabled = enabled, valueLabel = valueLabel)
+    }
+}
+
+/** Brightness `1..255` as people read it: 1..100 %. */
+fun brightnessPercent(value: Int): String = "${(value * 100 + 254) / 255}%"
 
 /**
  * A whole-number field. Keeps the typed text while it is not a valid number (empty, out of

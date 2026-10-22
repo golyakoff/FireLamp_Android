@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
-import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -32,6 +31,8 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -40,6 +41,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -57,8 +60,10 @@ import androidx.navigation.NavHostController
 import net.agolyakov.firelamp.R
 import net.agolyakov.firelamp.data.model.ble.ConnectionState
 import net.agolyakov.firelamp.data.model.ble.FireLampDevice
+import net.agolyakov.firelamp.protocol.FireLampGatt
 import net.agolyakov.firelamp.protocol.WifiMode
 import net.agolyakov.firelamp.ui.theme.FireLampTheme
+import java.util.UUID
 
 // ----------------------------------------------------------------------------
 // Tabs of the device screen, grouped by purpose:
@@ -111,18 +116,19 @@ fun DeviceScreen(
     }
     val reconnect by viewModel.reconnect.collectAsState()
 
+    val snackbarHostState = remember { SnackbarHostState() }
     LaunchedEffect(Unit) {
-        viewModel.errors.collect {
-            Toast.makeText(context, R.string.operation_failed, Toast.LENGTH_SHORT).show()
+        viewModel.errors.collect { error ->
+            val what = context.getString(settingName(error.characteristic))
+            snackbarHostState.showSnackbar(context.getString(R.string.operation_failed, what))
         }
     }
 
-    // The lamp name in the action bar, with the firmware version once known: "FireLamp-1A2B 0.1.0"
+    // The lamp name in the action bar (the firmware version is on the Hardware tab)
     val deviceName = device?.getDisplayName()
-    val firmwareVersion = deviceInfo?.firmwareVersion
-    DisposableEffect(deviceName, firmwareVersion) {
+    DisposableEffect(deviceName) {
         val activity = context as? Activity
-        if (deviceName != null) activity?.title = listOfNotNull(deviceName, firmwareVersion).joinToString(" ")
+        if (deviceName != null) activity?.title = deviceName
         onDispose { activity?.title = context.getString(R.string.app_name) }
     }
 
@@ -133,6 +139,7 @@ fun DeviceScreen(
         onRetry = viewModel::reconnectNow,
         onForgetAndRetry = viewModel::forgetBondAndReconnect,
         onReboot = viewModel::reboot,
+        snackbarHostState = snackbarHostState,
         lampTab = {
             lampState?.let { state ->
                 LampTab(
@@ -209,6 +216,7 @@ fun DeviceScreenContent(
     onRetry: () -> Unit,
     onForgetAndRetry: () -> Unit,
     onReboot: () -> Unit,
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     lampTab: @Composable () -> Unit = {},
     scheduleTab: @Composable () -> Unit = {},
     settingsTab: @Composable () -> Unit = {},
@@ -216,8 +224,12 @@ fun DeviceScreenContent(
     initialTab: DeviceTab = DeviceTab.Lamp,
 ) {
     var selectedTab by rememberSaveable { mutableStateOf(initialTab) }
+    // A tab leaves the composition when another one is selected: keep its saved state (unsaved
+    // drafts, scroll position) to find it as it was on return
+    val tabStates = rememberSaveableStateHolder()
 
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         bottomBar = {
             NavigationBar {
                 DeviceTab.entries.forEach { tab ->
@@ -236,8 +248,11 @@ fun DeviceScreenContent(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            ConnectionHeader(connectionState)
-            HorizontalDivider()
+            // Only when something is going on: a connected lamp needs no status line
+            if (connectionState != ConnectionState.Ready) {
+                ConnectionHeader(connectionState)
+                HorizontalDivider()
+            }
 
             when (connectionState) {
                 is ConnectionState.PairingRejected -> PairingRejectedCard(
@@ -253,11 +268,13 @@ fun DeviceScreenContent(
                 ConnectionState.Ready -> {
                     if (rebootRequired) RebootBanner(onReboot)
                     Box(modifier = Modifier.weight(1f)) {
-                        when (selectedTab) {
-                            DeviceTab.Lamp -> lampTab()
-                            DeviceTab.Schedule -> scheduleTab()
-                            DeviceTab.Settings -> settingsTab()
-                            DeviceTab.Hardware -> hardwareTab()
+                        tabStates.SaveableStateProvider(selectedTab.name) {
+                            when (selectedTab) {
+                                DeviceTab.Lamp -> lampTab()
+                                DeviceTab.Schedule -> scheduleTab()
+                                DeviceTab.Settings -> settingsTab()
+                                DeviceTab.Hardware -> hardwareTab()
+                            }
                         }
                     }
                 }
@@ -272,6 +289,23 @@ fun DeviceScreenContent(
             }
         }
     }
+}
+
+/** What a rejected operation was about, for the error message. */
+@StringRes
+private fun settingName(characteristic: UUID): Int = when (characteristic) {
+    FireLampGatt.LAMP_STATE -> R.string.setting_lamp_state
+    FireLampGatt.EFFECT_INFO -> R.string.setting_effect
+    FireLampGatt.EFFECT_PARAM -> R.string.setting_effect_param
+    FireLampGatt.TIME, FireLampGatt.TIME_ZONE -> R.string.setting_time
+    FireLampGatt.SCHEDULE -> R.string.setting_schedule
+    FireLampGatt.LED_SETTINGS -> R.string.setting_matrix
+    FireLampGatt.WIFI_SETTINGS, FireLampGatt.WIFI_STATUS, FireLampGatt.WIFI_NETWORKS -> R.string.setting_wifi
+    FireLampGatt.DEVICE_NAME -> R.string.setting_name
+    FireLampGatt.DEMO_SETTINGS, FireLampGatt.DEMO_EFFECTS -> R.string.setting_demo
+    FireLampGatt.HARDWARE_SETTINGS -> R.string.setting_controls
+    FireLampGatt.OTA_CONTROL, FireLampGatt.OTA_DATA, FireLampGatt.UPDATE_INFO -> R.string.setting_firmware
+    else -> R.string.setting_command
 }
 
 @Composable

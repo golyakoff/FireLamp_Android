@@ -93,7 +93,10 @@ MVVM + Hilt + single-Activity Compose Navigation, as in the sibling apps:
   Save/Discard), `SettingsTab` (demo settings and effects, WiFi, name, time/time zone, FPS,
   resets; state/actions passed as `SettingsTabState`/`SettingsTabActions`), `HardwareTab`
   (matrix, controls, lamp info - reboot to apply). Sections that write a whole characteristic
-  are edited as drafts (`remember(saved)`), reset when the lamp's value comes back.
+  are edited as drafts (`rememberSaveable(saved)`), reset when the lamp's value comes back;
+  `DeviceScreenContent` wraps the selected tab in a `SaveableStateProvider`, so drafts survive
+  a tab switch (draft models are `java.io.Serializable` for that). Never put a password there.
+  Slider rows use `SliderRow`/`SliderValue` (fixed-width value, tabular digits) so sliders line up.
   `EffectNames`: code → localized name (`res/values*/effects.xml`). Shared form pieces live in
   `ui/component/SettingsComponents.kt`. Slider writes go through `ui/viewmodel/Throttle`
   (≤ 1 write per 100 ms per key) and `ui/component/SyncedSlider`.

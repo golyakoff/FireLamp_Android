@@ -7,14 +7,17 @@
 
     <!-- Home -->
     <string name="rename">Переименовать</string>
-    <string name="rename_device">Переименовать лампу</string>
-    <string name="dialog_device_name">Название лампы</string>
+    <string name="rename_device">Название в этом телефоне</string>
+    <string name="rename_device_hint">Видно только в этом приложении на этом телефоне. Имя лампы в Bluetooth задаётся на её вкладке «Настройки»</string>
+    <string name="dialog_device_name">Название</string>
     <string name="dialog_save">Сохранить</string>
     <string name="dialog_cancel">Отмена</string>
     <string name="app_version">Версия %1$s</string>
     <string name="app_update_available">Доступна новая версия %1$s</string>
     <string name="app_update_download">Скачать</string>
     <string name="home_connected_not_advertising">Подключена к этому телефону</string>
+    <string name="home_searching">Ищу лампы…</string>
+    <string name="home_searching_hint">Лампа должна быть включена. Новый телефон можно сопрячь с ней в течение 2 минут после её включения или после 5 нажатий её основной кнопки.</string>
     <string name="lang_english">English</string>
     <string name="lang_russian">Русский</string>
 
@@ -35,7 +38,7 @@
     <string name="pairing_rejected_forget_hint">Если этот телефон уже был сопряжён с лампой (лампу сбросили или она теперь помнит другие телефоны), сначала забудьте старое сопряжение.</string>
     <string name="pairing_retry">Подключиться снова</string>
     <string name="pairing_forget_and_retry">Забыть сопряжение и подключиться</string>
-    <string name="no_permission_hint">Приложению нужно разрешение «Устройства поблизости» (на Android 11 и старше - «Местоположение»), чтобы находить лампу и управлять ею. Разрешите его в настройках приложения и подключитесь.</string>
+    <string name="no_permission_hint">Приложению нужно разрешение «Устройства поблизости» (на Android 11 и старше — «Местоположение»), чтобы находить лампу и управлять ею. Разрешите его в настройках приложения и подключитесь.</string>
     <string name="no_permission_open_settings">Открыть настройки</string>
     <string name="connection_lost_title">Нет связи с лампой</string>
     <string name="connection_lost_retrying">Переподключение, попытка %1$d из %2$d…</string>
@@ -49,9 +52,23 @@
     <string name="tab_settings">Настройки</string>
     <string name="tab_hardware">Железо</string>
 
-    <string name="operation_failed">Лампа не приняла изменение</string>
+    <string name="operation_failed">Лампа не приняла изменение: %1$s</string>
     <string name="reboot_required">Изменения вступят в силу после перезагрузки</string>
     <string name="reboot_now">Перезагрузить</string>
+    <string name="setting_lamp_state">питание и яркость</string>
+    <string name="setting_effect">эффект</string>
+    <string name="setting_effect_param">параметр эффекта</string>
+    <string name="setting_time">время</string>
+    <string name="setting_schedule">расписание</string>
+    <string name="setting_matrix">настройки матрицы</string>
+    <string name="setting_wifi">WiFi</string>
+    <string name="setting_name">имя</string>
+    <string name="setting_demo">демо-режим</string>
+    <string name="setting_controls">управление</string>
+    <string name="setting_firmware">обновление прошивки</string>
+    <string name="setting_command">команда</string>
+    <string name="password_show">Показать пароль</string>
+    <string name="password_hide">Скрыть пароль</string>
 
     <!-- Lamp tab -->
     <string name="lamp_on">Включена</string>
@@ -68,6 +85,7 @@
     <string name="unknown">Неизвестно</string>
     <string name="unit_ma">мА</string>
     <string name="unit_mb">%1$d МБ</string>
+    <string name="unit_dbm">%1$d дБм</string>
 
     <!-- Hardware tab -->
     <string name="hw_matrix">Светодиодная матрица</string>
@@ -77,12 +95,12 @@
     <string name="hw_size_invalid">Каждая сторона %1$d…%2$d, всего не больше %3$d светодиодов</string>
     <string name="hw_led_type">Тип светодиодов</string>
     <string name="hw_color_order">Порядок цветов</string>
-    <string name="hw_wiring">Подключение</string>
+    <string name="hw_wiring">Раскладка ленты</string>
     <string name="hw_wiring_serpentine">Змейкой</string>
     <string name="hw_wiring_progressive">Построчно</string>
     <string name="hw_rotation">Поворот</string>
     <string name="hw_mirror">Отразить по горизонтали</string>
-    <string name="hw_orientation_hint">Первый светодиод в левом нижнем углу, лента идёт по строкам: змейкой - каждая следующая строка идёт обратно, построчно - каждая строка начинается с одной стороны. Другие варианты: матрицу, собранную по столбцам, поверните на 90°, начинающуюся справа внизу - отразите.</string>
+    <string name="hw_orientation_hint">Первый светодиод в левом нижнем углу, лента идёт по строкам: змейкой — каждая следующая строка идёт обратно, построчно — каждая строка начинается с одной стороны. Другие варианты: матрицу, собранную по столбцам, поверните на 90°, начинающуюся справа внизу — отразите.</string>
     <string name="hw_current_limit">Ограничение тока всех светодиодов</string>
     <string name="hw_current_limit_hint">Для этой матрицы не меньше примерно %1$d мА; не больше, чем даёт блок питания</string>
     <string name="hw_controls">Управление</string>
@@ -92,16 +110,16 @@
     <string name="hw_controls_four_buttons_hint">Основная, вверх, вниз и сброс</string>
     <string name="hw_controls_touch_pad">Сенсорная площадка</string>
     <string name="hw_controls_touch_pad_hint">Металлическая пластина на сенсорном выводе ESP32</string>
-    <string name="hw_buttons_active_high">Кнопки с активным высоким уровнем</string>
-    <string name="hw_buttons_active_high_hint">Модуль TTP223 или кнопка на +3,3 В</string>
-    <string name="hw_buttons_active_low_hint">Кнопка на GND</string>
+    <string name="hw_buttons_wiring">Кнопки подключены</string>
+    <string name="hw_buttons_to_gnd">На GND</string>
+    <string name="hw_buttons_to_vcc">На +3,3 В или модуль TTP223</string>
     <string name="hw_lamp_info">О лампе</string>
     <string name="hw_info_firmware">Прошивка</string>
     <string name="hw_info_build_date">Сборка</string>
     <string name="hw_info_variant">Вариант сборки</string>
     <string name="hw_info_chip">Чип</string>
     <string name="hw_info_flash">Flash-память</string>
-    <string name="hw_info_matrix">Матрица сейчас</string>
+    <string name="hw_info_matrix">Размер матрицы</string>
     <string name="hw_info_effects">Эффектов</string>
     <string name="hw_info_found">Есть</string>
     <string name="hw_info_not_found">Нет</string>
@@ -129,7 +147,7 @@
     <string name="schedule_dawn_effect">Эффект</string>
     <string name="schedule_hourly">Яркость по часам</string>
     <string name="schedule_hourly_hint">Применяется при включении лампы и в начале каждого часа; ручное изменение действует до следующего часа</string>
-    <string name="schedule_hourly_at">С %1$d:00</string>
+    <string name="schedule_hourly_at">С %1$s</string>
 
     <!-- Settings tab -->
     <string name="unit_seconds">с</string>
@@ -139,9 +157,9 @@
     <string name="settings_demo_order">Порядок</string>
     <string name="settings_demo_sequential">По очереди</string>
     <string name="settings_demo_random">Случайно</string>
-    <string name="settings_demo_duration">Каждый эффект</string>
-    <string name="settings_demo_random_addition">Плюс до</string>
-    <string name="settings_demo_duration_hint">Каждый эффект играет своё время плюс случайную добавку: 10…3600 с и 0…3600 с</string>
+    <string name="settings_demo_duration">Длительность эффекта</string>
+    <string name="settings_demo_random_addition">Случайная добавка до</string>
+    <string name="settings_demo_duration_hint">Каждый эффект играет свою длительность плюс случайную добавку: 10…3600 с и 0…3600 с</string>
     <string name="settings_demo_effects">Эффекты в демо-режиме</string>
     <string name="settings_wifi">WiFi</string>
     <string name="settings_wifi_mode">Режим</string>
@@ -160,9 +178,9 @@
     <string name="settings_wifi_state_connecting">Подключение…</string>
     <string name="settings_wifi_state_connected">Подключена: %1$s, %2$d дБм</string>
     <string name="settings_wifi_state_error">Не удалось подключиться: неверный пароль или сеть не найдена (лампе нужна сеть 2,4 ГГц)</string>
-    <string name="settings_name">Имя лампы</string>
-    <string name="settings_name_label">Имя в эфире</string>
-    <string name="settings_name_hint">До %1$d байт; пустое - стандартное FireLamp-XXXX. Вступает в силу после перезагрузки</string>
+    <string name="settings_name">Имя лампы в Bluetooth</string>
+    <string name="settings_name_label">Имя</string>
+    <string name="settings_name_hint">Видно всем телефонам. До %1$d байт; пустое — стандартное FireLamp-XXXX. Вступает в силу после перезагрузки</string>
     <string name="settings_time">Время</string>
     <string name="settings_time_not_set">Не установлено</string>
     <string name="settings_time_source_none">нет источника</string>
@@ -171,10 +189,11 @@
     <string name="settings_time_source_sntp">из интернета</string>
     <string name="settings_time_source_api">через HTTP API</string>
     <string name="settings_time_zone">Часовой пояс: %1$s</string>
-    <string name="settings_time_zone_phone">Часовой пояс телефона: %1$s</string>
-    <string name="settings_time_sync">Взять время и часовой пояс с телефона</string>
+    <string name="settings_time_zone_dst">%1$s, летом %2$s</string>
+    <string name="settings_time_zone_phone">У телефона: %1$s</string>
+    <string name="settings_time_sync">Синхронизировать с телефоном</string>
     <string name="settings_fps">Частота кадров</string>
-    <string name="settings_fps_hint">Выше - плавнее, но некоторые эффекты тогда идут быстрее</string>
+    <string name="settings_fps_hint">Выше — плавнее, но некоторые эффекты тогда идут быстрее</string>
     <string name="settings_reset">Сброс</string>
     <string name="settings_reset_effects">Сбросить параметры эффектов</string>
     <string name="settings_reset_effects_confirm">Вернуть параметры всех эффектов к значениям по умолчанию?</string>
@@ -190,8 +209,8 @@
     <string name="fw_available">Доступна версия %1$s</string>
     <string name="fw_no_official_build">Для этой лампы нет официальной прошивки (%1$s, последний релиз %2$s): она собрана под другое железо.</string>
     <string name="fw_install_from_phone">Установить с телефона</string>
-    <string name="fw_install_by_lamp">Пусть лампа установит через WiFi</string>
-    <string name="fw_ask_lamp_to_check">Пусть лампа проверит через WiFi</string>
+    <string name="fw_install_by_lamp">Лампа скачает сама по WiFi</string>
+    <string name="fw_ask_lamp_to_check">Проверить на лампе по WiFi</string>
     <string name="fw_hint_both">С телефона обновление идёт по Bluetooth и занимает несколько минут; через WiFi лампа скачивает его сама и продолжит, даже если телефон уйдёт.</string>
     <string name="fw_hint_phone_only">Обновление идёт по Bluetooth и занимает несколько минут. Настройте WiFi, чтобы лампа могла обновляться сама.</string>
     <string name="fw_lamp_found">Лампа нашла версию %1$s</string>
@@ -210,10 +229,11 @@
     <string name="fw_progress_checking">Проверка обновления…</string>
     <string name="fw_progress_downloading">Скачивание прошивки…</string>
     <string name="fw_progress_preparing">Лампа готовит память…</string>
-    <string name="fw_progress_uploading">Передача в лампу: %1$d из %2$d КБ</string>
+    <string name="fw_progress_uploading">Передача в лампу…</string>
+    <string name="fw_progress_amount">%1$s / %2$s КБ</string>
     <string name="fw_progress_verifying">Лампа проверяет прошивку…</string>
     <string name="fw_progress_lamp_checking">Лампа ищет обновление…</string>
-    <string name="fw_progress_lamp_downloading">Лампа скачивает: %1$d из %2$d КБ</string>
+    <string name="fw_progress_lamp_downloading">Лампа скачивает…</string>
     <string name="fw_progress_rebooting">Лампа перезапускается с новой прошивкой…</string>
     <string name="fw_progress_keep_close">Держите телефон рядом с лампой и не закрывайте приложение</string>
     <string name="ota_error_busy">обновление уже идёт</string>

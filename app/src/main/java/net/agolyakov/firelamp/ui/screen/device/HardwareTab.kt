@@ -6,20 +6,17 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.selection.selectable
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import net.agolyakov.firelamp.R
@@ -34,6 +31,7 @@ import net.agolyakov.firelamp.protocol.Rotation
 import net.agolyakov.firelamp.protocol.Wiring
 import net.agolyakov.firelamp.ui.component.ChoiceRow
 import net.agolyakov.firelamp.ui.component.NumberField
+import net.agolyakov.firelamp.ui.component.RadioRow
 import net.agolyakov.firelamp.ui.component.SaveButton
 import net.agolyakov.firelamp.ui.component.SettingsSection
 import net.agolyakov.firelamp.ui.component.SwitchRow
@@ -72,7 +70,7 @@ fun HardwareTab(
 @Composable
 private fun MatrixSection(saved: LedSettings, onSave: (LedSettings) -> Unit) {
     // Edited as a draft and written as a whole: the lamp checks the fields together
-    var draft by remember(saved) { mutableStateOf(saved) }
+    var draft by rememberSaveable(saved) { mutableStateOf(saved) }
     var widthValid by remember(saved) { mutableStateOf(true) }
     var heightValid by remember(saved) { mutableStateOf(true) }
     var limitValid by remember(saved) { mutableStateOf(true) }
@@ -170,40 +168,35 @@ private fun ControlsSection(
     saved: HardwareSettings,
     onSave: (Controls, Boolean) -> Unit,
 ) {
-    var controls by remember(saved) { mutableStateOf(saved.controls) }
-    var activeHigh by remember(saved) { mutableStateOf(saved.buttonsActiveHigh) }
+    var controls by rememberSaveable(saved) { mutableStateOf(saved.controls) }
+    var activeHigh by rememberSaveable(saved) { mutableStateOf(saved.buttonsActiveHigh) }
 
     SettingsSection(stringResource(R.string.hw_controls)) {
         Column {
             saved.supportedControls.forEach { option ->
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .selectable(selected = option == controls, role = Role.RadioButton) { controls = option }
-                ) {
-                    RadioButton(selected = option == controls, onClick = null)
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(stringResource(controlsLabel(option)), style = MaterialTheme.typography.bodyLarge)
-                        Text(
-                            stringResource(controlsHint(option)),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.outline
-                        )
-                    }
-                }
+                RadioRow(
+                    label = stringResource(controlsLabel(option)),
+                    hint = stringResource(controlsHint(option)),
+                    selected = option == controls,
+                    onClick = { controls = option }
+                )
             }
         }
         // Main/Up/Down: a touch pad has no buttons, the Reset button is always active low
         if (controls != Controls.TOUCH_PAD) {
-            SwitchRow(
-                label = stringResource(R.string.hw_buttons_active_high),
-                hint = stringResource(
-                    if (activeHigh) R.string.hw_buttons_active_high_hint else R.string.hw_buttons_active_low_hint
-                ),
-                checked = activeHigh,
-                onCheckedChange = { activeHigh = it }
-            )
+            Text(stringResource(R.string.hw_buttons_wiring), style = MaterialTheme.typography.bodyMedium)
+            Column {
+                RadioRow(
+                    label = stringResource(R.string.hw_buttons_to_gnd),
+                    selected = !activeHigh,
+                    onClick = { activeHigh = false }
+                )
+                RadioRow(
+                    label = stringResource(R.string.hw_buttons_to_vcc),
+                    selected = activeHigh,
+                    onClick = { activeHigh = true }
+                )
+            }
         }
         SaveButton(
             text = stringResource(R.string.save),
