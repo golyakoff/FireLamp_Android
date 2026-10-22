@@ -20,6 +20,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v5
 
+      # Effect preview GIFs are bundled from the firmware's latest main (see syncEffectPreviews
+      # in app/build.gradle.kts, which fails the build on CI without them)
+      - name: Checkout firmware effect previews
+        uses: actions/checkout@v5
+        with:
+          repository: golyakoff/FireLamp_ESP32
+          ref: main
+          path: firmware
+          sparse-checkout: preview
+
       - name: Set up JDK 21
         uses: actions/setup-java@v5
         with:
@@ -35,6 +45,8 @@ jobs:
           echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > ${{ runner.temp }}/keystore.jks
 
       - name: Build Signed APK
+        env:
+          FIRELAMP_PREVIEWS_DIR: ${{ github.workspace }}/firmware/preview
         run: |
           ./gradlew assembleRelease \
             -Pandroid.injected.signing.store.file=${{ runner.temp }}/keystore.jks \

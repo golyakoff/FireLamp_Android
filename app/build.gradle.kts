@@ -77,6 +77,61 @@ android {
     }
 }
 
+// ---------- Effect previews ----------
+// GIFs named by effect code (fire.gif, ...) live in the firmware repo (FireLamp_ESP32/preview) and
+// are copied into generated assets (assets/previews/) on every build, so an APK always carries
+// the previews of the firmware it is built next to; they are not committed here. The source is
+// -Pfirelamp.previewsDir=..., else $FIRELAMP_PREVIEWS_DIR (CI checks the firmware out), else the
+// sibling checkout. Missing source: an error on CI, a warning locally (the app then downloads
+// the previews from GitHub on demand).
+abstract class SyncEffectPreviews : DefaultTask() {
+    @get:InputDirectory
+    @get:Optional
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    abstract val sourceDir: DirectoryProperty
+
+    @get:Input
+    abstract val required: Property<Boolean>
+
+    @get:OutputDirectory
+    abstract val outputDir: DirectoryProperty
+
+    @TaskAction
+    fun sync() {
+        val out = outputDir.get().asFile.resolve("previews")
+        out.deleteRecursively()
+        out.mkdirs()
+        val source = sourceDir.orNull?.asFile
+        val gifs = source?.listFiles { file -> file.extension == "gif" }.orEmpty()
+        if (gifs.isEmpty()) {
+            val message = "No effect previews (*.gif) in ${source ?: "the firmware checkout"}: " +
+                "set -Pfirelamp.previewsDir or FIRELAMP_PREVIEWS_DIR to FireLamp_ESP32/preview"
+            if (required.get()) throw GradleException(message)
+            logger.warn("w: $message; the app will download them")
+            return
+        }
+        gifs.forEach { it.copyTo(out.resolve(it.name)) }
+        logger.lifecycle("Effect previews: ${gifs.size} from $source")
+    }
+}
+
+val previewsDir = providers.gradleProperty("firelamp.previewsDir")
+    .orElse(providers.environmentVariable("FIRELAMP_PREVIEWS_DIR"))
+    .orElse(rootDir.resolve("../../FireLampBLE/FireLamp_ESP32/preview").path)
+    .map { file(it) }
+
+val syncEffectPreviews = tasks.register<SyncEffectPreviews>("syncEffectPreviews") {
+    // An absent directory stays unset: Gradle rejects a missing @InputDirectory
+    previewsDir.get().takeIf { it.isDirectory }?.let { sourceDir.set(it) }
+    required.set(providers.environmentVariable("CI").map { it == "true" }.orElse(false))
+}
+
+androidComponents {
+    onVariants { variant ->
+        variant.sources.assets?.addGeneratedSourceDirectory(syncEffectPreviews, SyncEffectPreviews::outputDir)
+    }
+}
+
 // AGP 9 compiles Kotlin itself (built-in Kotlin): no kotlin-android plugin
 kotlin {
     compilerOptions {
@@ -111,6 +166,10 @@ dependencies {
     ksp(libs.hilt.compiler)
     implementation(libs.nordic.ble)
     implementation(libs.nordic.ble.ktx)
+    // Effect preview GIFs: bundled ones from assets, missing ones from GitHub
+    implementation(libs.coil.compose)
+    implementation(libs.coil.gif)
+    implementation(libs.coil.network.okhttp)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

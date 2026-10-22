@@ -5,12 +5,14 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -213,13 +215,21 @@ private fun CurrentEffectCard(
                 IconButton(onClick = { onNextEffect(false) }) {
                     Icon(Icons.AutoMirrored.Filled.NavigateBefore, contentDescription = stringResource(R.string.lamp_previous_effect))
                 }
-                Text(
-                    text = effect?.let { effectName(it) } ?: lampState.effectCode,
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center,
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center,
                     modifier = Modifier.weight(1f)
-                )
+                ) {
+                    // What the lamp shows, playing while it is on (follows ◀ ▶ and the demo)
+                    EffectPreview(lampState.effectCode, playing = lampState.on, modifier = Modifier.size(40.dp))
+                    Spacer(Modifier.width(12.dp))
+                    Text(
+                        text = effect?.let { effectName(it) } ?: lampState.effectCode,
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 2
+                    )
+                }
                 IconButton(onClick = { onNextEffect(true) }) {
                     Icon(Icons.AutoMirrored.Filled.NavigateNext, contentDescription = stringResource(R.string.lamp_next_effect))
                 }
@@ -429,28 +439,73 @@ private fun HueSwatch(color: Color) {
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
+/**
+ * Effects as preview tiles: a tap switches the lamp to the effect, and its tile plays while the
+ * others show their first frame. As many columns as fit (at least 3).
+ */
 @Composable
 private fun EffectList(
     effects: List<EffectInfo>,
     currentCode: String,
     onSelectEffect: (String) -> Unit,
 ) {
-    Column {
-        Text(
-            stringResource(R.string.lamp_effects),
-            style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            effects.forEach { effect ->
-                FilterChip(
-                    selected = effect.code == currentCode,
-                    onClick = { onSelectEffect(effect.code) },
-                    label = { Text(effectName(effect)) }
-                )
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text(stringResource(R.string.lamp_effects), style = MaterialTheme.typography.titleMedium)
+        BoxWithConstraints {
+            val columns = (maxWidth / TILE_MIN_WIDTH).toInt().coerceAtLeast(3)
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                effects.chunked(columns).forEach { row ->
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        row.forEach { effect ->
+                            EffectTile(
+                                effect = effect,
+                                selected = effect.code == currentCode,
+                                onClick = { onSelectEffect(effect.code) },
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+                        // Keep the last row's tiles the same width
+                        repeat(columns - row.size) { Spacer(Modifier.weight(1f)) }
+                    }
+                }
             }
         }
+    }
+}
+
+private val TILE_MIN_WIDTH = 88.dp
+
+@Composable
+private fun EffectTile(effect: EffectInfo, selected: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    val shape = RoundedCornerShape(8.dp)
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier
+            .clip(shape)
+            .clickable(onClick = onClick)
+    ) {
+        EffectPreview(
+            code = effect.code,
+            playing = selected,
+            modifier = Modifier
+                .fillMaxWidth()
+                .aspectRatio(1f)
+                .border(
+                    width = if (selected) 3.dp else 0.dp,
+                    color = if (selected) MaterialTheme.colorScheme.primary else Color.Transparent,
+                    shape = shape
+                )
+        )
+        Text(
+            effectName(effect),
+            style = MaterialTheme.typography.labelMedium,
+            fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
+            color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+            textAlign = TextAlign.Center,
+            maxLines = 2,
+            minLines = 2,
+            modifier = Modifier.padding(top = 4.dp)
+        )
     }
 }
 

@@ -36,6 +36,13 @@ The Linux dev box has ~4 GB RAM: machine-local Gradle limits live in `~/.gradle/
 There is no phone attached to it — nothing can be checked with adb there; the unit tests are the
 main safety net for the wire format.
 
+Effect preview GIFs (`<effect code>.gif`) are not committed: the `syncEffectPreviews` task
+(app/build.gradle.kts) copies them on every build from the firmware's `preview/` folder into
+generated assets (`assets/previews/`). Source: `-Pfirelamp.previewsDir`, else
+`$FIRELAMP_PREVIEWS_DIR`, else the sibling checkout `~/projects/FireLampBLE/FireLamp_ESP32/preview`.
+Missing previews fail the build on CI (`CI=true`) and only warn locally; the app then downloads
+them from GitHub (`EffectPreviews`, Coil 3, disk-cached).
+
 CI (`.github/workflows/release.yml`) builds a signed release APK and publishes a GitHub Release
 on a `v*.*.*` tag; the notes come from the `# Release X.Y.Z` section of `CHANGELOG.md`.
 
@@ -108,6 +115,8 @@ MVVM + Hilt + single-Activity Compose Navigation, as in the sibling apps:
   (`hsv2rgb_rainbow`), not Android's HSV. Shared form pieces live in
   `ui/component/SettingsComponents.kt`. Slider writes go through `ui/viewmodel/Throttle`
   (≤ 1 write per 100 ms per key) and `ui/component/SyncedSlider`.
+- `EffectList` on the Lamp tab is a grid of preview tiles (`EffectPreview`): the selected one
+  plays, the rest show their first frame (two Coil loaders; `key(playing)` forces a reload).
 - **Effects are identified by text codes** (`fire`, `plasma_waves`), never by list position;
   the app may localize names by code and falls back to the English name from the lamp.
 
