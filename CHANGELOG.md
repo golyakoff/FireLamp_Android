@@ -1,3 +1,7 @@
+# Release 0.5.3
+
+- Effect speed is called Tempo and shown in percent; with lamp firmware 0.5.0 the effects that had no speed get a Tempo too (they slow down smoothly)
+
 # Release 0.5.2
 
 - Effects Starfall, Thunderstorm, Twinkles, Butterflies, Rainbow snake, Soaring fire, Fireflies with trails and Drops on glass and their parameters have their names in the app language (they were shown in English)
