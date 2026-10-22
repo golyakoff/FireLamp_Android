@@ -1,3 +1,7 @@
+# Release 0.5.2
+
+- Effects Starfall, Thunderstorm, Twinkles, Butterflies, Rainbow snake, Soaring fire, Fireflies with trails and Drops on glass and their parameters have their names in the app language (they were shown in English)
+
 # Release 0.5.1
 
 - System tab, controls: the button pin is chosen from a list of the pins the lamp offers (lamp firmware 0.4.3 or newer); older lamps keep their fixed pin
