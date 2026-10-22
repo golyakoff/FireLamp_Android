@@ -34,6 +34,14 @@
     <string name="effect_dunes">Colored dunes</string>
     <string name="effect_octopus">Octopus</string>
     <string name="effect_nuclear">Nuclear Noise</string>
+    <string name="effect_starfall">Starfall</string>
+    <string name="effect_storm">Thunderstorm</string>
+    <string name="effect_twinkles">Twinkles</string>
+    <string name="effect_butterflies">Butterflies</string>
+    <string name="effect_rainbow_snake">Rainbow snake</string>
+    <string name="effect_soaring_fire">Soaring fire</string>
+    <string name="effect_trail_fireflies">Fireflies with trails</string>
+    <string name="effect_glass_drops">Drops on glass</string>
 
     <string name="param_red">Red</string>
     <string name="param_green">Green</string>
@@ -84,6 +92,13 @@
     <string name="param_update_time">Update time</string>
     <string name="param_legs">Legs</string>
     <string name="param_clockwise">Clockwise</string>
+    <string name="param_lightning">Lightning frequency</string>
+    <string name="param_clouds">Clouds</string>
+    <string name="param_lamp">Lamp with butterflies</string>
+    <string name="param_butterflies">Number of butterflies</string>
+    <string name="param_wings">Flapping wings</string>
+    <string name="param_rotate">Rotate colors</string>
+    <string name="param_drops">Number of drops</string>
 
     <!-- Colors, palettes and modes of effect parameters (see ui/screen/device/EffectControls.kt) -->
     <string name="color_hue">Color</string>

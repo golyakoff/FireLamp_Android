@@ -34,6 +34,14 @@
     <string name="effect_dunes">Цветные дюны</string>
     <string name="effect_octopus">Осьминог</string>
     <string name="effect_nuclear">Ядерный шум</string>
+    <string name="effect_starfall">Звездопад</string>
+    <string name="effect_storm">Гроза в банке</string>
+    <string name="effect_twinkles">Мерцание</string>
+    <string name="effect_butterflies">Мотыльки</string>
+    <string name="effect_rainbow_snake">Радужный змей</string>
+    <string name="effect_soaring_fire">Парящий огонь</string>
+    <string name="effect_trail_fireflies">Светлячки со шлейфом</string>
+    <string name="effect_glass_drops">Капли на стекле</string>
 
     <string name="param_red">Красный</string>
     <string name="param_green">Зелёный</string>
@@ -84,6 +92,13 @@
     <string name="param_update_time">Время обновления</string>
     <string name="param_legs">Щупальца</string>
     <string name="param_clockwise">По часовой стрелке</string>
+    <string name="param_lightning">Частота молний</string>
+    <string name="param_clouds">Облака</string>
+    <string name="param_lamp">Лампа с мотыльками</string>
+    <string name="param_butterflies">Количество мотыльков</string>
+    <string name="param_wings">Взмахи крыльями</string>
+    <string name="param_rotate">Смена цветов</string>
+    <string name="param_drops">Количество капель</string>
 
     <!-- Colors, palettes and modes of effect parameters (see ui/screen/device/EffectControls.kt) -->
     <string name="color_hue">Цвет</string>

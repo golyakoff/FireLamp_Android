@@ -47,6 +47,14 @@ object EffectNames {
         "dunes" to R.string.effect_dunes,
         "octopus" to R.string.effect_octopus,
         "nuclear" to R.string.effect_nuclear,
+        "starfall" to R.string.effect_starfall,
+        "storm" to R.string.effect_storm,
+        "twinkles" to R.string.effect_twinkles,
+        "butterflies" to R.string.effect_butterflies,
+        "rainbow_snake" to R.string.effect_rainbow_snake,
+        "soaring_fire" to R.string.effect_soaring_fire,
+        "trail_fireflies" to R.string.effect_trail_fireflies,
+        "glass_drops" to R.string.effect_glass_drops,
     )
 
     private val params = mapOf(
@@ -99,5 +107,12 @@ object EffectNames {
         "update_time" to R.string.param_update_time,
         "legs" to R.string.param_legs,
         "clockwise" to R.string.param_clockwise,
+        "lightning" to R.string.param_lightning,
+        "clouds" to R.string.param_clouds,
+        "lamp" to R.string.param_lamp,
+        "butterflies" to R.string.param_butterflies,
+        "wings" to R.string.param_wings,
+        "rotate" to R.string.param_rotate,
+        "drops" to R.string.param_drops,
     )
 }
