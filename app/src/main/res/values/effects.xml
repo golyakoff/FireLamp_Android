@@ -50,7 +50,7 @@
     <string name="param_scale">Scale</string>
     <string name="param_sparkles">Number of sparkles</string>
     <string name="param_fadeout">Fadeout</string>
-    <string name="param_speed">Speed</string>
+    <string name="param_speed">Tempo</string>
     <string name="param_mode">Mode</string>
     <string name="param_color">Color</string>
     <string name="param_cooling">Cooling</string>
@@ -99,6 +99,7 @@
     <string name="param_wings">Flapping wings</string>
     <string name="param_rotate">Rotate colors</string>
     <string name="param_drops">Number of drops</string>
+    <string name="param_tempo">Tempo</string>
 
     <!-- Colors, palettes and modes of effect parameters (see ui/screen/device/EffectControls.kt) -->
     <string name="color_hue">Color</string>

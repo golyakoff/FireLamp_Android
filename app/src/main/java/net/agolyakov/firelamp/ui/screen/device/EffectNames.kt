@@ -114,5 +114,6 @@ object EffectNames {
         "wings" to R.string.param_wings,
         "rotate" to R.string.param_rotate,
         "drops" to R.string.param_drops,
+        "tempo" to R.string.param_tempo,
     )
 }

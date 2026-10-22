@@ -50,7 +50,7 @@
     <string name="param_scale">Масштаб</string>
     <string name="param_sparkles">Количество искр</string>
     <string name="param_fadeout">Затухание</string>
-    <string name="param_speed">Скорость</string>
+    <string name="param_speed">Темп</string>
     <string name="param_mode">Режим</string>
     <string name="param_color">Цвет</string>
     <string name="param_cooling">Охлаждение</string>
@@ -99,6 +99,7 @@
     <string name="param_wings">Взмахи крыльями</string>
     <string name="param_rotate">Смена цветов</string>
     <string name="param_drops">Количество капель</string>
+    <string name="param_tempo">Темп</string>
 
     <!-- Colors, palettes and modes of effect parameters (see ui/screen/device/EffectControls.kt) -->
     <string name="color_hue">Цвет</string>

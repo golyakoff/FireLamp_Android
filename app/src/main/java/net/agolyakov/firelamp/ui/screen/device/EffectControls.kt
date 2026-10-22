@@ -15,6 +15,12 @@ sealed interface ParamControl {
     /** A slider or a switch. */
     data class Plain(val param: EffectParam) : ParamControl
 
+    /**
+     * The tempo of an effect: `tempo` (`10..100` %, firmware ≥ 0.5.0) or a former `speed` with its
+     * own range. Both are shown as percent of the maximum, see [EffectControls.tempoPercent].
+     */
+    data class Tempo(val param: EffectParam) : ParamControl
+
     /** A lone hue `0..255`: a slider over the lamp's rainbow. */
     data class Hue(val param: EffectParam) : ParamControl
 
@@ -33,6 +39,7 @@ sealed interface ParamControl {
     val params: List<EffectParam>
         get() = when (this) {
             is Plain -> listOf(param)
+            is Tempo -> listOf(param)
             is Hue -> listOf(param)
             is HueSaturation -> listOf(hue, saturation)
             is Rgb -> listOf(red, green, blue)
@@ -65,6 +72,8 @@ object EffectControls {
                         ParamControl.Hue(param)
                     }
                 }
+                param.code in TEMPO && param.type == ParamType.RANGE && param.max > 0 ->
+                    ParamControl.Tempo(param)
                 param.code == "palette" && param.type == ParamType.RANGE ->
                     palettesFor(effect.code).takeIf { param.min >= 0 && param.max < it.size }
                         ?.let { ParamControl.Palette(param, it.subList(param.min, param.max + 1)) }
@@ -81,6 +90,15 @@ object EffectControls {
     }
 
     /**
+     * A tempo value as percent of the parameter's maximum: `tempo` is percent already, a former
+     * `speed` (e.g. Lava `0..50`, Dunes `1..10`) gets the same scale. Never 0 % while it moves.
+     */
+    fun tempoPercent(param: EffectParam, value: Int = param.value): Int {
+        if (param.max <= 0 || value <= 0) return 0
+        return ((value * 100 + param.max / 2) / param.max).coerceIn(1, 100)
+    }
+
+    /**
      * Whether a parameter matters with the current values of the others (e.g. the lava palette
      * only in the palette mode). One that does not is shown dimmed.
      */
@@ -91,6 +109,9 @@ object EffectControls {
     }
 
     private val RGB = listOf("red", "green", "blue")
+
+    // the effect's own speed parameter or the common tempo: an effect has one of them
+    private val TEMPO = setOf("tempo", "speed")
 
     private fun isHueCode(code: String) =
         code == "hue" || code == "color" || code.startsWith("hue_") || code.endsWith("_hue")

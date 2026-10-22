@@ -284,6 +284,14 @@ private fun ParamControlRow(effect: EffectInfo, control: ParamControl, onChange:
                 )
             }
         }
+        is ParamControl.Tempo -> SliderRow(
+            label = paramName(control.param),
+            value = control.param.value,
+            range = control.param.min..control.param.max,
+            enabled = active,
+            onValueChange = { onChange(control.param.code, it) },
+            valueLabel = { SliderValue("${EffectControls.tempoPercent(control.param, it)}%") }
+        )
         is ParamControl.Hue -> SliderRow(
             label = paramName(control.param),
             value = control.param.value,
