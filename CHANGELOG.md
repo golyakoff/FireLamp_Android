@@ -1,3 +1,9 @@
+# Release 0.5.0
+
+- Effect previews: the effect list is a grid of animated tiles made from the firmware's previews; tapping a tile switches the lamp to that effect and plays its preview, the others show their first frame
+- A small playing preview next to the current effect's name follows the previous/next buttons and the demo mode
+- Previews are built into the app; effects of a newer lamp firmware get theirs downloaded once
+
 # Release 0.4.0
 
 - Effect colors are picked on a color wheel instead of number sliders: red/green/blue of the Color lamp (with brightness and white presets), hue + saturation pairs in the lamp's own rainbow; a lone hue slider shows the rainbow; changes show on the lamp live
