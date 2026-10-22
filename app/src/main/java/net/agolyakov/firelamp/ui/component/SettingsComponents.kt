@@ -27,6 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
@@ -149,6 +150,7 @@ fun SliderRow(
     onValueChange: (Int) -> Unit,
     enabled: Boolean = true,
     valueLabel: @Composable (Int) -> Unit = { SliderValue(it.toString()) },
+    trackBrush: Brush? = null,
 ) {
     Column {
         Text(
@@ -156,7 +158,14 @@ fun SliderRow(
             style = MaterialTheme.typography.bodyLarge,
             color = if (enabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.outline
         )
-        SyncedSlider(value = value, range = range, onValueChange = onValueChange, enabled = enabled, valueLabel = valueLabel)
+        SyncedSlider(
+            value = value,
+            range = range,
+            onValueChange = onValueChange,
+            enabled = enabled,
+            valueLabel = valueLabel,
+            trackBrush = trackBrush
+        )
     }
 }
 

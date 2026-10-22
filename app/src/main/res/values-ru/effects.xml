@@ -84,4 +84,45 @@
     <string name="param_update_time">Время обновления</string>
     <string name="param_legs">Щупальца</string>
     <string name="param_clockwise">По часовой стрелке</string>
+
+    <!-- Colors, palettes and modes of effect parameters (see ui/screen/device/EffectControls.kt) -->
+    <string name="color_hue">Цвет</string>
+    <string name="color_bee_hue">Цвет пчёл</string>
+    <string name="color_hue_1">Цвет 1</string>
+    <string name="color_hue_2">Цвет 2</string>
+    <string name="color_start_hue">Начальный цвет</string>
+    <string name="color_brightness">Яркость</string>
+    <string name="color_done">Готово</string>
+    <string name="palette_fire">Огонь</string>
+    <string name="palette_wood_fire">Дрова</string>
+    <string name="palette_sodium_fire">Натрий</string>
+    <string name="palette_copper_fire">Медь</string>
+    <string name="palette_alcohol_fire">Спирт</string>
+    <string name="palette_rubidium_fire">Рубидий</string>
+    <string name="palette_potassium_fire">Калий</string>
+    <string name="palette_lithium_fire">Литий</string>
+    <string name="palette_cloud">Облака</string>
+    <string name="palette_lava">Лава</string>
+    <string name="palette_heat">Жар</string>
+    <string name="palette_ocean">Океан</string>
+    <string name="palette_forest">Лес</string>
+    <string name="palette_party">Праздник</string>
+    <string name="palette_rainbow">Все цвета</string>
+    <string name="palette_blue">Синяя</string>
+    <string name="palette_green">Зелёная</string>
+    <string name="mode_holiday_wave">Волна</string>
+    <string name="mode_holiday_radar">Радар</string>
+    <string name="mode_holiday_sparks">Искры</string>
+    <string name="mode_holiday_tree">Ёлка</string>
+    <string name="mode_rainbow">Радуга</string>
+    <string name="mode_lava">Лава</string>
+    <string name="mode_palette">Палитра</string>
+    <string name="mode_color">Цвет</string>
+    <string name="mode_gray">Серый</string>
+    <string name="mode_colors">Цветной</string>
+    <string name="mode_fire">Огонь</string>
+    <string name="mode_cold_fire">Холодный огонь</string>
+    <string name="direction_horizontal">Горизонтально</string>
+    <string name="direction_vertical">Вертикально</string>
+    <string name="direction_diagonal">По диагонали</string>
 </resources>

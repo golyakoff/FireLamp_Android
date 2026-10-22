@@ -84,4 +84,45 @@
     <string name="param_update_time">Update time</string>
     <string name="param_legs">Legs</string>
     <string name="param_clockwise">Clockwise</string>
+
+    <!-- Colors, palettes and modes of effect parameters (see ui/screen/device/EffectControls.kt) -->
+    <string name="color_hue">Color</string>
+    <string name="color_bee_hue">Bee color</string>
+    <string name="color_hue_1">Color 1</string>
+    <string name="color_hue_2">Color 2</string>
+    <string name="color_start_hue">Start color</string>
+    <string name="color_brightness">Brightness</string>
+    <string name="color_done">Done</string>
+    <string name="palette_fire">Fire</string>
+    <string name="palette_wood_fire">Wood fire</string>
+    <string name="palette_sodium_fire">Sodium</string>
+    <string name="palette_copper_fire">Copper</string>
+    <string name="palette_alcohol_fire">Alcohol</string>
+    <string name="palette_rubidium_fire">Rubidium</string>
+    <string name="palette_potassium_fire">Potassium</string>
+    <string name="palette_lithium_fire">Lithium</string>
+    <string name="palette_cloud">Clouds</string>
+    <string name="palette_lava">Lava</string>
+    <string name="palette_heat">Heat</string>
+    <string name="palette_ocean">Ocean</string>
+    <string name="palette_forest">Forest</string>
+    <string name="palette_party">Party</string>
+    <string name="palette_rainbow">All colors</string>
+    <string name="palette_blue">Blue</string>
+    <string name="palette_green">Green</string>
+    <string name="mode_holiday_wave">Wave</string>
+    <string name="mode_holiday_radar">Radar</string>
+    <string name="mode_holiday_sparks">Sparks</string>
+    <string name="mode_holiday_tree">Tree</string>
+    <string name="mode_rainbow">Rainbow</string>
+    <string name="mode_lava">Lava</string>
+    <string name="mode_palette">Palette</string>
+    <string name="mode_color">Color</string>
+    <string name="mode_gray">Gray</string>
+    <string name="mode_colors">Colored</string>
+    <string name="mode_fire">Fire</string>
+    <string name="mode_cold_fire">Cold fire</string>
+    <string name="direction_horizontal">Horizontal</string>
+    <string name="direction_vertical">Vertical</string>
+    <string name="direction_diagonal">Diagonal</string>
 </resources>

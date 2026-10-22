@@ -97,7 +97,13 @@ MVVM + Hilt + single-Activity Compose Navigation, as in the sibling apps:
   `DeviceScreenContent` wraps the selected tab in a `SaveableStateProvider`, so drafts survive
   a tab switch (draft models are `java.io.Serializable` for that). Never put a password there.
   Slider rows use `SliderRow`/`SliderValue` (fixed-width value, tabular digits) so sliders line up.
-  `EffectNames`: code → localized name (`res/values*/effects.xml`). Shared form pieces live in
+  `EffectNames`: code → localized name (`res/values*/effects.xml`). `EffectControls` groups an
+  effect's numeric params into controls by code (red/green/blue → RGB picker, `*hue*` +
+  `*saturation*` → color wheel, lone hue → rainbow slider, `palette` → tiles from `LampPalettes`,
+  known `mode`/`direction` → named chips, dimmed when irrelevant); anything off-table (other
+  range, newer firmware) stays a plain slider. Keep the tables in sync with the firmware's
+  `main/palettes.c` and effect enums. Colors use the lamp's own `ui/color/FastLedColor`
+  (`hsv2rgb_rainbow`), not Android's HSV. Shared form pieces live in
   `ui/component/SettingsComponents.kt`. Slider writes go through `ui/viewmodel/Throttle`
   (≤ 1 write per 100 ms per key) and `ui/component/SyncedSlider`.
 - **Effects are identified by text codes** (`fire`, `plasma_waves`), never by list position;

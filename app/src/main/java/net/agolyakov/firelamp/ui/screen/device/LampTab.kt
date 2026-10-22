@@ -1,6 +1,25 @@
 package net.agolyakov.firelamp.ui.screen.device
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Brush
+import net.agolyakov.firelamp.ui.color.ColorButton
+import net.agolyakov.firelamp.ui.color.HueSaturationDialog
+import net.agolyakov.firelamp.ui.color.LampRainbow
+import net.agolyakov.firelamp.ui.color.RgbColorDialog
+import net.agolyakov.firelamp.ui.color.lampHueColor
+import net.agolyakov.firelamp.ui.color.rgbColor
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -162,8 +181,8 @@ private fun CurrentEffectCard(
             if (effect != null && effect.params.isNotEmpty()) {
                 HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    effect.params.forEach { param ->
-                        ParamRow(param) { onParamChange(effect.code, param.code, it) }
+                    EffectControls.of(effect).forEach { control ->
+                        ParamControlRow(effect, control) { paramCode, value -> onParamChange(effect.code, paramCode, value) }
                     }
                 }
             }
@@ -172,36 +191,178 @@ private fun CurrentEffectCard(
 }
 
 @Composable
-private fun ParamRow(param: EffectParam, onChange: (Int) -> Unit) {
-    when (param.type) {
-        ParamType.BOOL -> SwitchRow(
-            label = paramName(param),
-            checked = param.value != 0,
-            onCheckedChange = { onChange(if (it) 1 else 0) }
+private fun ParamControlRow(effect: EffectInfo, control: ParamControl, onChange: (paramCode: String, value: Int) -> Unit) {
+    val active = control.params.all { EffectControls.isActive(effect, it) }
+    when (control) {
+        is ParamControl.Plain -> {
+            val param = control.param
+            when (param.type) {
+                ParamType.BOOL -> SwitchRow(
+                    label = paramName(param),
+                    checked = param.value != 0,
+                    enabled = active,
+                    onCheckedChange = { onChange(param.code, if (it) 1 else 0) }
+                )
+                ParamType.RANGE -> SliderRow(
+                    label = paramName(param),
+                    value = param.value,
+                    range = param.min..param.max,
+                    enabled = active,
+                    onValueChange = { onChange(param.code, it) }
+                )
+            }
+        }
+        is ParamControl.Hue -> SliderRow(
+            label = paramName(control.param),
+            value = control.param.value,
+            range = 0..255,
+            enabled = active,
+            onValueChange = { onChange(control.param.code, it) },
+            valueLabel = { HueSwatch(lampHueColor(it)) },
+            trackBrush = LampRainbow
         )
-        ParamType.RANGE -> SliderRow(
-            label = paramName(param),
-            value = param.value,
-            range = param.min..param.max,
-            onValueChange = onChange,
-            valueLabel = { value -> if (isHue(param)) HueSwatch(value) else SliderValue(value.toString()) }
+        is ParamControl.HueSaturation -> {
+            var open by remember { mutableStateOf(false) }
+            val label = control.label?.let { stringResource(it) } ?: paramName(control.hue)
+            ColorRow(label, lampHueColor(control.hue.value, control.saturation.value), active) { open = true }
+            if (open) {
+                HueSaturationDialog(
+                    title = label,
+                    hue = control.hue.value,
+                    saturation = control.saturation.value,
+                    onChange = { h, sat ->
+                        onChange(control.hue.code, h)
+                        onChange(control.saturation.code, sat)
+                    },
+                    onDismiss = { open = false }
+                )
+            }
+        }
+        is ParamControl.Rgb -> {
+            var open by remember { mutableStateOf(false) }
+            val label = stringResource(R.string.color_hue)
+            val rgb = (control.red.value shl 16) or (control.green.value shl 8) or control.blue.value
+            ColorRow(label, rgbColor(rgb), active) { open = true }
+            if (open) {
+                RgbColorDialog(
+                    title = label,
+                    red = control.red.value,
+                    green = control.green.value,
+                    blue = control.blue.value,
+                    onChange = { r, g, b ->
+                        onChange(control.red.code, r)
+                        onChange(control.green.code, g)
+                        onChange(control.blue.code, b)
+                    },
+                    onDismiss = { open = false }
+                )
+            }
+        }
+        is ParamControl.Palette -> PaletteRow(paramName(control.param), control, active) { onChange(control.param.code, it) }
+        is ParamControl.Choice -> ChoiceChips(paramName(control.param), control, active) { onChange(control.param.code, it) }
+    }
+}
+
+/** A label and a color sample that opens the picker. */
+@Composable
+private fun ColorRow(label: String, color: Color, enabled: Boolean, onClick: () -> Unit) {
+    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(vertical = 4.dp)) {
+        Text(
+            label,
+            style = MaterialTheme.typography.bodyLarge,
+            color = if (enabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.outline,
+            modifier = Modifier.weight(1f)
+        )
+        ColorButton(color, enabled, onClick)
+    }
+}
+
+/** Palette tiles in a row, each a gradient of the palette's colors with its name. */
+@Composable
+private fun PaletteRow(label: String, control: ParamControl.Palette, enabled: Boolean, onSelect: (Int) -> Unit) {
+    val selected = control.param.value - control.param.min
+    val listState = rememberLazyListState(initialFirstVisibleItemIndex = (selected - 1).coerceAtLeast(0))
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Text(
+            label,
+            style = MaterialTheme.typography.bodyLarge,
+            color = if (enabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.outline
+        )
+        LazyRow(state = listState, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            itemsIndexed(control.palettes) { index, palette ->
+                PaletteTile(palette, selected = index == selected, enabled = enabled) { onSelect(control.param.min + index) }
+            }
+        }
+    }
+}
+
+@Composable
+private fun PaletteTile(palette: LampPalette, selected: Boolean, enabled: Boolean, onClick: () -> Unit) {
+    val shape = RoundedCornerShape(8.dp)
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .width(88.dp)
+            .alpha(if (enabled) 1f else 0.38f)
+            .clip(shape)
+            .clickable(enabled = enabled, onClick = onClick)
+            .padding(4.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(36.dp)
+                .clip(shape)
+                .background(Brush.horizontalGradient(palette.colors.map { rgbColor(it) }))
+                .border(
+                    width = if (selected) 3.dp else 1.dp,
+                    color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant,
+                    shape = shape
+                )
+        )
+        Text(
+            stringResource(palette.name),
+            style = MaterialTheme.typography.labelSmall,
+            fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
+            textAlign = TextAlign.Center,
+            maxLines = 2,
+            modifier = Modifier.padding(top = 2.dp)
         )
     }
 }
 
-/** Hue parameters are 0..255 around the color wheel (FastLED hue). */
-private fun isHue(param: EffectParam) =
-    (param.code == "hue" || param.code.startsWith("hue_") || param.code.endsWith("_hue")) &&
-        param.min == 0 && param.max == 255
+/** Named mode values as chips (labels may be too long for segmented buttons). */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun ChoiceChips(label: String, control: ParamControl.Choice, enabled: Boolean, onSelect: (Int) -> Unit) {
+    Column {
+        Text(
+            label,
+            style = MaterialTheme.typography.bodyLarge,
+            color = if (enabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.outline
+        )
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            control.labels.forEachIndexed { index, labelRes ->
+                val value = control.param.min + index
+                FilterChip(
+                    selected = control.param.value == value,
+                    enabled = enabled,
+                    onClick = { onSelect(value) },
+                    label = { Text(stringResource(labelRes)) }
+                )
+            }
+        }
+    }
+}
 
 @Composable
-private fun HueSwatch(hue: Int) {
+private fun HueSwatch(color: Color) {
     Box(contentAlignment = Alignment.CenterEnd, modifier = Modifier.width(SliderValueWidth)) {
         Box(
             modifier = Modifier
                 .size(24.dp)
                 .clip(CircleShape)
-                .background(Color.hsv(hue * 360f / 256f, 1f, 1f))
+                .background(color)
         )
     }
 }
