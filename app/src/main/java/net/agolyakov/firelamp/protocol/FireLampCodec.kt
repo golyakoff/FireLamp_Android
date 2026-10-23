@@ -46,6 +46,8 @@ object FireLampCodec {
             firmwareVersion = str8(),
             buildDate = str8(),
             buildVariant = str8(),
+            // firmware 0.8.0+
+            previousFirmware = if (remaining > 0) str8() else "",
         )
     }
 

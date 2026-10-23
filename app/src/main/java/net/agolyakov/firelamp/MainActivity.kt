@@ -65,13 +65,14 @@ class MainActivity : ComponentActivity() {
         super.onPause()
         // isChangingConfigurations: a rotation or language switch pauses the activity only to
         // recreate it — that must not drop the session (or an OTA transfer riding on it)
-        if (!isChangingConfigurations && !bluetoothService.shouldPreserveConnection()) {
-            bluetoothService.disconnect()
+        if (!isChangingConfigurations) {
+            bluetoothService.onAppBackground()
         }
     }
 
     override fun onResume() {
         super.onResume()
+        bluetoothService.onAppForeground()
         bluetoothService.tryReconnect()
     }
 

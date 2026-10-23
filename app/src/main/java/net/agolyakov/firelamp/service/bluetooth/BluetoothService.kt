@@ -6,6 +6,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -338,6 +339,27 @@ class BluetoothService @Inject constructor(
 
     fun shouldPreserveConnection(): Boolean = isOtaUpdateMode
 
+    private var backgroundJob: Job? = null
+
+    /**
+     * The app left the screen: the link stays for [BACKGROUND_KEEP_MS], so a quick look at
+     * another app does not cost a reconnect, then it is dropped (the lamp serves one phone at a
+     * time). An OTA transfer keeps it as long as it runs.
+     */
+    fun onAppBackground() {
+        backgroundJob?.cancel()
+        backgroundJob = scope.launch {
+            delay(BACKGROUND_KEEP_MS)
+            if (!shouldPreserveConnection()) disconnect()
+        }
+    }
+
+    /** Back on the screen before [onAppBackground] dropped the link: it goes on. */
+    fun onAppForeground() {
+        backgroundJob?.cancel()
+        backgroundJob = null
+    }
+
     /** Forgets the phone's half of the bond (the "Forget" button of the Bluetooth settings). */
     fun forgetBond(macAddress: String): Boolean =
         removeBond(bluetoothAdapterProvider.getAdapter().getRemoteDevice(macAddress))
@@ -639,5 +661,8 @@ class BluetoothService @Inject constructor(
          * answer before pairing completed), insufficient encryption, and Android's GATT_AUTH_FAIL.
          */
         val AUTH_FAILURES = setOf(0x05, FireLampGatt.ATT_INSUFFICIENT_ENCRYPTION, 0x89)
+
+        /** How long the link outlives the app leaving the screen. */
+        const val BACKGROUND_KEEP_MS = 5 * 60 * 1000L
     }
 }

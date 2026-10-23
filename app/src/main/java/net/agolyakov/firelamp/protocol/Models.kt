@@ -44,6 +44,11 @@ data class DeviceInfo(
     val buildDate: String,
     /** `default` for official releases (hardware configuration). */
     val buildVariant: String,
+    /**
+     * The firmware in the lamp's other OTA slot, which [Command.ROLLBACK] goes back to; empty if
+     * there is none or the lamp is older than firmware 0.8.0.
+     */
+    val previousFirmware: String = "",
 ) {
     val hasRtc: Boolean get() = features and FEATURE_RTC != 0
     val hasEeprom: Boolean get() = features and FEATURE_EEPROM != 0
@@ -334,7 +339,9 @@ enum class Command(override val code: Int) : Coded {
     CHECK_UPDATE(0x06),
     INSTALL_UPDATE(0x07),
     /** Scan for WiFi networks; the result comes in WiFi networks (0x0014). */
-    SCAN_WIFI(0x08)
+    SCAN_WIFI(0x08),
+    /** Reboot into [DeviceInfo.previousFirmware], settings kept (firmware 0.8.0+). */
+    ROLLBACK(0x09)
 }
 
 // ---------- 0x000D Demo settings ----------

@@ -17,6 +17,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -45,6 +49,8 @@ interface FirmwareActions {
     fun askLampToCheck()
     fun installByLamp(version: String?)
     fun cancel()
+    /** Reboot the lamp into its previous firmware ([DeviceInfo.previousFirmware]). */
+    fun goBack()
 }
 
 /**
@@ -110,9 +116,36 @@ fun FirmwareSection(
             }
         }
         Hint(stringResource(if (lampCanUpdate) R.string.fw_hint_both else R.string.fw_hint_phone_only))
+
+        if (info.previousFirmware.isNotEmpty()) GoBackButton(info.previousFirmware, !state.isBusy, actions::goBack)
     }
 
     if (state.isBusy) ProgressDialog(state, actions::cancel)
+}
+
+/** Back to the firmware in the other OTA slot, after a confirmation. */
+@Composable
+private fun GoBackButton(version: String, enabled: Boolean, onGoBack: () -> Unit) {
+    var confirm by remember { mutableStateOf(false) }
+    TextButton(onClick = { confirm = true }, enabled = enabled, modifier = Modifier.fillMaxWidth()) {
+        Text(stringResource(R.string.fw_go_back, version))
+    }
+    if (confirm) {
+        AlertDialog(
+            onDismissRequest = { confirm = false },
+            title = { Text(stringResource(R.string.fw_go_back, version)) },
+            text = { Text(stringResource(R.string.fw_go_back_confirm, version)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    confirm = false
+                    onGoBack()
+                }) { Text(stringResource(R.string.fw_go_back_do)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { confirm = false }) { Text(stringResource(R.string.dialog_cancel)) }
+            }
+        )
+    }
 }
 
 @Composable

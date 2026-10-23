@@ -154,6 +154,10 @@ class DeviceViewModel @Inject constructor(
 
     override fun cancel() = firmwareUpdater.cancel()
 
+    override fun goBack() {
+        viewModelScope.launch { bluetoothService.sendCommand(Command.ROLLBACK) }
+    }
+
     // ---------- System tab ----------
 
     val ledSettings = bluetoothService.ledSettings
@@ -188,8 +192,8 @@ class DeviceViewModel @Inject constructor(
             combine(connectionState, foreground) { state, fg -> state to fg }.collectLatest { (state, fg) ->
                 when {
                     state == ConnectionState.Ready -> _reconnect.value = Reconnect()
-                    // Not in the background: MainActivity disconnects on pause, the lamp serves
-                    // one phone at a time. Not after a pairing rejection: that needs the user at
+                    // Not in the background: the link stays there for 5 minutes and is then
+                    // dropped (BluetoothService.onAppBackground), the lamp serves one phone at a time. Not after a pairing rejection: that needs the user at
                     // the lamp first.
                     !fg || device == null -> {}
                     state is ConnectionState.Disconnected || state is ConnectionState.Error -> {

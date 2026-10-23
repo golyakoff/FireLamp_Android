@@ -179,7 +179,7 @@
     <string name="settings_wifi_mode">Mode</string>
     <string name="settings_wifi_off">Off</string>
     <string name="settings_wifi_periodic">Periodic</string>
-    <string name="settings_wifi_always">Always on</string>
+    <string name="settings_wifi_always">Always</string>
     <string name="settings_wifi_off_hint">The lamp works fully without WiFi</string>
     <string name="settings_wifi_periodic_hint">Every few hours the lamp connects, syncs the time, checks for a firmware update and disconnects</string>
     <string name="settings_wifi_always_hint">Stays connected: time sync, update checks and the HTTP API</string>
@@ -232,6 +232,9 @@
     <string name="fw_lamp_checking">The lamp is checking…</string>
     <string name="fw_lamp_check_failed">The lamp could not check for updates</string>
     <string name="fw_done">Updated to %1$s</string>
+    <string name="fw_go_back">Go back to %1$s</string>
+    <string name="fw_go_back_confirm">The lamp reboots into its previous firmware %1$s, the settings stay. To the newer version again: install the update. Without a phone the lamp goes back when its main button is held for 5 seconds while it is powered on.</string>
+    <string name="fw_go_back_do">Go back</string>
     <string name="fw_rolled_back">The new firmware did not start, the lamp went back to %1$s</string>
     <string name="fw_error_no_internet">Could not download the update: check the internet connection</string>
     <string name="fw_error_bad_file">The downloaded file is damaged, try again</string>

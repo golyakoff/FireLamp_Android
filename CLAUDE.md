@@ -97,9 +97,11 @@ MVVM + Hilt + single-Activity Compose Navigation, as in the sibling apps:
   language.
 - **UI** — `ui/screen/home` scans by service UUID and adds lamps the phone already has a GATT
   link with (a connected lamp does not advertise; Android often keeps the link to a just bonded
-  lamp itself); if exactly one such lamp exists at app start, its screen opens right away (once
-  per process). `ui/screen/device`: `DeviceViewModel` (auto-reconnect: 3 attempts, 2/4/8 s, only
-  while resumed; then a "Connect" button), `DeviceScreen` (state header, pairing/connection
+  lamp itself); a lamp neither advertising nor linked for 30 s leaves the list. If exactly one
+  linked lamp exists at app start, its screen opens right away (once per process). The link
+  outlives the app leaving the screen by 5 minutes (`BluetoothService.onAppBackground`, from
+  `MainActivity.onPause`), then it is dropped. `ui/screen/device`: `DeviceViewModel`
+  (auto-reconnect: 3 attempts, 2/4/8 s, only while resumed; then a "Connect" button), `DeviceScreen` (state header, pairing/connection
   cards, 4 tabs), one file per tab: `LampTab` (power, brightness, folded FPS, effects, parameters,
   demo switch + `DemoSettingsSheet` for demo timing and effects), `ScheduleTab` (power on/off,
   dawn, hourly brightness as cards that unfold when switched on - the whole schedule as one

@@ -48,6 +48,18 @@ class FireLampCodecTest {
         assertEquals("Oct 21 2026 12:00:00", info.buildDate)
         assertEquals("default", info.buildVariant)
         assertEquals("esp32c3-default", info.firmwareBuildKey)
+        // firmware before 0.8.0 ends after the build variant
+        assertEquals("", info.previousFirmware)
+    }
+
+    @Test
+    fun deviceInfoPreviousFirmware() {
+        val bytes = hex("01 00 04 0c 00 10 10 2a 00 " + str8("0.8.0") + " " + str8("Oct 24 2026 12:00:00") + " " +
+            str8("default") + " " + str8("0.7.0"))
+        assertEquals("0.7.0", FireLampCodec.decodeDeviceInfo(bytes).previousFirmware)
+        val none = hex("01 00 04 0c 00 10 10 2a 00 " + str8("0.8.0") + " " + str8("Oct 24 2026 12:00:00") + " " +
+            str8("default") + " 00")
+        assertEquals("", FireLampCodec.decodeDeviceInfo(none).previousFirmware)
     }
 
     @Test(expected = UnsupportedProtocolException::class)
@@ -301,6 +313,7 @@ class FireLampCodecTest {
         assertArrayEquals(hex("01"), FireLampCodec.encodeCommand(Command.REBOOT))
         assertArrayEquals(hex("07"), FireLampCodec.encodeCommand(Command.INSTALL_UPDATE))
         assertArrayEquals(hex("08"), FireLampCodec.encodeCommand(Command.SCAN_WIFI))
+        assertArrayEquals(hex("09"), FireLampCodec.encodeCommand(Command.ROLLBACK))
     }
 
     @Test

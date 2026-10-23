@@ -3,6 +3,7 @@ package net.agolyakov.firelamp.ui.screen.home
 import android.Manifest
 import android.bluetooth.le.*
 import android.os.ParcelUuid
+import android.os.SystemClock
 import android.util.Log
 import androidx.annotation.RequiresPermission
 import androidx.lifecycle.LiveData
@@ -10,6 +11,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -31,6 +33,7 @@ import net.agolyakov.firelamp.domain.usecase.LoadDeviceWithNameUseCase
 import net.agolyakov.firelamp.protocol.FireLampGatt
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
@@ -50,6 +53,8 @@ class HomeViewModel @Inject constructor(
     }
 
     private val foundDevices = HashMap<String, FireLampDevice>()
+    /** When each lamp was last advertising or linked, [SystemClock.elapsedRealtime]. */
+    private val lastSeen = HashMap<String, Long>()
     private val _devices: MutableLiveData<List<FireLampDevice>> = MutableLiveData()
     val devices: LiveData<List<FireLampDevice>> get() = _devices
 
@@ -70,6 +75,7 @@ class HomeViewModel @Inject constructor(
     private val adapter = bluetoothAdapterProvider.getAdapter()
     private var scanner: BluetoothLeScanner? = null
     private var callback: BleScanCallback? = null
+    private var pruneJob: Job? = null
 
     private val settings: ScanSettings =
         ScanSettings.Builder()
@@ -103,9 +109,30 @@ class HomeViewModel @Inject constructor(
         }
         this.scanner = scanner
         this.callback = callback
+        pruneJob = viewModelScope.launch {
+            while (isActive) {
+                delay(PRUNE_INTERVAL)
+                addConnectedLamps()
+                prune()
+            }
+        }
+    }
+
+    /** Lamps gone for [STALE_AFTER] leave the list: switched off, out of range, renamed away. */
+    private fun prune() {
+        val now = SystemClock.elapsedRealtime()
+        val gone = foundDevices.keys.filter { now - (lastSeen[it] ?: 0L) > STALE_AFTER.inWholeMilliseconds }
+        if (gone.isEmpty()) return
+        gone.forEach {
+            foundDevices.remove(it)
+            lastSeen.remove(it)
+        }
+        _devices.value = foundDevices.values.toList()
     }
 
     fun stopScan() {
+        pruneJob?.cancel()
+        pruneJob = null
         val callback = callback ?: return
         try {
             scanner?.stopScan(callback)
@@ -135,6 +162,7 @@ class HomeViewModel @Inject constructor(
         // The advertising packet carries only the service UUID, the name comes with the scan
         // response: a lamp may first show up unnamed, so a later named result replaces it
         private fun addResult(result: ScanResult) {
+            lastSeen[result.device.address] = SystemClock.elapsedRealtime()
             val known = foundDevices[result.device.address]
             if (known == null || !known.inRange ||
                 (known.deviceName == UNNAMED && result.scanRecord?.deviceName != null)
@@ -172,7 +200,9 @@ class HomeViewModel @Inject constructor(
                 device.uuids?.any { it.uuid == FireLampGatt.SERVICE } == true ||
                 knownLamps.contains(device.address)
         }
+        val now = SystemClock.elapsedRealtime()
         for (device in lamps) {
+            lastSeen[device.address] = now
             if (foundDevices.containsKey(device.address)) continue
             foundDevices[device.address] = loadDeviceWithNameUseCase(
                 FireLampDevice(deviceName = device.name ?: UNNAMED, macAddress = device.address, inRange = false)
@@ -212,6 +242,9 @@ class HomeViewModel @Inject constructor(
     companion object {
         private val APP_UPDATE_CHECK_INTERVAL = 10.minutes
         private const val DEFAULT_NAME_PREFIX = "FireLamp-"
+        private val PRUNE_INTERVAL = 5.seconds
+        // the lamp advertises several times a second; a phone saving power reports it less often
+        private val STALE_AFTER = 30.seconds
 
         /** The automatic opening happens once per process, not on every return to the list. */
         private var autoOpenDone = false

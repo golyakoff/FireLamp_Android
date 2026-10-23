@@ -1,3 +1,10 @@
+# Release 0.7.0
+
+- System tab, firmware: "Go back to X.Y.Z" reboots the lamp into its previous firmware, the one kept in the other slot after an update (lamp firmware 0.8.0 or newer); the settings stay
+- The connection survives a switch to another app for 5 minutes: coming back is instant instead of a new connection every time
+- WiFi modes have short names that fit their buttons: Off | Periodic | Always
+- The lamp list drops lamps that are gone (switched off, out of range) after 30 s; before, they stayed until the app was closed
+
 # Release 0.6.0
 
 - Lamp firmware 0.7.0: the fires Turbin fire (the former Fire, now with sparks), Gyver fire and Petrick fire and their parameters Sparks and Shade have their names in the app language

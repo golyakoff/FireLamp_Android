@@ -177,8 +177,8 @@
     <string name="settings_demo_effects_hint">Отметки применяются сразу</string>
     <string name="settings_wifi">WiFi</string>
     <string name="settings_wifi_mode">Режим</string>
-    <string name="settings_wifi_off">Выключен</string>
-    <string name="settings_wifi_periodic">Периодически</string>
+    <string name="settings_wifi_off">Выкл</string>
+    <string name="settings_wifi_periodic">Период</string>
     <string name="settings_wifi_always">Всегда</string>
     <string name="settings_wifi_off_hint">Лампа полностью работает без WiFi</string>
     <string name="settings_wifi_periodic_hint">Раз в несколько часов лампа подключается, синхронизирует время, проверяет обновление прошивки и отключается</string>
@@ -232,6 +232,9 @@
     <string name="fw_lamp_checking">Лампа проверяет…</string>
     <string name="fw_lamp_check_failed">Лампе не удалось проверить обновления</string>
     <string name="fw_done">Обновлено до %1$s</string>
+    <string name="fw_go_back">Вернуть версию %1$s</string>
+    <string name="fw_go_back_confirm">Лампа перезагрузится в прежнюю прошивку %1$s, настройки сохранятся. Вернуться на новую версию можно обновлением. Без телефона лампа возвращается к прежней прошивке, если при включении питания держать её основную кнопку 5 секунд.</string>
+    <string name="fw_go_back_do">Вернуть</string>
     <string name="fw_rolled_back">Новая прошивка не запустилась, лампа вернулась к %1$s</string>
     <string name="fw_error_no_internet">Не удалось скачать обновление: проверьте подключение к интернету</string>
     <string name="fw_error_bad_file">Скачанный файл повреждён, попробуйте ещё раз</string>
