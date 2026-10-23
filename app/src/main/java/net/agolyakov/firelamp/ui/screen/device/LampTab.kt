@@ -62,8 +62,8 @@ import net.agolyakov.firelamp.protocol.EffectParam
 import net.agolyakov.firelamp.protocol.LampState
 import net.agolyakov.firelamp.protocol.ParamType
 import net.agolyakov.firelamp.ui.color.ColorButton
+import net.agolyakov.firelamp.ui.color.HueDialog
 import net.agolyakov.firelamp.ui.color.HueSaturationDialog
-import net.agolyakov.firelamp.ui.color.LampRainbow
 import net.agolyakov.firelamp.ui.color.RgbColorDialog
 import net.agolyakov.firelamp.ui.color.lampHueColor
 import net.agolyakov.firelamp.ui.color.rgbColor
@@ -292,15 +292,19 @@ private fun ParamControlRow(effect: EffectInfo, control: ParamControl, onChange:
             onValueChange = { onChange(control.param.code, it) },
             valueLabel = { SliderValue("${EffectControls.tempoPercent(control.param, it)}%") }
         )
-        is ParamControl.Hue -> SliderRow(
-            label = paramName(control.param),
-            value = control.param.value,
-            range = 0..255,
-            enabled = active,
-            onValueChange = { onChange(control.param.code, it) },
-            valueLabel = { HueSwatch(lampHueColor(it)) },
-            trackBrush = LampRainbow
-        )
+        is ParamControl.Hue -> {
+            var open by remember { mutableStateOf(false) }
+            val label = paramName(control.param)
+            ColorRow(label, lampHueColor(control.param.value), active) { open = true }
+            if (open) {
+                HueDialog(
+                    title = label,
+                    hue = control.param.value,
+                    onChange = { onChange(control.param.code, it) },
+                    onDismiss = { open = false }
+                )
+            }
+        }
         is ParamControl.HueSaturation -> {
             var open by remember { mutableStateOf(false) }
             val label = control.label?.let { stringResource(it) } ?: paramName(control.hue)
@@ -432,18 +436,6 @@ private fun ChoiceChips(label: String, control: ParamControl.Choice, enabled: Bo
                 )
             }
         }
-    }
-}
-
-@Composable
-private fun HueSwatch(color: Color) {
-    Box(contentAlignment = Alignment.CenterEnd, modifier = Modifier.width(SliderValueWidth)) {
-        Box(
-            modifier = Modifier
-                .size(24.dp)
-                .clip(CircleShape)
-                .background(color)
-        )
     }
 }
 

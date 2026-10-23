@@ -21,7 +21,7 @@ sealed interface ParamControl {
      */
     data class Tempo(val param: EffectParam) : ParamControl
 
-    /** A lone hue `0..255`: a slider over the lamp's rainbow. */
+    /** A lone hue `0..255`: one color picked on the ring of the color wheel. */
     data class Hue(val param: EffectParam) : ParamControl
 
     /** A hue and its saturation: one color picked on the color wheel. */

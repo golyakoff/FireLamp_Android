@@ -3,7 +3,9 @@
 <!-- Codes unknown to the app (newer firmware) show the English name sent by the lamp. -->
 <resources>
     <string name="effect_lamp">Color lamp</string>
-    <string name="effect_fire">Fire</string>
+    <string name="effect_fire">Turbin fire</string>
+    <string name="effect_gyver_fire">Gyver fire</string>
+    <string name="effect_petrick_fire">Petrick fire</string>
     <string name="effect_sparkles">Sparkles</string>
     <string name="effect_lava">Lava</string>
     <string name="effect_waterfall">Waterfall</string>
@@ -100,6 +102,8 @@
     <string name="param_rotate">Rotate colors</string>
     <string name="param_drops">Number of drops</string>
     <string name="param_tempo">Tempo</string>
+    <string name="param_sparks">Sparks</string>
+    <string name="param_shade">Shade</string>
 
     <!-- Colors, palettes and modes of effect parameters (see ui/screen/device/EffectControls.kt) -->
     <string name="color_hue">Color</string>

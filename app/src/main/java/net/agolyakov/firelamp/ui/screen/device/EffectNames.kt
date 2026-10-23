@@ -17,6 +17,8 @@ object EffectNames {
     private val effects = mapOf(
         "lamp" to R.string.effect_lamp,
         "fire" to R.string.effect_fire,
+        "gyver_fire" to R.string.effect_gyver_fire,
+        "petrick_fire" to R.string.effect_petrick_fire,
         "sparkles" to R.string.effect_sparkles,
         "lava" to R.string.effect_lava,
         "waterfall" to R.string.effect_waterfall,
@@ -115,5 +117,7 @@ object EffectNames {
         "rotate" to R.string.param_rotate,
         "drops" to R.string.param_drops,
         "tempo" to R.string.param_tempo,
+        "sparks" to R.string.param_sparks,
+        "shade" to R.string.param_shade,
     )
 }

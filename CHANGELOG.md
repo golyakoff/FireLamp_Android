@@ -1,3 +1,8 @@
+# Release 0.6.0
+
+- Lamp firmware 0.7.0: the fires Turbin fire (the former Fire, now with sparks), Gyver fire and Petrick fire and their parameters Sparks and Shade have their names in the app language
+- Every effect color is picked the same way: a color row that opens the color wheel. The effects with a hue only (Drops on glass, Rain, Waterfall, Rainbow snake, Fireflies with trails) get the ring of the wheel instead of a rainbow slider
+
 # Release 0.5.3
 
 - Effect speed is called Tempo and shown in percent; with lamp firmware 0.5.0 the effects that had no speed get a Tempo too (they slow down smoothly)

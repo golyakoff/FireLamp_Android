@@ -113,7 +113,7 @@ MVVM + Hilt + single-Activity Compose Navigation, as in the sibling apps:
   Slider rows use `SliderRow`/`SliderValue` (fixed-width value, tabular digits) so sliders line up.
   `EffectNames`: code → localized name (`res/values*/effects.xml`). `EffectControls` groups an
   effect's numeric params into controls by code (red/green/blue → RGB picker, `*hue*` +
-  `*saturation*` → color wheel, lone hue → rainbow slider, `palette` → tiles from `LampPalettes`,
+  `*saturation*` → color wheel, lone hue → the ring of the wheel (no saturation), `palette` → tiles from `LampPalettes`,
   known `mode`/`direction` → named chips, dimmed when irrelevant); anything off-table (other
   range, newer firmware) stays a plain slider. Keep the tables in sync with the firmware's
   `main/palettes.c` and effect enums. Colors use the lamp's own `ui/color/FastLedColor`

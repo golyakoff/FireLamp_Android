@@ -3,7 +3,9 @@
 <!-- Codes unknown to the app (newer firmware) show the English name sent by the lamp. -->
 <resources>
     <string name="effect_lamp">Цветная лампа</string>
-    <string name="effect_fire">Огонь</string>
+    <string name="effect_fire">Огонь Турбина</string>
+    <string name="effect_gyver_fire">Огонь Гайвера</string>
+    <string name="effect_petrick_fire">Огонь Петрика</string>
     <string name="effect_sparkles">Искры</string>
     <string name="effect_lava">Лава</string>
     <string name="effect_waterfall">Водопад</string>
@@ -100,6 +102,8 @@
     <string name="param_rotate">Смена цветов</string>
     <string name="param_drops">Количество капель</string>
     <string name="param_tempo">Темп</string>
+    <string name="param_sparks">Искры</string>
+    <string name="param_shade">Оттенок пламени</string>
 
     <!-- Colors, palettes and modes of effect parameters (see ui/screen/device/EffectControls.kt) -->
     <string name="color_hue">Цвет</string>

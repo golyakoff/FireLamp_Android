@@ -55,9 +55,6 @@ fun rgbColor(rgb: Int): Color = Color(0xFF000000.toInt() or rgb)
 /** The lamp's color of a FastLED hue and saturation `0..255`. */
 fun lampHueColor(hue: Int, saturation: Int = 255): Color = rgbColor(FastLedColor.hsvToRgb(hue, saturation))
 
-/** A gradient through the lamp's rainbow, for hue sliders. */
-val LampRainbow: Brush = Brush.horizontalGradient((0..256 step 16).map { lampHueColor(it and 0xFF) })
-
 /**
  * Picks red, green, blue `0..255` (the "Color lamp" effect): a hue/saturation wheel, a
  * brightness slider and a few presets. Every change goes to [onChange] at once, so the lamp shows
@@ -166,6 +163,41 @@ fun HueSaturationDialog(
     }
 }
 
+/**
+ * Picks a FastLED hue `0..255` alone (effects without a saturation): the rim of the wheel, a ring
+ * of the lamp's rainbow. Live like [RgbColorDialog].
+ */
+@Composable
+fun HueDialog(
+    title: String,
+    hue: Int,
+    onChange: (hue: Int) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val initial = remember { hue }
+    var h by remember { mutableFloatStateOf(hue / 256f) }
+
+    PickerDialog(
+        title = title,
+        onDone = onDismiss,
+        onCancel = {
+            onChange(initial)
+            onDismiss()
+        }
+    ) {
+        ColorWheel(
+            hue = h,
+            saturation = 1f,
+            colorAt = { wh, ws -> lampHueColor((wh * 256).roundToInt() and 0xFF, (ws * 255).roundToInt()) },
+            ring = true,
+            onChange = { wh, _ ->
+                h = wh
+                onChange((wh * 256).roundToInt() and 0xFF)
+            }
+        )
+    }
+}
+
 @Composable
 private fun PickerDialog(
     title: String,
@@ -186,7 +218,8 @@ private fun PickerDialog(
 
 /**
  * Hue around (0 at 3 o'clock, clockwise), saturation from the white center to the rim. Tap or
- * drag anywhere; outside the rim counts as the rim.
+ * drag anywhere; outside the rim counts as the rim. A [ring] has the hue only: the saturation
+ * passed to [onChange] is always 1, the marker stays on the ring.
  */
 @Composable
 private fun ColorWheel(
@@ -195,6 +228,7 @@ private fun ColorWheel(
     colorAt: (hue: Float, saturation: Float) -> Color,
     onChange: (hue: Float, saturation: Float) -> Unit,
     dim: Float = 0f,
+    ring: Boolean = false,
 ) {
     val currentOnChange by rememberUpdatedState(onChange)
     val rim = remember { (0..WHEEL_STOPS).map { colorAt(it.toFloat() / WHEEL_STOPS, 1f) } }
@@ -210,7 +244,8 @@ private fun ColorWheel(
                         val radius = min(size.width, size.height) / 2f
                         val d = position - center
                         val angle = atan2(d.y, d.x) / (2 * PI).toFloat()
-                        currentOnChange((angle + 1f) % 1f, (hypot(d.x, d.y) / radius).coerceIn(0f, 1f))
+                        val s = if (ring) 1f else (hypot(d.x, d.y) / radius).coerceIn(0f, 1f)
+                        currentOnChange((angle + 1f) % 1f, s)
                     }
                     awaitEachGesture {
                         val down = awaitFirstDown()
@@ -224,12 +259,21 @@ private fun ColorWheel(
                 }
         ) {
             val radius = size.minDimension / 2f
-            drawCircle(Brush.sweepGradient(rim, center), radius)
-            drawCircle(Brush.radialGradient(listOf(Color.White, Color.White.copy(alpha = 0f)), center, radius), radius)
-            if (dim > 0f) drawCircle(Color.Black.copy(alpha = dim.coerceIn(0f, 1f)), radius)
+            val ringWidth = RING_WIDTH.toPx()
+            val markerRadius: Float
+            if (ring) {
+                drawCircle(Brush.sweepGradient(rim, center), radius - ringWidth / 2, style = Stroke(ringWidth))
+                markerRadius = radius - ringWidth / 2
+            } else {
+                drawCircle(Brush.sweepGradient(rim, center), radius)
+                drawCircle(Brush.radialGradient(listOf(Color.White, Color.White.copy(alpha = 0f)), center, radius), radius)
+                if (dim > 0f) drawCircle(Color.Black.copy(alpha = dim.coerceIn(0f, 1f)), radius)
+                markerRadius = saturation * radius
+            }
 
             val angle = hue * 2 * PI
-            val marker = center + Offset(cos(angle).toFloat(), sin(angle).toFloat()) * (saturation * radius)
+            val marker = center + Offset(cos(angle).toFloat(), sin(angle).toFloat()) * markerRadius
+            if (ring) drawCircle(colorAt(hue, 1f), radius - ringWidth - 16.dp.toPx())
             drawCircle(Color.Black, 12.dp.toPx(), marker, style = Stroke(4.dp.toPx()))
             drawCircle(Color.White, 12.dp.toPx(), marker, style = Stroke(2.dp.toPx()))
         }
@@ -261,7 +305,7 @@ fun ColorButton(color: Color, enabled: Boolean, onClick: () -> Unit) {
     )
 }
 
-/** A track filled with [brush] for a Material slider (e.g. [LampRainbow] for a hue). */
+/** A track filled with [brush] for a Material slider. */
 @Composable
 fun GradientTrack(brush: Brush, enabled: Boolean) {
     Box(
@@ -274,6 +318,7 @@ fun GradientTrack(brush: Brush, enabled: Boolean) {
 }
 
 private const val WHEEL_STOPS = 48
+private val RING_WIDTH = 40.dp
 
 /** Candle, warm, neutral and cold whites, then a few pure colors. */
 private val PRESETS = listOf(0xFF9329, 0xFF9F46, 0xFFD6AA, 0xFFFFFF, 0xC9E2FF, 0xFF0000, 0x00FF00, 0x0000FF, 0xFF00FF)
