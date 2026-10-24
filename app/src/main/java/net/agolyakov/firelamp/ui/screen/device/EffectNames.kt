@@ -57,6 +57,11 @@ object EffectNames {
         "soaring_fire" to R.string.effect_soaring_fire,
         "trail_fireflies" to R.string.effect_trail_fireflies,
         "glass_drops" to R.string.effect_glass_drops,
+        "top_fire" to R.string.effect_top_fire,
+        "magma" to R.string.effect_magma,
+        "prismata" to R.string.effect_prismata,
+        "clouds" to R.string.effect_clouds,
+        "snow" to R.string.effect_snow,
     )
 
     private val params = mapOf(

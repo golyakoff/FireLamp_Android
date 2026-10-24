@@ -5,7 +5,7 @@ import org.junit.Test
 
 /**
  * Every effect and parameter of the firmware has a localized name. The codes are those of
- * FireLamp_ESP32 0.7.0 (main/effect.c and DECL_PARAM_* in main/effects/): add the codes of new
+ * FireLamp_ESP32 0.10.0 (main/effect.c and DECL_PARAM_* in main/effects/): add the codes of new
  * effects here together with their names in effects.xml (values and values-ru).
  */
 class EffectNamesTest {
@@ -14,7 +14,8 @@ class EffectNamesTest {
         fire gyver_fire petrick_fire lamp sparkles lava waterfall plasma_waves dna matrix crazybees rain rainbow rays
         metaballs water holiday hoop twister flower polar_lights gif relax wheel peacock diagonals
         whirls sun spaceships fireflies tunnel dunes octopus nuclear starfall storm twinkles
-        butterflies rainbow_snake soaring_fire trail_fireflies glass_drops
+        butterflies rainbow_snake soaring_fire trail_fireflies glass_drops top_fire magma prismata
+        clouds snow
     """.trim().split(Regex("\\s+"))
 
     private val params = """

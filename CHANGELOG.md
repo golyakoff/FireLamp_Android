@@ -1,3 +1,7 @@
+# Release 0.9.0
+
+- Lamp firmware 0.10.0: the new effects Top fire, Magma, Prismata, Clouds and Snowfall have their names in the app language
+
 # Release 0.8.2
 
 - Power supply calibration says what to do when the lamp drops the connection while the matrix stays lit (a supply that sank too low with lamp firmware older than 0.9.1): switch the lamp's power off and on, that step counts as too much for the supply

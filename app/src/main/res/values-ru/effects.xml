@@ -44,6 +44,11 @@
     <string name="effect_soaring_fire">Парящий огонь</string>
     <string name="effect_trail_fireflies">Светлячки со шлейфом</string>
     <string name="effect_glass_drops">Капли на стекле</string>
+    <string name="effect_top_fire">Верховой огонь</string>
+    <string name="effect_magma">Магма</string>
+    <string name="effect_prismata">Призмата</string>
+    <string name="effect_clouds">Облака</string>
+    <string name="effect_snow">Снегопад</string>
 
     <string name="param_red">Красный</string>
     <string name="param_green">Зелёный</string>

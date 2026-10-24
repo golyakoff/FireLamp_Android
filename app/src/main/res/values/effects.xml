@@ -44,6 +44,11 @@
     <string name="effect_soaring_fire">Soaring fire</string>
     <string name="effect_trail_fireflies">Fireflies with trails</string>
     <string name="effect_glass_drops">Drops on glass</string>
+    <string name="effect_top_fire">Top fire</string>
+    <string name="effect_magma">Magma</string>
+    <string name="effect_prismata">Prismata</string>
+    <string name="effect_clouds">Clouds</string>
+    <string name="effect_snow">Snowfall</string>
 
     <string name="param_red">Red</string>
     <string name="param_green">Green</string>

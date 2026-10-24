@@ -26,7 +26,7 @@ Low Energy: no cloud, no account, WiFi is optional for the lamp.
 
 - **Lamps nearby.** Finds lamps around and the one the phone is already linked with; pairs, with
   hints when the lamp's pairing window is closed; reconnects in place when the link drops.
-- **Lamp.** Power, brightness, effects as tiles with live previews, previous/next, demo mode.
+- **Lamp.** Power, brightness, effects as tiles with live previews (45 with firmware 0.10.0), previous/next, demo mode.
   Effect parameters as fitting controls: colors on a color wheel, palettes as tiles, modes as
   buttons, Tempo in percent; changes show on the lamp at once.
 - **Schedule.** Power on and off by time and days of the week, a dawn that raises the brightness with
@@ -68,6 +68,8 @@ The app works with older firmware too; new features appear when the lamp support
 | WiFi network list in the setup | 0.1.5 |
 | Choice of the button pin | 0.4.3 |
 | Tempo of the effects without their own speed | 0.5.0 |
+| Power supply: brightness after brownouts, calibration | 0.9.0 |
+| Top fire, Magma, Prismata, Clouds, Snowfall | 0.10.0 |
 
 ## Building
 
