@@ -275,4 +275,20 @@
     <string name="wifi_phone_network">Сеть телефона</string>
     <string name="wifi_phone_not_found">Не удалось узнать сеть телефона: нужно разрешение на местоположение, включённая геолокация и подключение телефона к WiFi</string>
     <string name="wifi_phone_5ghz">Телефон подключён к «%1$s» в диапазоне 5 ГГц. Лампе нужна сеть 2,4 ГГц: если у роутера есть сеть 2,4 ГГц с тем же именем, оставьте; иначе выберите его сеть 2,4 ГГц (часто с 2G или 2.4 в имени).</string>
+
+    <string name="setting_power">блок питания</string>
+    <string name="power_title">Блок питания</string>
+    <string name="power_lowered">Яркость снижена до %1$d %%: лампа перезагружалась из-за нехватки питания</string>
+    <string name="power_restore">Вернуть 100 %%</string>
+    <string name="power_calibrate">Калибровать по блоку питания</string>
+    <string name="power_calibrate_hint">Подбирает ограничение тока, которое выдержит ваш блок питания</string>
+    <string name="power_calibrate_confirm">Матрица до минуты будет гореть белым, ступенями всё ярче. Лампа может перезагрузиться — так и задумано, приложение переподключится. Если матрица замигает или цвета исказятся, нажмите «Матрица мигает». Ограничение тока установится по последней хорошей ступени с запасом.</string>
+    <string name="power_calibrate_start">Начать</string>
+    <string name="power_calibrating">Ступень %1$d из %2$d</string>
+    <string name="power_calibrating_hint">Смотрите на матрицу: она должна ровно гореть белым.</string>
+    <string name="power_flickers">Матрица мигает</string>
+    <string name="power_calib_done">Выдержано ступеней: %1$d из %2$d. Ограничение тока: %3$d мА</string>
+    <string name="power_calib_cancelled">Калибровка отменена</string>
+    <string name="brownout_banner">Лампа перезагрузилась из-за нехватки питания и снизила яркость до %1$d %%</string>
+    <string name="brownout_ok">Понятно</string>
 </resources>

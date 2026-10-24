@@ -440,3 +440,38 @@ data class HardwareSettings(
     val supportedControls: List<Controls>
         get() = Controls.entries.filter { isSupported(it) }
 }
+
+// ---------- 0x0015 Power (firmware 0.9.0+) ----------
+
+enum class CalibrationState(override val code: Int) : Coded {
+    /** Not since the lamp booted. */
+    IDLE(0),
+    RUNNING(1),
+    /** Since the lamp booted: the result is in [PowerStatus]. */
+    DONE(2),
+    CANCELLED(3),
+    UNKNOWN(-1)
+}
+
+data class PowerStatus(
+    /** Brightness the lamp kept after brownout reboots, `30..100` %. */
+    val percent: Int,
+    /** This boot was a brownout reboot: the lamp has just lowered [percent]. */
+    val brownout: Boolean,
+    val calibration: CalibrationState,
+    /** Running: the step shown, `1..steps`; done: the steps the supply held, `0..steps`. */
+    val step: Int,
+    val steps: Int,
+    /** Done: the current limit the calibration set, mA. */
+    val limitMa: Int,
+)
+
+/** Writes of the Power characteristic. */
+sealed interface PowerCommand {
+    data class SetPercent(val percent: Int) : PowerCommand
+    data object StartCalibration : PowerCommand
+    /** The matrix flickers at the current step: the step before is the result. */
+    data object CalibrationFails : PowerCommand
+    data object CancelCalibration : PowerCommand
+}
+

@@ -22,6 +22,7 @@ import net.agolyakov.firelamp.data.local.EffectCatalogRepository
 import net.agolyakov.firelamp.data.local.KnownLamps
 import net.agolyakov.firelamp.data.model.ble.ConnectionState
 import net.agolyakov.firelamp.data.model.ble.FireLampDevice
+import net.agolyakov.firelamp.protocol.CalibrationState
 import net.agolyakov.firelamp.protocol.Command
 import net.agolyakov.firelamp.protocol.Controls
 import net.agolyakov.firelamp.protocol.DemoSettings
@@ -32,6 +33,8 @@ import net.agolyakov.firelamp.protocol.EffectSelector
 import net.agolyakov.firelamp.protocol.FireLampCodec
 import net.agolyakov.firelamp.protocol.FireLampGatt
 import net.agolyakov.firelamp.protocol.HardwareSettings
+import net.agolyakov.firelamp.protocol.PowerCommand
+import net.agolyakov.firelamp.protocol.PowerStatus
 import net.agolyakov.firelamp.protocol.LampState
 import net.agolyakov.firelamp.protocol.LampStateUpdate
 import net.agolyakov.firelamp.protocol.LampTime
@@ -133,6 +136,10 @@ class BluetoothService @Inject constructor(
     private val _otaStatus = MutableStateFlow<OtaStatus?>(null)
     val otaStatus: StateFlow<OtaStatus?> = _otaStatus.asStateFlow()
 
+    /** Null when the firmware has no Power characteristic (older than 0.9.0). */
+    private val _powerStatus = MutableStateFlow<PowerStatus?>(null)
+    val powerStatus: StateFlow<PowerStatus?> = _powerStatus.asStateFlow()
+
     /**
      * Settings stored by the lamp that take effect only after a reboot (LED, hardware, name)
      * were changed in this session.
@@ -166,6 +173,7 @@ class BluetoothService @Inject constructor(
         _otaStatus.value = null
         _wifiScan.value = null
         _wifiScanSupported.value = false
+        _powerStatus.value = null
         _rebootRequired.value = false
     }
 
@@ -406,6 +414,9 @@ class BluetoothService @Inject constructor(
         readInto(FireLampGatt.WIFI_SETTINGS) { _wifiSettings.value = FireLampCodec.decodeWifiSettings(it) }
         readInto(FireLampGatt.WIFI_STATUS) { _wifiStatus.value = FireLampCodec.decodeWifiStatus(it) }
         readInto(FireLampGatt.UPDATE_INFO) { _updateInfo.value = FireLampCodec.decodeUpdateInfo(it) }
+        if (bleManager.has(FireLampGatt.POWER)) {
+            readInto(FireLampGatt.POWER) { _powerStatus.value = FireLampCodec.decodePowerStatus(it) }
+        }
         if (bleManager.has(FireLampGatt.WIFI_NETWORKS)) {
             _wifiScanSupported.value = true
             guarded(FireLampGatt.WIFI_NETWORKS) { _wifiScan.value = readAllWifiNetworks() }
@@ -462,6 +473,15 @@ class BluetoothService @Inject constructor(
                 FireLampGatt.WIFI_STATUS -> _wifiStatus.value = FireLampCodec.decodeWifiStatus(value)
                 FireLampGatt.OTA_CONTROL -> _otaStatus.value = FireLampCodec.decodeOtaStatus(value)
                 FireLampGatt.UPDATE_INFO -> _updateInfo.value = FireLampCodec.decodeUpdateInfo(value)
+                FireLampGatt.POWER -> {
+                    val previous = _powerStatus.value
+                    val status = FireLampCodec.decodePowerStatus(value)
+                    _powerStatus.value = status
+                    // The calibration has just set the current limit
+                    if (status.calibration == CalibrationState.DONE && previous?.calibration != CalibrationState.DONE) {
+                        scope.launch { readInto(FireLampGatt.LED_SETTINGS) { _ledSettings.value = FireLampCodec.decodeLedSettings(it) } }
+                    }
+                }
                 FireLampGatt.WIFI_NETWORKS -> {
                     val scan = FireLampCodec.decodeWifiScan(value)
                     // Notifications carry only the header: read every page once the scan is done,
@@ -619,6 +639,15 @@ class BluetoothService @Inject constructor(
     suspend fun setWifiSettings(update: WifiSettingsUpdate): Boolean = guarded(FireLampGatt.WIFI_SETTINGS) {
         bleManager.write(FireLampGatt.WIFI_SETTINGS, FireLampCodec.encodeWifiSettings(update))
         _wifiSettings.value = FireLampCodec.decodeWifiSettings(bleManager.read(FireLampGatt.WIFI_SETTINGS))
+    }
+
+    /** Brownout brightness and the power supply calibration (firmware 0.9.0+). */
+    suspend fun sendPowerCommand(command: PowerCommand): Boolean {
+        if (!bleManager.has(FireLampGatt.POWER)) return false
+        return guarded(FireLampGatt.POWER) {
+            bleManager.write(FireLampGatt.POWER, FireLampCodec.encodePowerCommand(command))
+            _powerStatus.value = FireLampCodec.decodePowerStatus(bleManager.read(FireLampGatt.POWER))
+        }
     }
 
     // ========================== OTA ==========================

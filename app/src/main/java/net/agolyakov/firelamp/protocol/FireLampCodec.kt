@@ -374,4 +374,30 @@ object FireLampCodec {
             mainButtonGpio?.let { u8(it) }
         }
     }
+
+    // ---------- 0x0015 Power ----------
+
+    fun decodePowerStatus(bytes: ByteArray): PowerStatus = with(ByteReader(bytes)) {
+        PowerStatus(
+            percent = u8(),
+            brownout = bool(),
+            calibration = codedOf(u8(), CalibrationState.UNKNOWN),
+            step = u8(),
+            steps = u8(),
+            limitMa = u16(),
+        )
+    }
+
+    fun encodePowerCommand(command: PowerCommand): ByteArray = when (command) {
+        is PowerCommand.SetPercent -> {
+            require(command.percent in POWER_PERCENT_MIN..100) { "Percent out of range" }
+            bytesOf { u8(0x01); u8(command.percent) }
+        }
+        PowerCommand.StartCalibration -> bytesOf { u8(0x02) }
+        PowerCommand.CalibrationFails -> bytesOf { u8(0x03) }
+        PowerCommand.CancelCalibration -> bytesOf { u8(0x04) }
+    }
+
+    /** The lowest brightness the lamp keeps after brownouts, %. */
+    const val POWER_PERCENT_MIN = 30
 }

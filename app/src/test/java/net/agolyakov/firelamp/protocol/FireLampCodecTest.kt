@@ -24,7 +24,8 @@ class FireLampCodecTest {
         assertEquals("f1a70013-b390-49c3-8770-a1dfc323d1af", FireLampGatt.HARDWARE_SETTINGS.toString())
         assertEquals(18, FireLampGatt.REQUIRED.toSet().size)
         assertEquals("f1a70014-b390-49c3-8770-a1dfc323d1af", FireLampGatt.WIFI_NETWORKS.toString())
-        assertEquals(19, FireLampGatt.ALL.toSet().size)
+        assertEquals("f1a70015-b390-49c3-8770-a1dfc323d1af", FireLampGatt.POWER.toString())
+        assertEquals(20, FireLampGatt.ALL.toSet().size)
     }
 
     // ---------- Device info ----------
@@ -392,5 +393,33 @@ class FireLampCodecTest {
     @Test(expected = ProtocolException::class)
     fun hardwareSettingsTruncatedPins() {
         FireLampCodec.decodeHardwareSettings(hex("00 07 01 19 03 04 19"))
+    }
+
+    // ---------- Power ----------
+
+    @Test
+    fun powerStatus() {
+        val s = FireLampCodec.decodePowerStatus(hex("55 01 01 04 0a 00 00"))
+        assertEquals(85, s.percent)
+        assertTrue(s.brownout)
+        assertEquals(CalibrationState.RUNNING, s.calibration)
+        assertEquals(4, s.step)
+        assertEquals(10, s.steps)
+        val done = FireLampCodec.decodePowerStatus(hex("64 00 02 06 0a d0 07"))
+        assertEquals(CalibrationState.DONE, done.calibration)
+        assertEquals(2000, done.limitMa)
+    }
+
+    @Test
+    fun powerCommands() {
+        assertArrayEquals(hex("01 64"), FireLampCodec.encodePowerCommand(PowerCommand.SetPercent(100)))
+        assertArrayEquals(hex("02"), FireLampCodec.encodePowerCommand(PowerCommand.StartCalibration))
+        assertArrayEquals(hex("03"), FireLampCodec.encodePowerCommand(PowerCommand.CalibrationFails))
+        assertArrayEquals(hex("04"), FireLampCodec.encodePowerCommand(PowerCommand.CancelCalibration))
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun powerPercentBelowMinimum() {
+        FireLampCodec.encodePowerCommand(PowerCommand.SetPercent(29))
     }
 }

@@ -108,6 +108,7 @@ fun DeviceScreen(
     val hardwareSettings by viewModel.hardwareSettings.collectAsState()
     val firmwareState by viewModel.firmwareState.collectAsState()
     val updateInfo by viewModel.updateInfo.collectAsState()
+    val powerStatus by viewModel.powerStatus.collectAsState()
     val context = LocalContext.current
 
     LaunchedEffect(device) {
@@ -147,6 +148,7 @@ fun DeviceScreen(
         snackbarHostState = snackbarHostState,
         updateAvailable = firmwareState is FirmwareUpdater.State.Available ||
             updateInfo?.state == UpdateCheckState.AVAILABLE,
+        brownoutPercent = powerStatus?.takeIf { it.brownout }?.percent,
         lampTab = {
             lampState?.let { state ->
                 LampTab(
@@ -208,6 +210,7 @@ fun DeviceScreen(
                 onReboot = viewModel::reboot,
                 onResetEffects = viewModel::resetEffects,
                 onFactoryReset = viewModel::factoryReset,
+                power = { powerStatus?.let { PowerSection(it, viewModel) } },
                 firmware = {
                     deviceInfo?.let { info ->
                         FirmwareSection(
@@ -239,6 +242,8 @@ fun DeviceScreenContent(
     systemTab: @Composable () -> Unit = {},
     /** A firmware update is available: a dot on the System tab. */
     updateAvailable: Boolean = false,
+    /** The lamp has just rebooted for lack of power and lowered the brightness to this, %. */
+    brownoutPercent: Int? = null,
     initialTab: DeviceTab = DeviceTab.Lamp,
 ) {
     var selectedTab by rememberSaveable { mutableStateOf(initialTab) }
@@ -289,6 +294,9 @@ fun DeviceScreenContent(
                 )
                 ConnectionState.Ready -> {
                     if (rebootRequired) RebootBanner(onReboot)
+                    // once per connection: the lamp reports the brownout of its current boot
+                    var brownoutSeen by rememberSaveable(brownoutPercent) { mutableStateOf(false) }
+                    if (brownoutPercent != null && !brownoutSeen) BrownoutBanner(brownoutPercent) { brownoutSeen = true }
                     Box(modifier = Modifier.weight(1f)) {
                         tabStates.SaveableStateProvider(selectedTab.name) {
                             when (selectedTab) {
@@ -327,6 +335,7 @@ private fun settingName(characteristic: UUID): Int = when (characteristic) {
     FireLampGatt.DEMO_SETTINGS, FireLampGatt.DEMO_EFFECTS -> R.string.setting_demo
     FireLampGatt.HARDWARE_SETTINGS -> R.string.setting_controls
     FireLampGatt.OTA_CONTROL, FireLampGatt.OTA_DATA, FireLampGatt.UPDATE_INFO -> R.string.setting_firmware
+    FireLampGatt.POWER -> R.string.setting_power
     else -> R.string.setting_command
 }
 
@@ -459,6 +468,28 @@ private fun MessageCard(
             Text(title, style = MaterialTheme.typography.titleMedium)
             Text(text, style = MaterialTheme.typography.bodyMedium)
             actions()
+        }
+    }
+}
+
+@Composable
+private fun BrownoutBanner(percent: Int, onDismiss: () -> Unit) {
+    Card(
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(start = 16.dp, end = 8.dp, top = 4.dp, bottom = 4.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.brownout_banner, percent),
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.weight(1f)
+            )
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.brownout_ok)) }
         }
     }
 }

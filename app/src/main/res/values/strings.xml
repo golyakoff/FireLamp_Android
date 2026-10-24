@@ -275,4 +275,20 @@
     <string name="wifi_phone_network">The phone\'s network</string>
     <string name="wifi_phone_not_found">Could not get the phone\'s network: it needs the location permission and location turned on, and the phone connected to WiFi</string>
     <string name="wifi_phone_5ghz">The phone is on \"%1$s\" in the 5 GHz band. The lamp needs 2.4 GHz: if the router has a 2.4 GHz network under the same name, keep it; otherwise pick its 2.4 GHz network (often named with 2G or 2.4).</string>
+
+    <string name="setting_power">power supply</string>
+    <string name="power_title">Power supply</string>
+    <string name="power_lowered">The brightness is lowered to %1$d %%: the lamp restarted for lack of power</string>
+    <string name="power_restore">Back to 100 %%</string>
+    <string name="power_calibrate">Calibrate for the power supply</string>
+    <string name="power_calibrate_hint">Finds the current limit your power supply can hold</string>
+    <string name="power_calibrate_confirm">The matrix lights up white, brighter step by step, for up to a minute. The lamp may restart: that is the point, the app reconnects. If the matrix flickers or the colors go wrong, press "The matrix flickers". The current limit is then set from the last good step with a margin.</string>
+    <string name="power_calibrate_start">Start</string>
+    <string name="power_calibrating">Step %1$d of %2$d</string>
+    <string name="power_calibrating_hint">Watch the matrix: it must stay steady white.</string>
+    <string name="power_flickers">The matrix flickers</string>
+    <string name="power_calib_done">Steps the power supply held: %1$d of %2$d. Current limit: %3$d mA</string>
+    <string name="power_calib_cancelled">The calibration was cancelled</string>
+    <string name="brownout_banner">The lamp restarted for lack of power and lowered the brightness to %1$d %%</string>
+    <string name="brownout_ok">OK</string>
 </resources>

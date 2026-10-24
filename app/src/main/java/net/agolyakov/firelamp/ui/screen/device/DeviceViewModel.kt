@@ -13,6 +13,7 @@ import kotlinx.coroutines.launch
 import net.agolyakov.firelamp.data.model.ble.ConnectionState
 import net.agolyakov.firelamp.data.model.ble.FireLampDevice
 import net.agolyakov.firelamp.protocol.Command
+import net.agolyakov.firelamp.protocol.PowerCommand
 import net.agolyakov.firelamp.protocol.Controls
 import net.agolyakov.firelamp.protocol.DemoSettings
 import net.agolyakov.firelamp.protocol.EffectParamChange
@@ -30,7 +31,7 @@ import javax.inject.Inject
 class DeviceViewModel @Inject constructor(
     private val bluetoothService: BluetoothService,
     private val firmwareUpdater: FirmwareUpdater,
-) : ViewModel(), SettingsTabActions, FirmwareActions {
+) : ViewModel(), SettingsTabActions, FirmwareActions, PowerActions {
 
     val connectionState = bluetoothService.connectionState
     val deviceInfo = bluetoothService.deviceInfo
@@ -142,6 +143,7 @@ class DeviceViewModel @Inject constructor(
 
     val firmwareState = firmwareUpdater.state
     val updateInfo = bluetoothService.updateInfo
+    val powerStatus = bluetoothService.powerStatus
 
     override fun check() = firmwareUpdater.checkForUpdate()
 
@@ -153,6 +155,22 @@ class DeviceViewModel @Inject constructor(
     override fun installByLamp(version: String?) = firmwareUpdater.installByLamp(version)
 
     override fun cancel() = firmwareUpdater.cancel()
+
+    override fun restoreFullPower() {
+        viewModelScope.launch { bluetoothService.sendPowerCommand(PowerCommand.SetPercent(100)) }
+    }
+
+    override fun startCalibration() {
+        viewModelScope.launch { bluetoothService.sendPowerCommand(PowerCommand.StartCalibration) }
+    }
+
+    override fun calibrationFails() {
+        viewModelScope.launch { bluetoothService.sendPowerCommand(PowerCommand.CalibrationFails) }
+    }
+
+    override fun cancelCalibration() {
+        viewModelScope.launch { bluetoothService.sendPowerCommand(PowerCommand.CancelCalibration) }
+    }
 
     override fun goBack() {
         viewModelScope.launch { bluetoothService.sendCommand(Command.ROLLBACK) }

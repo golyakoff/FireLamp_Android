@@ -1,3 +1,8 @@
+# Release 0.8.0
+
+- Lamp firmware 0.9.0: when the lamp restarted for lack of power and lowered its brightness, the app says so; System tab, Power supply: "Back to 100 %"
+- Calibration for the power supply (System tab, Power supply): the matrix lights up white, brighter step by step; when the lamp restarts or you press "The matrix flickers", the current limit is set from the last good step with a margin
+
 # Release 0.7.0
 
 - System tab, firmware: "Go back to X.Y.Z" reboots the lamp into its previous firmware, the one kept in the other slot after an update (lamp firmware 0.8.0 or newer); the settings stay

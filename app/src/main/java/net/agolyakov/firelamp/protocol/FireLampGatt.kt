@@ -34,6 +34,7 @@ object FireLampGatt {
     val UPDATE_INFO: UUID = uuid(0x0012)       // R, N
     val HARDWARE_SETTINGS: UUID = uuid(0x0013) // R, W
     val WIFI_NETWORKS: UUID = uuid(0x0014)     // R, W, N; optional: firmware >= 0.1.5 (WiFi scan)
+    val POWER: UUID = uuid(0x0015)             // R, W, N; optional: firmware >= 0.9.0 (brownouts, calibration)
 
     /** Present in every protocol version 1 firmware. */
     val REQUIRED: List<UUID> = listOf(
@@ -43,12 +44,12 @@ object FireLampGatt {
     )
 
     /** Added later within protocol version 1: the app checks for them before use. */
-    val OPTIONAL: List<UUID> = listOf(WIFI_NETWORKS)
+    val OPTIONAL: List<UUID> = listOf(WIFI_NETWORKS, POWER)
 
     val ALL: List<UUID> = REQUIRED + OPTIONAL
 
     /** Characteristics whose notifications the app enables after connecting (if present). */
-    val NOTIFYING: List<UUID> = listOf(LAMP_STATE, EFFECT_PARAM, WIFI_STATUS, OTA_CONTROL, UPDATE_INFO, WIFI_NETWORKS)
+    val NOTIFYING: List<UUID> = listOf(LAMP_STATE, EFFECT_PARAM, WIFI_STATUS, OTA_CONTROL, UPDATE_INFO, WIFI_NETWORKS, POWER)
 
     // ATT errors the lamp answers invalid writes with
     const val ATT_INVALID_LENGTH = 0x0D

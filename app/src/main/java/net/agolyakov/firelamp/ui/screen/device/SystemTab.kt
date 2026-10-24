@@ -85,6 +85,7 @@ fun SystemTab(
     onResetEffects: () -> Unit,
     onFactoryReset: () -> Unit,
     firmware: @Composable () -> Unit = {},
+    power: @Composable () -> Unit = {},
 ) {
     LazyColumn(
         contentPadding = PaddingValues(16.dp),
@@ -92,6 +93,7 @@ fun SystemTab(
     ) {
         item { firmware() }
         ledSettings?.let { item { MatrixSection(it, onSaveLedSettings) } }
+        item { power() }
         hardwareSettings?.let { item { ControlsSection(it, onSaveHardwareSettings) } }
         deviceInfo?.let { item { LampInfoSection(it) } }
         item {
