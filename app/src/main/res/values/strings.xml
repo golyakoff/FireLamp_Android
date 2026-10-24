@@ -282,10 +282,10 @@
     <string name="power_restore">Back to 100 %%</string>
     <string name="power_calibrate">Calibrate for the power supply</string>
     <string name="power_calibrate_hint">Finds the current limit your power supply can hold</string>
-    <string name="power_calibrate_confirm">The matrix lights up white, brighter step by step, for up to a minute. The lamp may restart: that is the point, the app reconnects. If the matrix flickers or the colors go wrong, press "The matrix flickers". The current limit is then set from the last good step with a margin.</string>
+    <string name="power_calibrate_confirm">The matrix lights up white, brighter step by step, for up to a minute. The lamp may restart: that is the point, the app reconnects. If the matrix flickers or the colors go wrong, press "The matrix flickers". The current limit is then set from the last good step with a margin. If the lamp drops the connection while the matrix stays lit, switch the lamp\'s power off and on: that step counts as too much for the supply.</string>
     <string name="power_calibrate_start">Start</string>
     <string name="power_calibrating">Step %1$d of %2$d</string>
-    <string name="power_calibrating_hint">Watch the matrix: it must stay steady white.</string>
+    <string name="power_calibrating_hint">Watch the matrix: it must stay steady white. If the lamp drops the connection and the matrix stays lit, switch the lamp\'s power off and on.</string>
     <string name="power_flickers">The matrix flickers</string>
     <string name="power_calib_done">Steps the power supply held: %1$d of %2$d. Current limit: %3$d mA</string>
     <string name="power_calib_cancelled">The calibration was cancelled</string>

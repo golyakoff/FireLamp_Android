@@ -1,3 +1,7 @@
+# Release 0.8.2
+
+- Power supply calibration says what to do when the lamp drops the connection while the matrix stays lit (a supply that sank too low with lamp firmware older than 0.9.1): switch the lamp's power off and on, that step counts as too much for the supply
+
 # Release 0.8.1
 
 - After a lamp firmware update the app sees the new features (e.g. Power supply of firmware 0.9.0) without forgetting and pairing the lamp again: on the first connection to a new firmware build it reads the lamp's characteristics anew
