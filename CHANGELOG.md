@@ -1,3 +1,7 @@
+# Release 0.8.1
+
+- After a lamp firmware update the app sees the new features (e.g. Power supply of firmware 0.9.0) without forgetting and pairing the lamp again: on the first connection to a new firmware build it reads the lamp's characteristics anew
+
 # Release 0.8.0
 
 - Lamp firmware 0.9.0: when the lamp restarted for lack of power and lowered its brightness, the app says so; System tab, Power supply: "Back to 100 %"

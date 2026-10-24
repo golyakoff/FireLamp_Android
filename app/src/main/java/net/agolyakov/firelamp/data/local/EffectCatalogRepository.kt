@@ -34,7 +34,7 @@ class EffectCatalogRepository @Inject constructor(
             null
         } else {
             val entry: Entry = gson.fromJson(file.readText(), object : TypeToken<Entry>() {}.type)
-            entry.effects.takeIf { entry.build == build(info) && it.size == info.effectCount }
+            entry.effects.takeIf { entry.build == info.build && it.size == info.effectCount }
         }
     } catch (e: Exception) {
         Log.w(TAG, "Could not read the effect cache", e)
@@ -43,13 +43,11 @@ class EffectCatalogRepository @Inject constructor(
 
     fun save(macAddress: String, info: DeviceInfo, effects: List<EffectInfo>) {
         try {
-            file(macAddress).writeText(gson.toJson(Entry(build(info), effects)))
+            file(macAddress).writeText(gson.toJson(Entry(info.build, effects)))
         } catch (e: Exception) {
             Log.w(TAG, "Could not write the effect cache", e)
         }
     }
-
-    private fun build(info: DeviceInfo) = "${info.firmwareVersion}|${info.buildDate}|${info.buildVariant}"
 
     private fun file(macAddress: String) = File(dir, macAddress.replace(":", "") + ".json")
 

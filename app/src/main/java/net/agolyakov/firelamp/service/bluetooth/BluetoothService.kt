@@ -385,6 +385,14 @@ class BluetoothService @Inject constructor(
     /** What the lamp tab needs: info, time, state, effects. Throws if the lamp is unusable. */
     private suspend fun loadLamp(device: FireLampDevice) {
         val info = FireLampCodec.decodeDeviceInfo(bleManager.read(FireLampGatt.DEVICE_INFO))
+        // A bonded phone keeps the attribute table across firmware updates: characteristics of
+        // the new firmware stay invisible, and neither clearing the cache on disconnect nor the
+        // lamp's Service Changed help on some phones. Discover again once per new build.
+        if (knownLamps.discoveredBuild(device.macAddress) != info.build) {
+            Log.i(tag, "New firmware build ${info.build}, discovering the services again")
+            bleManager.rediscover()
+            knownLamps.setDiscoveredBuild(device.macAddress, info.build)
+        }
         _deviceInfo.value = info
         Log.i(tag, "Lamp: $info, MTU ${bleManager.negotiatedMtu}")
 

@@ -55,6 +55,9 @@ data class DeviceInfo(
     val wifiSupported: Boolean get() = features and FEATURE_WIFI != 0
     val internetUpdateSupported: Boolean get() = features and FEATURE_INTERNET_UPDATE != 0
 
+    /** One firmware build: the effect list and the attribute table do not change within it. */
+    val build: String get() = "$firmwareVersion|$buildDate|$buildVariant"
+
     /** Key of this lamp's file in the release `manifest.json`, e.g. `esp32c3-default`. */
     val firmwareBuildKey: String? get() = chip.manifestName.takeIf { it.isNotEmpty() }?.let { "$it-$buildVariant" }
 

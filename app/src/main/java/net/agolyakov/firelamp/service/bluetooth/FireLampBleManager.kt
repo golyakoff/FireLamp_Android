@@ -4,10 +4,12 @@ import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothGattCharacteristic
 import android.content.Context
 import android.util.Log
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.withTimeoutOrNull
 import net.agolyakov.firelamp.protocol.FireLampGatt
 import no.nordicsemi.android.ble.BleManager
 import no.nordicsemi.android.ble.ktx.suspend
@@ -53,11 +55,38 @@ class FireLampBleManager(context: Context) : BleManager(context) {
      * lamp does not indicate Service Changed after a firmware update: characteristics added by a
      * newer firmware (e.g. WiFi networks, 0.1.5) would stay invisible. Dropping the cache on
      * every disconnect makes the next connection discover the real table (a fraction of a second).
+     * Not on every phone (after 0.9.0 one kept the old table until re-pairing): [rediscover]
+     * once per new firmware build covers the rest.
      */
     override fun shouldClearCacheWhenDisconnected(): Boolean = true
 
     override fun onServicesInvalidated() {
         characteristics = emptyMap()
+    }
+
+    private var rediscovered: CompletableDeferred<Unit>? = null
+
+    /**
+     * Drops the cached attribute table while connected and discovers the lamp's real one; the
+     * library runs [initialize] again (notifications of the new characteristics too). Throws if
+     * the lamp is not ready again in time.
+     */
+    suspend fun rediscover() {
+        val done = CompletableDeferred<Unit>().also { rediscovered = it }
+        try {
+            refreshDeviceCache().suspend()
+        } catch (e: Exception) {
+            rediscovered = null
+            Log.w(tag, "Could not refresh the cache", e)
+            return
+        }
+        withTimeoutOrNull(REDISCOVER_TIMEOUT_MS) { done.await() }
+            ?: throw IllegalStateException("Service discovery timed out")
+    }
+
+    override fun onDeviceReady() {
+        rediscovered?.complete(Unit)
+        rediscovered = null
     }
 
     override fun initialize() {
@@ -117,5 +146,9 @@ class FireLampBleManager(context: Context) : BleManager(context) {
 
     override fun log(priority: Int, message: String) {
         if (priority >= Log.INFO) Log.println(priority, tag, message)
+    }
+
+    private companion object {
+        const val REDISCOVER_TIMEOUT_MS = 10_000L
     }
 }
