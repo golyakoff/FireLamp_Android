@@ -13,7 +13,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
@@ -93,8 +96,20 @@ class BluetoothService @Inject constructor(
     val lampState: StateFlow<LampState?> = _lampState.asStateFlow()
 
     /** All effects in the lamp's list order, with current parameter values and demo flags. */
+    /** The effects as the lamp has them. */
     private val _effects = MutableStateFlow<List<EffectInfo>>(emptyList())
-    val effects: StateFlow<List<EffectInfo>> = _effects.asStateFlow()
+
+    /** Demo flags chosen in the app and not written to the lamp yet. */
+    private val demoPending = MutableStateFlow<Map<String, Boolean>>(emptyMap())
+
+    /** The effects with the pending demo flags: a checkbox shows the choice before the lamp has it. */
+    val effects: StateFlow<List<EffectInfo>> = combine(_effects, demoPending) { effects, pending ->
+        if (pending.isEmpty()) effects
+        else effects.map { e -> pending[e.code]?.let { e.copy(inDemo = it) } ?: e }
+    }.stateIn(scope, SharingStarted.Eagerly, emptyList())
+
+    /** Demo flag writes and the effect list re-read take turns: a re-read must not bring back older flags. */
+    private val demoMutex = Mutex()
 
     private val _lampTime = MutableStateFlow<LampTime?>(null)
     val lampTime: StateFlow<LampTime?> = _lampTime.asStateFlow()
@@ -160,6 +175,7 @@ class BluetoothService @Inject constructor(
         _deviceInfo.value = null
         _lampState.value = null
         _effects.value = emptyList()
+        demoPending.value = emptyMap()
         _lampTime.value = null
         _timeZone.value = null
         _schedule.value = null
@@ -445,8 +461,8 @@ class BluetoothService @Inject constructor(
     }
 
     /** Re-reads all descriptions: current values and demo flags of every effect. */
-    suspend fun refreshEffects(): Boolean = guarded(FireLampGatt.EFFECT_INFO) {
-        _effects.value = readAllEffects()
+    suspend fun refreshEffects(): Boolean = demoMutex.withLock {
+        guarded(FireLampGatt.EFFECT_INFO) { _effects.value = readAllEffects() }
     }
 
     private suspend fun refreshCurrentEffectParams() {
@@ -583,10 +599,28 @@ class BluetoothService @Inject constructor(
         _demoSettings.value = FireLampCodec.decodeDemoSettings(bleManager.read(FireLampGatt.DEMO_SETTINGS))
     }
 
-    suspend fun setDemoIncluded(effectCode: String, include: Boolean): Boolean = guarded(FireLampGatt.DEMO_EFFECTS) {
-        bleManager.write(FireLampGatt.DEMO_EFFECTS, FireLampCodec.encodeDemoEffect(effectCode, include))
-        val info = readEffectInfo(EffectSelector.ByCode(effectCode))
-        updateEffect(effectCode) { info }
+    /**
+     * Includes or excludes effects from the demo. [effects] shows the choice at once; the lamp gets
+     * the flags one at a time, inclusions first, so it never has none left to play (it rejects
+     * excluding the last one). A failed write drops all pending flags: the list shows the lamp's.
+     */
+    suspend fun setDemoIncluded(changes: Map<String, Boolean>) {
+        demoPending.update { it + changes }
+        demoMutex.withLock {
+            while (true) {
+                val (code, include) = demoPending.value.entries.maxByOrNull { it.value } ?: break
+                val written = guarded(FireLampGatt.DEMO_EFFECTS) {
+                    bleManager.write(FireLampGatt.DEMO_EFFECTS, FireLampCodec.encodeDemoEffect(code, include))
+                    updateEffect(code) { it.copy(inDemo = include) }
+                }
+                if (!written) {
+                    demoPending.value = emptyMap()
+                    break
+                }
+                // a newer choice for the same effect stays pending
+                demoPending.update { if (it[code] == include) it - code else it }
+            }
+        }
     }
 
     suspend fun setLedSettings(settings: LedSettings): Boolean = guarded(FireLampGatt.LED_SETTINGS) {

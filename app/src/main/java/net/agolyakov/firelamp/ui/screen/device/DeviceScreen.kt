@@ -167,6 +167,7 @@ fun DeviceScreen(
                         DemoSettingsSheet(
                             saved = demoSettings,
                             effects = effects,
+                            currentEffectCode = state.effectCode,
                             onSave = viewModel::saveDemoSettings,
                             onSetIncluded = viewModel::setDemoIncluded,
                             onDismiss = onDismiss

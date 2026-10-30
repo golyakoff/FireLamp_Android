@@ -75,7 +75,8 @@ import kotlin.math.roundToInt
 
 /**
  * Power on/off, dawn and hourly brightness. The schedule is one characteristic, read and written
- * as a whole, so it is edited as a draft with Save / Discard at the bottom.
+ * as a whole, so it is edited as a draft with Save / Discard at the bottom. The buttons are always
+ * there (disabled without changes): appearing under a finger on a slider, they would shift the list.
  */
 @Composable
 fun ScheduleTab(
@@ -121,19 +122,18 @@ fun ScheduleTab(
             item { HourlySection(draft) { draft = it } }
         }
 
-        if (draft != schedule) {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
-            ) {
-                OutlinedButton(onClick = { draft = schedule }, modifier = Modifier.weight(1f)) {
-                    Text(stringResource(R.string.discard))
-                }
-                Button(onClick = { onSave(draft) }, modifier = Modifier.weight(1f)) {
-                    Text(stringResource(R.string.save))
-                }
+        val changed = draft != schedule
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+        ) {
+            OutlinedButton(onClick = { draft = schedule }, enabled = changed, modifier = Modifier.weight(1f)) {
+                Text(stringResource(R.string.discard))
+            }
+            Button(onClick = { onSave(draft) }, enabled = changed, modifier = Modifier.weight(1f)) {
+                Text(stringResource(R.string.save))
             }
         }
     }

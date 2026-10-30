@@ -174,7 +174,10 @@
     <string name="settings_demo_random_addition">Случайная добавка до</string>
     <string name="settings_demo_duration_hint">Каждый эффект играет свою длительность плюс случайную добавку: 10…3600 с и 0…3600 с</string>
     <string name="settings_demo_effects">Эффекты в демо-режиме</string>
-    <string name="settings_demo_effects_hint">Отметки применяются сразу</string>
+    <string name="settings_demo_effects_hint">Отметки применяются сразу. Лампе нужен хотя бы один эффект: при снятии всех остаётся текущий</string>
+    <string name="settings_demo_all">Все</string>
+    <string name="settings_demo_none">Снять все</string>
+    <string name="settings_demo_invert">Инвертировать</string>
     <string name="settings_wifi">WiFi</string>
     <string name="settings_wifi_mode">Режим</string>
     <string name="settings_wifi_off">Выкл</string>

@@ -103,8 +103,8 @@ class DeviceViewModel @Inject constructor(
         viewModelScope.launch { bluetoothService.setDemoSettings(settings) }
     }
 
-    fun setDemoIncluded(effectCode: String, include: Boolean) {
-        viewModelScope.launch { bluetoothService.setDemoIncluded(effectCode, include) }
+    fun setDemoIncluded(changes: Map<String, Boolean>) {
+        viewModelScope.launch { bluetoothService.setDemoIncluded(changes) }
     }
 
     val wifiScan = bluetoothService.wifiScan

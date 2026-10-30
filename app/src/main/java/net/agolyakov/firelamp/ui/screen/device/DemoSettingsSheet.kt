@@ -2,6 +2,8 @@ package net.agolyakov.firelamp.ui.screen.device
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,6 +17,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -38,15 +41,17 @@ import net.agolyakov.firelamp.ui.component.SaveButton
 
 /**
  * Demo mode settings, opened from the demo switch on the Lamp tab: the timing (a draft with
- * Save, one characteristic) and which effects take part (each checkbox applies at once).
+ * Save, one characteristic) and which effects take part (each checkbox applies at once). The lamp
+ * needs at least one effect: clearing or inverting all of them keeps [currentEffectCode].
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DemoSettingsSheet(
     saved: DemoSettings?,
     effects: List<EffectInfo>,
+    currentEffectCode: String?,
     onSave: (DemoSettings) -> Unit,
-    onSetIncluded: (effectCode: String, include: Boolean) -> Unit,
+    onSetIncluded: (changes: Map<String, Boolean>) -> Unit,
     onDismiss: () -> Unit,
 ) {
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
@@ -70,6 +75,9 @@ fun DemoSettingsSheet(
                     color = MaterialTheme.colorScheme.outline
                 )
             }
+            item {
+                DemoSelectionButtons(effects, currentEffectCode, onSetIncluded)
+            }
             val included = effects.count { it.inDemo }
             items(effects, key = { it.code }) { effect ->
                 // The lamp rejects excluding the last included effect
@@ -82,7 +90,7 @@ fun DemoSettingsSheet(
                             value = effect.inDemo,
                             enabled = enabled,
                             role = Role.Checkbox,
-                            onValueChange = { onSetIncluded(effect.code, it) }
+                            onValueChange = { onSetIncluded(mapOf(effect.code to it)) }
                         )
                 ) {
                     Checkbox(checked = effect.inDemo, enabled = enabled, onCheckedChange = null)
@@ -90,6 +98,30 @@ fun DemoSettingsSheet(
                 }
             }
         }
+    }
+}
+
+/** All, none, the inverse: only the effects whose flag changes are sent. */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun DemoSelectionButtons(
+    effects: List<EffectInfo>,
+    currentEffectCode: String?,
+    onSetIncluded: (Map<String, Boolean>) -> Unit,
+) {
+    fun apply(include: (EffectInfo) -> Boolean) {
+        var wanted = effects.associate { it.code to include(it) }
+        if (wanted.values.none { it }) {
+            val keep = effects.firstOrNull { it.code == currentEffectCode } ?: effects.firstOrNull() ?: return
+            wanted = wanted + (keep.code to true)
+        }
+        val changes = effects.filter { wanted[it.code] != it.inDemo }.associate { it.code to wanted.getValue(it.code) }
+        if (changes.isNotEmpty()) onSetIncluded(changes)
+    }
+    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        SuggestionChip(onClick = { apply { true } }, label = { Text(stringResource(R.string.settings_demo_all)) })
+        SuggestionChip(onClick = { apply { false } }, label = { Text(stringResource(R.string.settings_demo_none)) })
+        SuggestionChip(onClick = { apply { !it.inDemo } }, label = { Text(stringResource(R.string.settings_demo_invert)) })
     }
 }
 

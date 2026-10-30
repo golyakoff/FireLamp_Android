@@ -174,7 +174,10 @@
     <string name="settings_demo_random_addition">Random extra up to</string>
     <string name="settings_demo_duration_hint">Every effect plays its duration plus a random extra: 10…3600 s and 0…3600 s</string>
     <string name="settings_demo_effects">Effects in the demo</string>
-    <string name="settings_demo_effects_hint">Checkboxes apply at once</string>
+    <string name="settings_demo_effects_hint">Checkboxes apply at once. The lamp needs at least one effect: clearing all keeps the current one</string>
+    <string name="settings_demo_all">All</string>
+    <string name="settings_demo_none">Clear all</string>
+    <string name="settings_demo_invert">Invert</string>
     <string name="settings_wifi">WiFi</string>
     <string name="settings_wifi_mode">Mode</string>
     <string name="settings_wifi_off">Off</string>

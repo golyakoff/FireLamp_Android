@@ -1,3 +1,9 @@
+# Release 0.10.0
+
+- Demo effects: "All", "Clear all" and "Invert" buttons; the lamp needs at least one effect, so clearing all keeps the current one
+- Demo effects: a checkbox changes at once and quick taps are no longer lost; the lamp gets the changes one by one in the background (before, the effect list re-read on opening could bring back the old checkboxes)
+- Schedule: Save and Discard stay at the bottom (disabled without changes) instead of appearing over the slider being moved
+
 # Release 0.9.0
 
 - Lamp firmware 0.10.0: the new effects Top fire, Magma, Prismata, Clouds and Snowfall have their names in the app language
