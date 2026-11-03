@@ -29,7 +29,7 @@
     <string name="demo_update_phone_title">Обновление с телефона…</string>
     <string name="demo_update_lamp_title">Обновление самой лампой…</string>
     <string name="demo_update_done">Обновление завершено</string>
-    <string name="demo_update_note">Демо: прошивка не изменилась</string>
+    <string name="demo_update_note">Демо</string>
     <string name="demo_update_got_it">Готово</string>
     <string name="app_version">Версия %1$s</string>
     <string name="app_update_available">Доступна новая версия %1$s</string>

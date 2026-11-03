@@ -28,5 +28,12 @@ class FirmwareModelsTest {
         assertEquals(2, state.bonds.phones.size)
         assertEquals(state.info.matrixWidth, state.led.width)
         assertEquals(2000, state.power.limitMa)
+        assertEquals("FireLamp-1A2B", state.deviceName)
+        assertEquals(32, state.schedule.hourlyBrightness[0])
+        assertEquals(255, state.schedule.hourlyBrightness[12])
+        assertEquals(32, state.schedule.hourlyBrightness[23])
+        assertEquals(7, state.schedule.powerOn.hour)
+        assertEquals(23, state.schedule.powerOff.hour)
+        assertEquals("lamp", state.schedule.dawnEffectCode)
     }
 }

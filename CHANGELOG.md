@@ -1,3 +1,9 @@
+# Release 0.12.1
+
+- Demo: the schedule uses the firmware defaults - the hourly brightness is off with 100 % from 8:00 to 21:59 and 32 % otherwise, power on at 7:00 and off at 23:00, the dawn at 7:00 on workdays with the Color lamp effect
+- Demo: the lamp's Bluetooth name is "FireLamp-1A2B" - English, and within the lamp's 20-byte limit (the old "Лампа огонь-1A2B" was 26 bytes, so the name field showed a validation error)
+- Demo update: the line under the progress and the result is just "Демо"
+
 # Release 0.12.0
 
 - The app is called "Лампа огонь" in Russian and "Fire Lamp" in English (the launcher, the recent-apps card and the top bar); the package, the repository and the update check stay FireLamp
