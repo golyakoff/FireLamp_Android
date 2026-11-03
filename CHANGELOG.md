@@ -1,3 +1,7 @@
+# Release 0.12.2
+
+- The schedule tab is called "График" in Russian instead of "Расписание": on narrow screens at a 125 % font scale the long word wrapped onto a second line, the short one stays on one line (the English label is still "Schedule")
+
 # Release 0.12.1
 
 - Demo: the schedule uses the firmware defaults - the hourly brightness is off with 100 % from 8:00 to 21:59 and 32 % otherwise, power on at 7:00 and off at 23:00, the dawn at 7:00 on workdays with the Color lamp effect
