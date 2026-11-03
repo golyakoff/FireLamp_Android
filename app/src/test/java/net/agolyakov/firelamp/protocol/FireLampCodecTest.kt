@@ -25,7 +25,8 @@ class FireLampCodecTest {
         assertEquals(18, FireLampGatt.REQUIRED.toSet().size)
         assertEquals("f1a70014-b390-49c3-8770-a1dfc323d1af", FireLampGatt.WIFI_NETWORKS.toString())
         assertEquals("f1a70015-b390-49c3-8770-a1dfc323d1af", FireLampGatt.POWER.toString())
-        assertEquals(20, FireLampGatt.ALL.toSet().size)
+        assertEquals(21, FireLampGatt.ALL.toSet().size)
+        assertEquals("f1a70016-b390-49c3-8770-a1dfc323d1af", FireLampGatt.BONDED_PHONES.toString())
     }
 
     // ---------- Device info ----------
@@ -421,5 +422,46 @@ class FireLampCodecTest {
     @Test(expected = IllegalArgumentException::class)
     fun powerPercentBelowMinimum() {
         FireLampCodec.encodePowerCommand(PowerCommand.SetPercent(29))
+    }
+
+    // ---------- Bonded phones ----------
+
+    @Test
+    fun bondedPhones() {
+        val bytes = hex(
+            "02 05 00 ff ee dd cc bb aa 00 " + str8("Pixel 7") +
+                " 01 66 55 44 33 22 11 01 00"
+        )
+        val bonded = FireLampCodec.decodeBondedPhones(bytes)
+        assertEquals(5, bonded.capacity)
+        assertEquals(2, bonded.phones.size)
+        assertEquals("AA:BB:CC:DD:EE:FF", bonded.phones[0].address)
+        assertEquals(AddressType.PUBLIC, bonded.phones[0].type)
+        assertEquals("Pixel 7", bonded.phones[0].name)
+        assertFalse(bonded.phones[0].isCurrent)
+        assertEquals("11:22:33:44:55:66", bonded.phones[1].address)
+        assertEquals(AddressType.RANDOM, bonded.phones[1].type)
+        assertEquals("", bonded.phones[1].name)
+        assertTrue(bonded.phones[1].isCurrent)
+    }
+
+    @Test(expected = ProtocolException::class)
+    fun bondedPhonesCountAboveCapacity() {
+        FireLampCodec.decodeBondedPhones(hex("06 05"))
+    }
+
+    @Test
+    fun encodeBondName() {
+        assertArrayEquals(
+            hex("0a 05 50 68 6f 6e 65"),
+            FireLampCodec.encodeSetBondName("Phone"),
+        )
+    }
+
+    @Test
+    fun takeUtf8DoesNotSplitACharacter() {
+        // "Ж" is two bytes; 3 bytes fit only the first one
+        assertEquals("Ж", "ЖЖ".takeUtf8(3))
+        assertEquals("AB", "ABC".takeUtf8(2))
     }
 }

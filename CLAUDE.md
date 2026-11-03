@@ -60,7 +60,8 @@ MVVM + Hilt + single-Activity Compose Navigation, as in the sibling apps:
   - `FireLampGatt` — service/characteristic UUIDs (`F1A7xxxx-B390-49C3-8770-A1DFC323D1AF`),
     MTU, which characteristics notify. `REQUIRED` ones exist in every protocol 1 firmware;
     `OPTIONAL` ones were added later (e.g. `0x0014` WiFi networks with Command `0x08` scan,
-    `0x0015` Power: brownout brightness and the power supply calibration, `PowerSection`):
+    `0x0015` Power: brownout brightness and the power supply calibration, `PowerSection`;
+    `0x0016` Bonded phones with names, MACs and a "this phone" flag, `BondedPhonesSection`):
     the app checks `FireLampBleManager.has()` and falls back when absent - never add a new
     characteristic to `REQUIRED`, older lamps would stop connecting.
   - `Models.kt` — one model per characteristic value (`DeviceInfo`, `LampState`,

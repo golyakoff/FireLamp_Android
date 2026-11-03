@@ -119,6 +119,10 @@
     <string name="hw_main_button_pin_four">Main button pin</string>
     <string name="hw_main_button_pin_hint">Pins with internal pull resistors that are free on this lamp</string>
     <string name="hw_gpio">GPIO %1$d</string>
+    <string name="bonded_phones">Paired phones</string>
+    <string name="bonded_phones_count">%1$d of %2$d</string>
+    <string name="bonded_phones_this">This phone</string>
+    <string name="bonded_phones_hint">The lamp remembers up to %1$d phones; a new one forgets the oldest.</string>
     <string name="hw_lamp_info">About the lamp</string>
     <string name="hw_info_firmware">Firmware</string>
     <string name="hw_info_build_date">Built</string>

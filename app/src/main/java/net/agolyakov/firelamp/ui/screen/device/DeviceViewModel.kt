@@ -144,6 +144,7 @@ class DeviceViewModel @Inject constructor(
     val firmwareState = firmwareUpdater.state
     val updateInfo = bluetoothService.updateInfo
     val powerStatus = bluetoothService.powerStatus
+    val bondedPhones = bluetoothService.bondedPhones
 
     override fun check() = firmwareUpdater.checkForUpdate()
 
@@ -276,4 +277,5 @@ class DeviceViewModel @Inject constructor(
         /** Doubled for every next attempt: 2, 4, 8, 8... s. */
         private const val RECONNECT_DELAY_MS = 2000L
     }
+
 }

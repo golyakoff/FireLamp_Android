@@ -1,6 +1,7 @@
 package net.agolyakov.firelamp.service.bluetooth
 
 import android.bluetooth.BluetoothDevice
+import android.os.Build
 import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -25,6 +26,7 @@ import net.agolyakov.firelamp.data.local.EffectCatalogRepository
 import net.agolyakov.firelamp.data.local.KnownLamps
 import net.agolyakov.firelamp.data.model.ble.ConnectionState
 import net.agolyakov.firelamp.data.model.ble.FireLampDevice
+import net.agolyakov.firelamp.protocol.BondedPhones
 import net.agolyakov.firelamp.protocol.CalibrationState
 import net.agolyakov.firelamp.protocol.Command
 import net.agolyakov.firelamp.protocol.Controls
@@ -52,6 +54,7 @@ import net.agolyakov.firelamp.protocol.WifiScanState
 import net.agolyakov.firelamp.protocol.WifiSettings
 import net.agolyakov.firelamp.protocol.WifiSettingsUpdate
 import net.agolyakov.firelamp.protocol.WifiStatus
+import net.agolyakov.firelamp.protocol.takeUtf8
 import no.nordicsemi.android.ble.exception.DeviceDisconnectedException
 import no.nordicsemi.android.ble.exception.RequestFailedException
 import no.nordicsemi.android.ble.ktx.suspend
@@ -155,6 +158,9 @@ class BluetoothService @Inject constructor(
     private val _powerStatus = MutableStateFlow<PowerStatus?>(null)
     val powerStatus: StateFlow<PowerStatus?> = _powerStatus.asStateFlow()
 
+    private val _bondedPhones = MutableStateFlow<BondedPhones?>(null)
+    val bondedPhones: StateFlow<BondedPhones?> = _bondedPhones.asStateFlow()
+
     /**
      * Settings stored by the lamp that take effect only after a reboot (LED, hardware, name)
      * were changed in this session.
@@ -190,6 +196,7 @@ class BluetoothService @Inject constructor(
         _wifiScan.value = null
         _wifiScanSupported.value = false
         _powerStatus.value = null
+        _bondedPhones.value = null
         _rebootRequired.value = false
     }
 
@@ -445,6 +452,45 @@ class BluetoothService @Inject constructor(
             _wifiScanSupported.value = true
             guarded(FireLampGatt.WIFI_NETWORKS) { _wifiScan.value = readAllWifiNetworks() }
         }
+        if (bleManager.has(FireLampGatt.BONDED_PHONES)) {
+            readInto(FireLampGatt.BONDED_PHONES) { _bondedPhones.value = FireLampCodec.decodeBondedPhones(it) }
+            syncBondName()
+        }
+    }
+
+    /**
+     * Pairing (SMP) carries no name. Send the Bluetooth name from the phone's settings (the one
+     * the system shows for this phone) for the bond of this connection, once, when the lamp has
+     * a different one. The lamp stores it and returns it in [bondedPhones].
+     */
+    private suspend fun syncBondName() {
+        val me = _bondedPhones.value?.phones?.firstOrNull { it.isCurrent } ?: return
+        val name = phoneBluetoothName()?.takeUtf8(FireLampCodec.BOND_NAME_MAX_BYTES) ?: return
+        if (name.isBlank() || name == me.name) return
+
+        try {
+            bleManager.write(FireLampGatt.COMMAND, FireLampCodec.encodeSetBondName(name))
+            _bondedPhones.value = FireLampCodec.decodeBondedPhones(bleManager.read(FireLampGatt.BONDED_PHONES))
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            // The name is cosmetic: a failure must not show an error on every connection
+            Log.w(tag, "Could not send the phone's name", e)
+        }
+    }
+
+    /** The name the phone shows in its Bluetooth settings, or the model when the adapter has none. */
+    private fun phoneBluetoothName(): String? = try {
+        if (!BlePermissions.granted(bluetoothAdapterProvider.getContext())) {
+            null
+        } else {
+            @Suppress("DEPRECATION")
+            val name = bluetoothAdapterProvider.getAdapter().name?.trim()
+            name?.takeIf { it.isNotEmpty() } ?: Build.MODEL.takeIf { it.isNotBlank() }
+        }
+    } catch (e: Exception) {
+        Log.w(tag, "Could not read the phone's Bluetooth name", e)
+        null
     }
 
     private val effectInfoMutex = Mutex()

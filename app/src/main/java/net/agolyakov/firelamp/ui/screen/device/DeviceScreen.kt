@@ -109,6 +109,7 @@ fun DeviceScreen(
     val firmwareState by viewModel.firmwareState.collectAsState()
     val updateInfo by viewModel.updateInfo.collectAsState()
     val powerStatus by viewModel.powerStatus.collectAsState()
+    val bondedPhones by viewModel.bondedPhones.collectAsState()
     val context = LocalContext.current
 
     LaunchedEffect(device) {
@@ -211,6 +212,7 @@ fun DeviceScreen(
                 onReboot = viewModel::reboot,
                 onResetEffects = viewModel::resetEffects,
                 onFactoryReset = viewModel::factoryReset,
+                bondedPhones = bondedPhones,
                 power = { powerStatus?.let { PowerSection(it, viewModel) } },
                 firmware = {
                     deviceInfo?.let { info ->

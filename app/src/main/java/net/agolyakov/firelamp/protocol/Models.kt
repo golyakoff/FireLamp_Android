@@ -478,3 +478,34 @@ sealed interface PowerCommand {
     data object CancelCalibration : PowerCommand
 }
 
+
+// ---------- 0x0016 Bonded phones (firmware 0.11.0+) ----------
+
+enum class AddressType(override val code: Int) : Coded {
+    PUBLIC(0),
+    RANDOM(1),
+    PUBLIC_IDENTITY(2),
+    RANDOM_IDENTITY(3),
+    UNKNOWN(-1)
+}
+
+/**
+ * A phone the lamp remembers, from its bond store. [address] is the identity address printed as
+ * `AA:BB:CC:DD:EE:FF`; the phone this connection belongs to is [isCurrent].
+ */
+data class BondedPhone(
+    val type: AddressType,
+    val address: String,
+    val isCurrent: Boolean,
+    /** The name from the phone's Bluetooth settings; empty until the app has sent it. */
+    val name: String,
+) : Serializable {
+    val displayName: String get() = name.ifBlank { address }
+}
+
+data class BondedPhones(
+    /** Bond slots of the lamp, 5 on firmware 0.11.0. */
+    val capacity: Int,
+    /** Oldest bond first. */
+    val phones: List<BondedPhone>,
+) : Serializable

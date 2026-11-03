@@ -119,6 +119,10 @@
     <string name="hw_main_button_pin_four">Пин основной кнопки</string>
     <string name="hw_main_button_pin_hint">Пины с внутренней подтяжкой, свободные на этой лампе</string>
     <string name="hw_gpio">GPIO %1$d</string>
+    <string name="bonded_phones">Сопряжённые телефоны</string>
+    <string name="bonded_phones_count">%1$d из %2$d</string>
+    <string name="bonded_phones_this">Этот телефон</string>
+    <string name="bonded_phones_hint">Лампа помнит до %1$d телефонов; новый вытесняет самый старый.</string>
     <string name="hw_lamp_info">О лампе</string>
     <string name="hw_info_firmware">Прошивка</string>
     <string name="hw_info_build_date">Сборка</string>

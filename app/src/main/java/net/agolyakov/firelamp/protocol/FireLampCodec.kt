@@ -12,6 +12,7 @@ object FireLampCodec {
     const val CODE_MAX_BYTES = 16
     const val TIME_ZONE_MAX_BYTES = 47
     const val DEVICE_NAME_MAX_BYTES = 20
+    const val BOND_NAME_MAX_BYTES = 48
 
     private const val PASSWORD_KEEP = 0xFF
 
@@ -292,6 +293,32 @@ object FireLampCodec {
 
     fun encodeCommand(command: Command): ByteArray = bytesOf { u8(command.code) }
 
+    /** Command 0x0A: the Bluetooth name shown in the phone's settings. */
+    fun encodeSetBondName(name: String): ByteArray {
+        require(name.utf8Length() <= BOND_NAME_MAX_BYTES) { "Name longer than $BOND_NAME_MAX_BYTES bytes" }
+        return bytesOf {
+            u8(0x0A)
+            str8(name, BOND_NAME_MAX_BYTES)
+        }
+    }
+
+    /** Throws [ProtocolException] for a malformed value; unknown address types are kept as UNKNOWN. */
+    fun decodeBondedPhones(bytes: ByteArray): BondedPhones = with(ByteReader(bytes)) {
+        val count = u8()
+        val capacity = u8()
+        if (capacity == 0 || capacity > 64 || count > capacity) {
+            throw ProtocolException("Bad bonded phones header: $count of $capacity")
+        }
+        val phones = List(count) {
+            val type = codedOf(u8(), AddressType.UNKNOWN)
+            val address = macToString(bytes(6))
+            val flags = u8()
+            val name = str8()
+            BondedPhone(type, address, flags and 1 != 0, name)
+        }
+        BondedPhones(capacity, phones)
+    }
+
     // ---------- 0x000D Demo settings / 0x000E Demo effects ----------
 
     fun decodeDemoSettings(bytes: ByteArray): DemoSettings = with(ByteReader(bytes)) {
@@ -400,4 +427,8 @@ object FireLampCodec {
 
     /** The lowest brightness the lamp keeps after brownouts, %. */
     const val POWER_PERCENT_MIN = 30
+
+    private fun macToString(bytes: ByteArray): String =
+        bytes.reversed().joinToString(":") { "%02X".format(it.toInt() and 0xFF) }
+
 }

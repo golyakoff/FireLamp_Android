@@ -35,6 +35,7 @@ object FireLampGatt {
     val HARDWARE_SETTINGS: UUID = uuid(0x0013) // R, W
     val WIFI_NETWORKS: UUID = uuid(0x0014)     // R, W, N; optional: firmware >= 0.1.5 (WiFi scan)
     val POWER: UUID = uuid(0x0015)             // R, W, N; optional: firmware >= 0.9.0 (brownouts, calibration)
+    val BONDED_PHONES: UUID = uuid(0x0016)     // R; optional: firmware >= 0.11.0 (paired phones)
 
     /** Present in every protocol version 1 firmware. */
     val REQUIRED: List<UUID> = listOf(
@@ -44,7 +45,7 @@ object FireLampGatt {
     )
 
     /** Added later within protocol version 1: the app checks for them before use. */
-    val OPTIONAL: List<UUID> = listOf(WIFI_NETWORKS, POWER)
+    val OPTIONAL: List<UUID> = listOf(WIFI_NETWORKS, POWER, BONDED_PHONES)
 
     val ALL: List<UUID> = REQUIRED + OPTIONAL
 

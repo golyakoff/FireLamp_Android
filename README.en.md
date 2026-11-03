@@ -35,7 +35,7 @@ Low Energy: no cloud, no account, WiFi is optional for the lamp.
   phone's time zone.
 - **System.** Firmware update, the LED matrix (size, type, rotation, wiring with a strip diagram,
   current limit), controls (one button, four buttons or touch pad, how the buttons are wired, the
-  button pin), lamp information, reboot and resets.
+  button pin), lamp information, paired phones (name, MAC, "this phone"), reboot and resets.
 - **Firmware update.** From the phone over Bluetooth (the app downloads and verifies the release) or
   by the lamp itself over WiFi. The app also tells about new versions of itself.
 

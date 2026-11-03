@@ -90,3 +90,12 @@ inline fun bytesOf(block: ByteWriter.() -> Unit): ByteArray = ByteWriter().apply
 
 /** UTF-8 length in bytes, which is what the protocol limits (not characters). */
 fun String.utf8Length(): Int = toByteArray(Charsets.UTF_8).size
+
+/** The longest prefix of this string that fits in [maxBytes] UTF-8 bytes, without splitting a character. */
+fun String.takeUtf8(maxBytes: Int): String {
+    val bytes = toByteArray(Charsets.UTF_8)
+    if (bytes.size <= maxBytes) return this
+    var end = maxBytes
+    while (end > 0 && (bytes[end].toInt() and 0xC0) == 0x80) end--
+    return String(bytes, 0, end, Charsets.UTF_8)
+}
