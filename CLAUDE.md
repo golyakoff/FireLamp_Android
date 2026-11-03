@@ -6,9 +6,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 FireLamp Android app (`net.agolyakov.firelamp`): a Kotlin/Jetpack Compose BLE client for the
 FireLamp firmware (ESP32 / ESP32-C3 LED matrix lamp, repo `golyakoff/FireLamp_ESP32`, checked out
-at `~/projects/FireLampBLE/FireLamp_ESP32`). Same app family as Ago_Slider_Android and
-Matrix_Clock_Android (siblings in `~/projects/FireLamp_Android/`); the project skeleton was taken
-from Ago_Slider_Android.
+at `~/projects/FireLamp/FireLamp_ESP32`). Same app family as Ago_Slider_Android and
+Matrix_Clock_Android, but those are separate checkouts, not siblings in this project; the project
+skeleton was taken from Ago_Slider_Android.
 
 The BLE contract is the firmware's `docs/BLE_PROTOCOL.md` (bytes) and `docs/APP_INTEGRATION.md`
 (order of operations, caching, pairing). When the docs and the firmware disagree, the firmware's
@@ -39,7 +39,8 @@ main safety net for the wire format.
 Effect preview GIFs (`<effect code>.gif`) are not committed: the `syncEffectPreviews` task
 (app/build.gradle.kts) copies them on every build from the firmware's `preview/` folder into
 generated assets (`assets/previews/`). Source: `-Pfirelamp.previewsDir`, else
-`$FIRELAMP_PREVIEWS_DIR`, else the sibling checkout `~/projects/FireLampBLE/FireLamp_ESP32/preview`.
+`$FIRELAMP_PREVIEWS_DIR`, else the sibling checkout
+`~/projects/FireLamp/FireLamp_ESP32/preview`.
 Missing previews fail the build on CI (`CI=true`) and only warn locally; the app then downloads
 them from GitHub (`EffectPreviews`, Coil 3, disk-cached).
 

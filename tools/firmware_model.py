@@ -3,7 +3,7 @@
 
 Run after building the firmware once (tools/preview/build/sim is needed):
 
-    python3 tools/firmware_model.py --firmware ../FireLampBLE/FireLamp_ESP32 \
+    python3 tools/firmware_model.py --firmware ../FireLamp_ESP32 \
         --version 0.11.1 --build-date "Nov  3 2026 15:31:00"
 
 The JSON is a snapshot of the BLE attribute values the app reads: the device info and the effect

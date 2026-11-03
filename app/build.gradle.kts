@@ -117,7 +117,7 @@ abstract class SyncEffectPreviews : DefaultTask() {
 
 val previewsDir = providers.gradleProperty("firelamp.previewsDir")
     .orElse(providers.environmentVariable("FIRELAMP_PREVIEWS_DIR"))
-    .orElse(rootDir.resolve("../../FireLampBLE/FireLamp_ESP32/preview").path)
+    .orElse(rootDir.resolve("../FireLamp_ESP32/preview").path)
     .map { file(it) }
 
 val syncEffectPreviews = tasks.register<SyncEffectPreviews>("syncEffectPreviews") {
