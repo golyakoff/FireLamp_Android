@@ -17,7 +17,7 @@ ESP32-C3 с прошивкой **[FireLamp ESP32](https://github.com/golyakoff/F
   <img src="docs/screenshots/home.png" width="130" alt="Лампы рядом">
   <img src="docs/screenshots/lamp.png" width="130" alt="Лампа: эффекты">
   <img src="docs/screenshots/effect.png" width="130" alt="Параметры эффекта">
-  <img src="docs/screenshots/schedule.png" width="130" alt="Расписание">
+  <img src="docs/screenshots/schedule.png" width="130" alt="График">
   <img src="docs/screenshots/settings.png" width="130" alt="Настройки">
   <img src="docs/screenshots/system.png" width="130" alt="Система">
 </p>
@@ -29,7 +29,7 @@ ESP32-C3 с прошивкой **[FireLamp ESP32](https://github.com/golyakoff/F
 - **Лампа.** Включение, яркость, эффекты плиткой с живыми превью (в прошивке 0.10.0 их 45), предыдущий/следующий, демо-режим.
   Параметры эффекта — понятными элементами: цвет на цветовом круге, палитры плитками, режимы
   кнопками, «Темп» в процентах; изменения сразу видны на лампе.
-- **Расписание.** Включение и выключение по времени и дням недели, «рассвет» с плавным набором
+- **График.** Включение и выключение по времени и дням недели, «рассвет» с плавным набором
   яркости и выбранным эффектом, яркость по часам.
 - **Настройки.** WiFi лампы (со списком сетей, которые она слышит), имя лампы в Bluetooth, время и
   часовой пояс телефона.

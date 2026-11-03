@@ -67,7 +67,7 @@
 
     <!-- Device screen tabs -->
     <string name="tab_lamp">Лампа</string>
-    <string name="tab_schedule">Расписание</string>
+    <string name="tab_schedule">График</string>
     <string name="tab_settings">Настройки</string>
     <string name="tab_system">Система</string>
 
