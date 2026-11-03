@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">FireLamp</string>
+    <string name="app_name">Лампа огонь</string>
 
     <!-- Permissions -->
     <string name="perm_bluetooth_is_off">Приложению нужен включённый Bluetooth</string>
@@ -12,6 +12,25 @@
     <string name="dialog_device_name">Название</string>
     <string name="dialog_save">Сохранить</string>
     <string name="dialog_cancel">Отмена</string>
+    <string name="settings_title">Настройки</string>
+    <string name="settings_about">О приложении</string>
+    <string name="settings_language">Язык</string>
+    <string name="settings_developers">Для разработчиков</string>
+    <string name="settings_developers_hint">Посмотреть экраны лампы на встроенной модели прошивки без лампы. Ничего не отправляется и не сохраняется. Настоящей лампе нужны разрешения Bluetooth, которые приложение запрашивает при запуске.</string>
+    <string name="settings_developers_open">Прошивка %1$s · эффектов: %2$d</string>
+    <string name="settings_check">Проверить обновления</string>
+    <string name="settings_checking">Проверка…</string>
+    <string name="settings_up_to_date">Установлена последняя версия</string>
+    <string name="settings_check_failed">Не удалось проверить обновления</string>
+    <string name="update_success">Успешно</string>
+    <string name="update_failure">Ошибка</string>
+    <string name="demo_title">Демонстрация</string>
+    <string name="demo_update_hint">Демонстрация экранов обновления: прогресс идёт 10 секунд, ничего не скачивается, прошивка не меняется.</string>
+    <string name="demo_update_phone_title">Обновление с телефона…</string>
+    <string name="demo_update_lamp_title">Обновление самой лампой…</string>
+    <string name="demo_update_done">Обновление завершено</string>
+    <string name="demo_update_note">Демо: прошивка не изменилась</string>
+    <string name="demo_update_got_it">Готово</string>
     <string name="app_version">Версия %1$s</string>
     <string name="app_update_available">Доступна новая версия %1$s</string>
     <string name="app_update_download">Скачать</string>
@@ -225,6 +244,18 @@
     <string name="settings_reset_do">Сбросить</string>
 
     <!-- Firmware update -->
+    <string name="dialog_back">Назад</string>
+    <string name="fw_available_title">Доступно обновление</string>
+    <string name="fw_new_version">Новая версия: %1$s</string>
+    <string name="fw_done_title">Обновление завершено</string>
+    <string name="fw_failed_title">Обновление не удалось</string>
+    <string name="fw_no_official_build_title">Нет официальной прошивки</string>
+    <string name="fw_retry">Попробовать снова</string>
+    <string name="fw_done_action">Готово</string>
+    <string name="fw_progress_downloading_detail">Скачивание с GitHub</string>
+    <string name="fw_progress_lamp_note">Лампа продолжит без телефона; не отключайте питание</string>
+    <string name="fw_progress_running">Обновление идёт…</string>
+    <string name="fw_open_screen">Открыть экран обновления</string>
     <string name="fw_title">Обновление прошивки</string>
     <string name="fw_current">Установлена: %1$s</string>
     <string name="fw_check">Проверить обновление</string>
@@ -244,6 +275,7 @@
     <string name="fw_go_back">Вернуть версию %1$s</string>
     <string name="fw_go_back_confirm">Лампа перезагрузится в прежнюю прошивку %1$s, настройки сохранятся. Вернуться на новую версию можно обновлением. Без телефона лампа возвращается к прежней прошивке, если при включении питания держать её основную кнопку 5 секунд.</string>
     <string name="fw_go_back_do">Вернуть</string>
+    <string name="fw_rolled_back_title">Откат прошивки</string>
     <string name="fw_rolled_back">Новая прошивка не запустилась, лампа вернулась к %1$s</string>
     <string name="fw_error_no_internet">Не удалось скачать обновление: проверьте подключение к интернету</string>
     <string name="fw_error_bad_file">Скачанный файл повреждён, попробуйте ещё раз</string>

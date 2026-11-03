@@ -1,7 +1,5 @@
 package net.agolyakov.firelamp.ui.screen.home
 
-import android.app.Activity
-import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -11,6 +9,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material.icons.outlined.SystemUpdate
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -18,11 +17,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -30,7 +27,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import net.agolyakov.firelamp.R
-import net.agolyakov.firelamp.data.local.AppLanguage
 import net.agolyakov.firelamp.data.model.ble.FireLampDevice
 import net.agolyakov.firelamp.data.repository.AppUpdateRepository
 import net.agolyakov.firelamp.navigation.Screen
@@ -42,7 +38,7 @@ fun HomeScreen(
     homeViewModel: HomeViewModel
 ) {
     val devices by homeViewModel.devices.observeAsState(emptyList())
-    val appUpdate by homeViewModel.appUpdate.collectAsState()
+    val appUpdateState by homeViewModel.appUpdateState.collectAsState()
     val autoOpen by homeViewModel.autoOpen.collectAsState()
     LaunchedEffect(autoOpen) {
         autoOpen?.let {
@@ -50,29 +46,30 @@ fun HomeScreen(
             openDevice(navController, it)
         }
     }
-    val uriHandler = LocalUriHandler.current
-    val context = LocalContext.current
 
     var showRenameDialog by remember { mutableStateOf(false) }
     var deviceToRename by remember { mutableStateOf<FireLampDevice?>(null) }
 
-    HomeContent(
-        devices = devices,
-        appVersion = homeViewModel.appVersion,
-        appUpdate = appUpdate,
-        language = homeViewModel.language,
-        navController = navController,
-        onRenameClick = { device ->
-            deviceToRename = device
-            showRenameDialog = true
-        },
-        onDownloadUpdateClick = { uriHandler.openUri(it.releaseUrl) },
-        onLanguageClick = { language ->
-            homeViewModel.setLanguage(language)
-            // Resources are bound to the activity's context, so restart it to re-resolve them
-            (context as? Activity)?.recreate()
+    Column(
+        modifier = Modifier
+            .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+            .fillMaxSize()
+            .systemBarsPadding()
+    ) {
+        DeviceList(
+            deviceList = devices,
+            navController = navController,
+            modifier = Modifier.weight(1f),
+            onRenameClick = { device ->
+                deviceToRename = device
+                showRenameDialog = true
+            }
+        )
+        // The version, the language and the rest are on the settings screen behind the gear.
+        (appUpdateState as? AppUpdateRepository.UpdateCheckState.UpdateAvailable)?.let {
+            AppUpdatePlaque(it)
         }
-    )
+    }
 
     if (showRenameDialog && deviceToRename != null) {
         RenameDeviceDialog(
@@ -84,39 +81,6 @@ fun HomeScreen(
             onRename = { newName ->
                 homeViewModel.renameDevice(deviceToRename!!.macAddress, newName)
             }
-        )
-    }
-}
-
-@Composable
-private fun HomeContent(
-    devices: List<FireLampDevice>,
-    appVersion: String,
-    appUpdate: AppUpdateRepository.AppUpdate?,
-    language: AppLanguage,
-    navController: NavHostController,
-    onRenameClick: (FireLampDevice) -> Unit,
-    onDownloadUpdateClick: (AppUpdateRepository.AppUpdate) -> Unit,
-    onLanguageClick: (AppLanguage) -> Unit
-) {
-    Column(
-        modifier = Modifier
-            .background(MaterialTheme.colorScheme.surfaceContainerHigh)
-            .fillMaxSize()
-            .systemBarsPadding()
-    ) {
-        DeviceList(
-            deviceList = devices,
-            navController = navController,
-            modifier = Modifier.weight(1f),
-            onRenameClick = onRenameClick
-        )
-        AppVersionCard(
-            version = appVersion,
-            update = appUpdate,
-            language = language,
-            onDownloadClick = onDownloadUpdateClick,
-            onLanguageClick = onLanguageClick
         )
     }
 }
@@ -259,102 +223,43 @@ private fun LampIcon() {
     }
 }
 
-// Always shows the installed version; the update line and the download button appear only
-// once HomeViewModel's periodic check finds a newer release. Downloading is manual —
-// the button just opens the release page in a browser.
+/** A new version of the app: a plaque at the bottom of the list, a tap opens the release page. */
 @Composable
-private fun AppVersionCard(
-    version: String,
-    update: AppUpdateRepository.AppUpdate?,
-    language: AppLanguage,
-    onDownloadClick: (AppUpdateRepository.AppUpdate) -> Unit,
-    onLanguageClick: (AppLanguage) -> Unit
+fun AppUpdatePlaque(
+    update: AppUpdateRepository.UpdateCheckState.UpdateAvailable,
+    modifier: Modifier = Modifier,
 ) {
+    val uriHandler = LocalUriHandler.current
     Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(16.dp, 8.dp, 16.dp, 16.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant,
             contentColor = MaterialTheme.colorScheme.onSurfaceVariant
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
+        )
     ) {
-        Column(modifier = Modifier.padding(vertical = 12.dp, horizontal = 16.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = stringResource(R.string.app_version, version),
-                        style = MaterialTheme.typography.titleSmall,
-                        color = MaterialTheme.colorScheme.outline
-                    )
-                    if (update != null) {
-                        Text(
-                            text = stringResource(R.string.app_update_available, update.version),
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                    }
-                }
-
-                if (update != null) {
-                    Spacer(Modifier.width(8.dp))
-
-                    Button(onClick = { onDownloadClick(update) }) {
-                        Text(stringResource(R.string.app_update_download))
-                    }
-                }
-            }
-
-            LanguageLinks(language = language, onLanguageClick = onLanguageClick)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { uriHandler.openUri(update.releaseUrl) }
+                .padding(vertical = 12.dp, horizontal = 16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.SystemUpdate,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(24.dp)
+            )
+            Spacer(Modifier.width(12.dp))
+            Text(
+                text = stringResource(R.string.app_update_available, update.version),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.primary
+            )
         }
     }
-}
-
-@Composable
-private fun LanguageLinks(
-    language: AppLanguage,
-    onLanguageClick: (AppLanguage) -> Unit
-) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        LanguageLink(
-            labelRes = R.string.lang_english,
-            selected = language == AppLanguage.English,
-            onClick = { onLanguageClick(AppLanguage.English) }
-        )
-        Text(
-            text = " | ",
-            style = MaterialTheme.typography.titleSmall,
-            color = MaterialTheme.colorScheme.outline
-        )
-        LanguageLink(
-            labelRes = R.string.lang_russian,
-            selected = language == AppLanguage.Russian,
-            onClick = { onLanguageClick(AppLanguage.Russian) }
-        )
-    }
-}
-
-// The active language is not a link: bold, unclickable, and in the text colour
-@Composable
-private fun LanguageLink(
-    @StringRes labelRes: Int,
-    selected: Boolean,
-    onClick: () -> Unit
-) {
-    Text(
-        text = stringResource(labelRes),
-        style = MaterialTheme.typography.titleSmall,
-        fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
-        color = if (selected) {
-            MaterialTheme.colorScheme.onSurfaceVariant
-        } else {
-            MaterialTheme.colorScheme.primary
-        },
-        textDecoration = if (selected) null else TextDecoration.Underline,
-        modifier = if (selected) Modifier else Modifier.clickable(onClick = onClick)
-    )
 }
 
 @Composable
@@ -412,24 +317,23 @@ private val previewDeviceList = listOf(
     )
 )
 
-private val previewAppUpdate = AppUpdateRepository.AppUpdate(
-    version = "v0.2.0",
-    releaseUrl = "https://github.com/golyakoff/FireLamp_Android/releases/tag/v0.2.0"
+private val previewAppUpdate = AppUpdateRepository.UpdateCheckState.UpdateAvailable(
+    version = "v0.12.0",
+    releaseUrl = "https://github.com/golyakoff/FireLamp_Android/releases/tag/v0.12.0"
 )
 
 @Composable
-private fun HomeContentPreview(darkTheme: Boolean, appUpdate: AppUpdateRepository.AppUpdate?) {
+private fun HomeContentPreview(darkTheme: Boolean, appUpdate: AppUpdateRepository.UpdateCheckState.UpdateAvailable?) {
     FireLampTheme(darkTheme) {
-        HomeContent(
-            devices = previewDeviceList,
-            appVersion = "v0.1.1",
-            appUpdate = appUpdate,
-            language = AppLanguage.English,
-            navController = rememberNavController(),
-            onRenameClick = {},
-            onDownloadUpdateClick = {},
-            onLanguageClick = {}
-        )
+        Column(Modifier.fillMaxSize()) {
+            DeviceList(
+                deviceList = previewDeviceList,
+                navController = rememberNavController(),
+                modifier = Modifier.weight(1f),
+                onRenameClick = {}
+            )
+            appUpdate?.let { AppUpdatePlaque(it) }
+        }
     }
 }
 

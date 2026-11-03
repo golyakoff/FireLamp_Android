@@ -21,9 +21,7 @@ import kotlinx.coroutines.launch
 import net.agolyakov.firelamp.data.model.ble.FireLampDevice
 import net.agolyakov.firelamp.data.extensions.UNNAMED
 import net.agolyakov.firelamp.data.extensions.toBleDevice
-import net.agolyakov.firelamp.data.local.AppLanguage
 import net.agolyakov.firelamp.data.local.KnownLamps
-import net.agolyakov.firelamp.data.local.LanguagePreferences
 import net.agolyakov.firelamp.data.repository.AppUpdateRepository
 import net.agolyakov.firelamp.service.bluetooth.BlePermissions
 import net.agolyakov.firelamp.service.bluetooth.BluetoothAdapterProvider
@@ -32,7 +30,6 @@ import net.agolyakov.firelamp.domain.repository.PreferencesRepository
 import net.agolyakov.firelamp.domain.usecase.LoadDeviceWithNameUseCase
 import net.agolyakov.firelamp.protocol.FireLampGatt
 import javax.inject.Inject
-import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
 @HiltViewModel
@@ -41,16 +38,11 @@ class HomeViewModel @Inject constructor(
     private val bluetoothAdapterProvider: BluetoothAdapterProvider,
     private val preferencesRepository: PreferencesRepository,
     private val loadDeviceWithNameUseCase: LoadDeviceWithNameUseCase,
-    private val languagePreferences: LanguagePreferences,
     private val knownLamps: KnownLamps,
-    appUpdateRepository: AppUpdateRepository
+    private val appUpdateRepository: AppUpdateRepository
 ) : ViewModel() {
-    val language: AppLanguage get() = languagePreferences.language
-
-    /** Stored only — the caller recreates the activity to pick the new language up. */
-    fun setLanguage(language: AppLanguage) {
-        languagePreferences.language = language
-    }
+    /** Shared with the gear badge and the settings screen. */
+    val appUpdateState = appUpdateRepository.state
 
     private val foundDevices = HashMap<String, FireLampDevice>()
     /** When each lamp was last advertising or linked, [SystemClock.elapsedRealtime]. */
@@ -58,18 +50,8 @@ class HomeViewModel @Inject constructor(
     private val _devices: MutableLiveData<List<FireLampDevice>> = MutableLiveData()
     val devices: LiveData<List<FireLampDevice>> get() = _devices
 
-    val appVersion: String = appUpdateRepository.currentVersion
-
-    private val _appUpdate = MutableStateFlow<AppUpdateRepository.AppUpdate?>(null)
-    val appUpdate: StateFlow<AppUpdateRepository.AppUpdate?> = _appUpdate.asStateFlow()
-
     init {
-        viewModelScope.launch {
-            while (isActive) {
-                _appUpdate.value = appUpdateRepository.checkForUpdate()
-                delay(APP_UPDATE_CHECK_INTERVAL)
-            }
-        }
+        viewModelScope.launch { appUpdateRepository.checkForUpdate() }
     }
 
     private val adapter = bluetoothAdapterProvider.getAdapter()
@@ -240,7 +222,6 @@ class HomeViewModel @Inject constructor(
     }
 
     companion object {
-        private val APP_UPDATE_CHECK_INTERVAL = 10.minutes
         private const val DEFAULT_NAME_PREFIX = "FireLamp-"
         private val PRUNE_INTERVAL = 5.seconds
         // the lamp advertises several times a second; a phone saving power reports it less often

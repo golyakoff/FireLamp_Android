@@ -1,6 +1,5 @@
 package net.agolyakov.firelamp.ui.screen.device
 
-import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
@@ -38,7 +37,6 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -62,6 +60,7 @@ import androidx.navigation.NavHostController
 import net.agolyakov.firelamp.R
 import net.agolyakov.firelamp.data.model.ble.ConnectionState
 import net.agolyakov.firelamp.data.model.ble.FireLampDevice
+import net.agolyakov.firelamp.navigation.Screen
 import net.agolyakov.firelamp.protocol.FireLampGatt
 import net.agolyakov.firelamp.protocol.UpdateCheckState
 import net.agolyakov.firelamp.protocol.WifiMode
@@ -129,14 +128,6 @@ fun DeviceScreen(
             val what = context.getString(settingName(error.characteristic))
             snackbarHostState.showSnackbar(context.getString(R.string.operation_failed, what))
         }
-    }
-
-    // The lamp name in the action bar (the firmware version is on the System tab)
-    val deviceName = device?.getDisplayName()
-    DisposableEffect(deviceName) {
-        val activity = context as? Activity
-        if (deviceName != null) activity?.title = deviceName
-        onDispose { activity?.title = context.getString(R.string.app_name) }
     }
 
     DeviceScreenContent(
@@ -223,6 +214,9 @@ fun DeviceScreen(
                             updateInfo = updateInfo,
                             wifiConfigured = wifiSettings?.let { it.mode != WifiMode.OFF && it.ssid.isNotEmpty() } == true,
                             actions = viewModel,
+                            onOpenUpdate = { mode ->
+                                navController.navigate(Screen.Firmware.path(mode.name.lowercase()))
+                            },
                         )
                     }
                 },

@@ -149,14 +149,7 @@ class DeviceViewModel @Inject constructor(
 
     override fun check() = firmwareUpdater.checkForUpdate()
 
-    override fun installFromPhone(available: FirmwareUpdater.State.Available) =
-        firmwareUpdater.installFromPhone(available.version, available.build)
-
     override fun askLampToCheck() = firmwareUpdater.askLampToCheck()
-
-    override fun installByLamp(version: String?) = firmwareUpdater.installByLamp(version)
-
-    override fun cancel() = firmwareUpdater.cancel()
 
     override fun restoreFullPower() {
         viewModelScope.launch { bluetoothService.sendPowerCommand(PowerCommand.SetPercent(100)) }

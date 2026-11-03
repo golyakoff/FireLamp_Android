@@ -1,3 +1,12 @@
+# Release 0.12.0
+
+- The app is called "Лампа огонь" in Russian and "Fire Lamp" in English (the launcher, the recent-apps card and the top bar); the package, the repository and the update check stay FireLamp
+- Settings: the app version, the update check and the language moved from the bottom of the lamp list to a Settings screen behind the gear; a new version still appears as a plaque at the bottom of the list and as a dot on the gear
+- The top bar is Compose now (no platform action bar): the title, back on every screen but the list, the gear with the update dot
+- Firmware update: one set of screens (a question, a circular gauge with the percent, the result) for both ways, from the phone over Bluetooth and by the lamp itself over WiFi; the progress is no longer an inline dialog
+- "For developers" in Settings: a bundled firmware 0.11.1 model opens the whole lamp UI without a lamp - all four tabs work on a local state and the firmware update buttons run the standard screens with a 10-second demo progress and "Update complete"
+- The Bluetooth permissions are requested exactly as before; the demo does not add or bypass them
+
 # Release 0.11.0
 
 - Lamp firmware 0.11.0: System tab, "Paired phones" - the phones the lamp remembers, with their Bluetooth name, MAC address and a "this phone" mark; another phone can be forgotten from the list (the lamp refuses to forget the current one)

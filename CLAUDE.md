@@ -92,17 +92,26 @@ MVVM + Hilt + single-Activity Compose Navigation, as in the sibling apps:
   first) → `MTU - 3` chunks with response → end → "success". By the lamp: Command `0x07`, progress
   from OTA status notifications. Then it waits for the lamp to come back (the Device screen
   reconnects, with more attempts while `State.Rebooting`) and compares the version (an old one
-  = the bootloader rolled back). UI: `FirmwareSection` on the System tab; no separate route,
-  so the Device screen stays in the foreground and keeps reconnecting.
+  = the bootloader rolled back). UI: `FirmwareSection` on the System tab, which opens the
+  full-screen `FirmwareScreen` route for either way (`PHONE`/`LAMP`); both use
+  `ui/screen/firmware/UpdateScreens.kt` (prompt, circular gauge with percent, result). The
+  singleton keeps the update going while the route is left.
 - **`data/local/`** — `EffectCatalogRepository` (effect descriptions cached per lamp MAC +
   firmware build, Gson file), `KnownLamps` (MACs this app connected to), friendly names,
   language.
-- **UI** — `ui/screen/home` scans by service UUID and adds lamps the phone already has a GATT
+- **UI** — a Compose `TopAppBar` in `MainActivity` (NoActionBar theme, edge-to-edge): title,
+  back, and on Home the gear to `ui/screen/settings/SettingsScreen` (version/update check,
+  language, the developer demo) with a dot while an app update is available. Home also shows
+  `AppUpdatePlaque` at the bottom when `AppUpdateRepository` finds a release.
+  `ui/screen/home` scans by service UUID and adds lamps the phone already has a GATT
   link with (a connected lamp does not advertise; Android often keeps the link to a just bonded
   lamp itself); a lamp neither advertising nor linked for 30 s leaves the list. If exactly one
   linked lamp exists at app start, its screen opens right away (once per process). The link
   outlives the app leaving the screen by 5 minutes (`BluetoothService.onAppBackground`, from
-  `MainActivity.onPause`), then it is dropped. `ui/screen/device`: `DeviceViewModel`
+  `MainActivity.onPause`), then it is dropped. `ui/screen/demo`: `DemoViewModel` + `DemoDeviceScreen`
+  reuse the four tabs on a local `DemoLampState` from a bundled firmware JSON
+  (`assets/demo/firmware-0.11.1.json`); no Bluetooth, changes are discarded, and the firmware
+  card runs `UpdateScreens` with a 10 s simulated progress. `ui/screen/device`: `DeviceViewModel`
   (auto-reconnect: 3 attempts, 2/4/8 s, only while resumed; then a "Connect" button), `DeviceScreen` (state header, pairing/connection
   cards, 4 tabs), one file per tab: `LampTab` (power, brightness, folded FPS, effects, parameters,
   demo switch + `DemoSettingsSheet` for demo timing and effects), `ScheduleTab` (power on/off,

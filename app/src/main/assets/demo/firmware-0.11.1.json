@@ -1,0 +1,1616 @@
+{
+ "version": "0.11.1",
+ "buildDate": "Nov  3 2026 15:31:00",
+ "buildVariant": "default",
+ "protocol": 1,
+ "chip": 0,
+ "flashMb": 4,
+ "features": 15,
+ "matrixWidth": 16,
+ "matrixHeight": 16,
+ "controls": 0,
+ "effects": [
+  {
+   "position": 0,
+   "code": "fire",
+   "name": "Turbin fire",
+   "inDemo": true,
+   "params": [
+    {
+     "code": "palette",
+     "name": "Palette",
+     "type": 0,
+     "min": 0,
+     "max": 7,
+     "default": 0,
+     "value": 0
+    },
+    {
+     "code": "scale",
+     "name": "Scale",
+     "type": 0,
+     "min": 10,
+     "max": 100,
+     "default": 60,
+     "value": 60
+    },
+    {
+     "code": "sparks",
+     "name": "Sparks",
+     "type": 1,
+     "min": 0,
+     "max": 1,
+     "default": 1,
+     "value": 1
+    },
+    {
+     "code": "tempo",
+     "name": "Tempo",
+     "type": 0,
+     "min": 10,
+     "max": 100,
+     "default": 100,
+     "value": 100
+    }
+   ]
+  },
+  {
+   "position": 1,
+   "code": "gyver_fire",
+   "name": "Gyver fire",
+   "inDemo": true,
+   "params": [
+    {
+     "code": "hue",
+     "name": "Hue",
+     "type": 0,
+     "min": 0,
+     "max": 255,
+     "default": 0,
+     "value": 0
+    },
+    {
+     "code": "saturation",
+     "name": "Saturation",
+     "type": 0,
+     "min": 0,
+     "max": 255,
+     "default": 255,
+     "value": 255
+    },
+    {
+     "code": "sparks",
+     "name": "Sparks",
+     "type": 1,
+     "min": 0,
+     "max": 1,
+     "default": 1,
+     "value": 1
+    },
+    {
+     "code": "tempo",
+     "name": "Tempo",
+     "type": 0,
+     "min": 10,
+     "max": 100,
+     "default": 50,
+     "value": 50
+    }
+   ]
+  },
+  {
+   "position": 2,
+   "code": "petrick_fire",
+   "name": "Petrick fire",
+   "inDemo": true,
+   "params": [
+    {
+     "code": "shade",
+     "name": "Shade",
+     "type": 0,
+     "min": 1,
+     "max": 100,
+     "default": 15,
+     "value": 15
+    },
+    {
+     "code": "tempo",
+     "name": "Tempo",
+     "type": 0,
+     "min": 10,
+     "max": 100,
+     "default": 100,
+     "value": 100
+    }
+   ]
+  },
+  {
+   "position": 3,
+   "code": "whirls",
+   "name": "Whirls",
+   "inDemo": true,
+   "params": [
+    {
+     "code": "count",
+     "name": "Count",
+     "type": 0,
+     "min": 10,
+     "max": 50,
+     "default": 20,
+     "value": 20
+    },
+    {
+     "code": "scale",
+     "name": "Scale",
+     "type": 0,
+     "min": 5,
+     "max": 50,
+     "default": 26,
+     "value": 26
+    },
+    {
+     "code": "palette",
+     "name": "Palette",
+     "type": 0,
+     "min": 0,
+     "max": 13,
+     "default": 0,
+     "value": 0
+    },
+    {
+     "code": "fadeout",
+     "name": "Fadeout",
+     "type": 0,
+     "min": 10,
+     "max": 250,
+     "default": 50,
+     "value": 50
+    },
+    {
+     "code": "time_scale",
+     "name": "Time scale",
+     "type": 0,
+     "min": 1,
+     "max": 10,
+     "default": 8,
+     "value": 8
+    }
+   ]
+  },
+  {
+   "position": 4,
+   "code": "soaring_fire",
+   "name": "Soaring fire",
+   "inDemo": true,
+   "params": [
+    {
+     "code": "fadeout",
+     "name": "Fadeout",
+     "type": 0,
+     "min": 1,
+     "max": 100,
+     "default": 15,
+     "value": 15
+    },
+    {
+     "code": "tempo",
+     "name": "Tempo",
+     "type": 0,
+     "min": 10,
+     "max": 100,
+     "default": 40,
+     "value": 40
+    }
+   ]
+  },
+  {
+   "position": 5,
+   "code": "top_fire",
+   "name": "Top fire",
+   "inDemo": true,
+   "params": [
+    {
+     "code": "fadeout",
+     "name": "Fadeout",
+     "type": 0,
+     "min": 1,
+     "max": 100,
+     "default": 15,
+     "value": 15
+    },
+    {
+     "code": "tempo",
+     "name": "Tempo",
+     "type": 0,
+     "min": 10,
+     "max": 100,
+     "default": 25,
+     "value": 25
+    }
+   ]
+  },
+  {
+   "position": 6,
+   "code": "magma",
+   "name": "Magma",
+   "inDemo": true,
+   "params": [
+    {
+     "code": "palette",
+     "name": "Palette",
+     "type": 0,
+     "min": 0,
+     "max": 7,
+     "default": 0,
+     "value": 0
+    },
+    {
+     "code": "drops",
+     "name": "Number of drops",
+     "type": 0,
+     "min": 1,
+     "max": 64,
+     "default": 25,
+     "value": 25
+    },
+    {
+     "code": "tempo",
+     "name": "Tempo",
+     "type": 0,
+     "min": 10,
+     "max": 100,
+     "default": 30,
+     "value": 30
+    }
+   ]
+  },
+  {
+   "position": 7,
+   "code": "lava",
+   "name": "Lava",
+   "inDemo": true,
+   "params": [
+    {
+     "code": "scale",
+     "name": "Scale",
+     "type": 0,
+     "min": 5,
+     "max": 100,
+     "default": 40,
+     "value": 40
+    },
+    {
+     "code": "speed",
+     "name": "Tempo",
+     "type": 0,
+     "min": 0,
+     "max": 50,
+     "default": 5,
+     "value": 5
+    },
+    {
+     "code": "mode",
+     "name": "Mode",
+     "type": 0,
+     "min": 0,
+     "max": 2,
+     "default": 1,
+     "value": 1
+    },
+    {
+     "code": "palette",
+     "name": "Palette",
+     "type": 0,
+     "min": 0,
+     "max": 13,
+     "default": 0,
+     "value": 0
+    }
+   ]
+  },
+  {
+   "position": 8,
+   "code": "metaballs",
+   "name": "Metaballs",
+   "inDemo": true,
+   "params": [
+    {
+     "code": "palette",
+     "name": "Palette",
+     "type": 0,
+     "min": 0,
+     "max": 2,
+     "default": 0,
+     "value": 0
+    },
+    {
+     "code": "balls",
+     "name": "Balls",
+     "type": 0,
+     "min": 2,
+     "max": 6,
+     "default": 3,
+     "value": 3
+    },
+    {
+     "code": "tempo",
+     "name": "Tempo",
+     "type": 0,
+     "min": 10,
+     "max": 100,
+     "default": 100,
+     "value": 100
+    }
+   ]
+  },
+  {
+   "position": 9,
+   "code": "sun",
+   "name": "Sun radiation",
+   "inDemo": true,
+   "params": [
+    {
+     "code": "size",
+     "name": "Size",
+     "type": 0,
+     "min": 4,
+     "max": 32,
+     "default": 8,
+     "value": 8
+    },
+    {
+     "code": "palette",
+     "name": "Palette",
+     "type": 0,
+     "min": 0,
+     "max": 13,
+     "default": 10,
+     "value": 10
+    },
+    {
+     "code": "tempo",
+     "name": "Tempo",
+     "type": 0,
+     "min": 10,
+     "max": 100,
+     "default": 100,
+     "value": 100
+    }
+   ]
+  },
+  {
+   "position": 10,
+   "code": "peacock",
+   "name": "Peacock tail",
+   "inDemo": true,
+   "params": [
+    {
+     "code": "speed",
+     "name": "Tempo",
+     "type": 0,
+     "min": 1,
+     "max": 255,
+     "default": 200,
+     "value": 200
+    },
+    {
+     "code": "scale",
+     "name": "Scale",
+     "type": 0,
+     "min": 1,
+     "max": 10,
+     "default": 4,
+     "value": 4
+    },
+    {
+     "code": "saturation",
+     "name": "Saturation",
+     "type": 0,
+     "min": 0,
+     "max": 255,
+     "default": 255,
+     "value": 255
+    }
+   ]
+  },
+  {
+   "position": 11,
+   "code": "plasma_waves",
+   "name": "Plasma waves",
+   "inDemo": true,
+   "params": [
+    {
+     "code": "speed",
+     "name": "Tempo",
+     "type": 0,
+     "min": 1,
+     "max": 255,
+     "default": 100,
+     "value": 100
+    }
+   ]
+  },
+  {
+   "position": 12,
+   "code": "hoop",
+   "name": "Hoop",
+   "inDemo": true,
+   "params": [
+    {
+     "code": "speed",
+     "name": "Tempo",
+     "type": 0,
+     "min": 1,
+     "max": 50,
+     "default": 15,
+     "value": 15
+    }
+   ]
+  },
+  {
+   "position": 13,
+   "code": "twister",
+   "name": "Twister",
+   "inDemo": true,
+   "params": [
+    {
+     "code": "speed",
+     "name": "Tempo",
+     "type": 0,
+     "min": 0,
+     "max": 40,
+     "default": 30,
+     "value": 30
+    },
+    {
+     "code": "black_border",
+     "name": "Add black border",
+     "type": 1,
+     "min": 0,
+     "max": 1,
+     "default": 1,
+     "value": 1
+    },
+    {
+     "code": "iridescent",
+     "name": "Iridescent colors",
+     "type": 1,
+     "min": 0,
+     "max": 1,
+     "default": 0,
+     "value": 0
+    }
+   ]
+  },
+  {
+   "position": 14,
+   "code": "dna",
+   "name": "DNA helix",
+   "inDemo": true,
+   "params": [
+    {
+     "code": "rotation_speed",
+     "name": "Rotation speed",
+     "type": 0,
+     "min": 10,
+     "max": 100,
+     "default": 50,
+     "value": 50
+    },
+    {
+     "code": "spiral_size",
+     "name": "Spiral size",
+     "type": 0,
+     "min": 1,
+     "max": 10,
+     "default": 5,
+     "value": 5
+    },
+    {
+     "code": "white_border",
+     "name": "Add white border",
+     "type": 1,
+     "min": 0,
+     "max": 1,
+     "default": 1,
+     "value": 1
+    }
+   ]
+  },
+  {
+   "position": 15,
+   "code": "prismata",
+   "name": "Prismata",
+   "inDemo": true,
+   "params": [
+    {
+     "code": "palette",
+     "name": "Palette",
+     "type": 0,
+     "min": 0,
+     "max": 13,
+     "default": 13,
+     "value": 13
+    },
+    {
+     "code": "fadeout",
+     "name": "Fadeout",
+     "type": 0,
+     "min": 0,
+     "max": 30,
+     "default": 3,
+     "value": 3
+    },
+    {
+     "code": "speed",
+     "name": "Tempo",
+     "type": 0,
+     "min": 1,
+     "max": 255,
+     "default": 100,
+     "value": 100
+    }
+   ]
+  },
+  {
+   "position": 16,
+   "code": "octopus",
+   "name": "Octopus",
+   "inDemo": true,
+   "params": [
+    {
+     "code": "speed",
+     "name": "Tempo",
+     "type": 0,
+     "min": 1,
+     "max": 10,
+     "default": 3,
+     "value": 3
+    },
+    {
+     "code": "legs",
+     "name": "Legs",
+     "type": 0,
+     "min": 2,
+     "max": 10,
+     "default": 3,
+     "value": 3
+    },
+    {
+     "code": "clockwise",
+     "name": "Clockwise",
+     "type": 1,
+     "min": 0,
+     "max": 1,
+     "default": 0,
+     "value": 0
+    }
+   ]
+  },
+  {
+   "position": 17,
+   "code": "rainbow_snake",
+   "name": "Rainbow snake",
+   "inDemo": true,
+   "params": [
+    {
+     "code": "hue",
+     "name": "Hue",
+     "type": 0,
+     "min": 0,
+     "max": 255,
+     "default": 0,
+     "value": 0
+    },
+    {
+     "code": "rotate",
+     "name": "Rotate colors",
+     "type": 1,
+     "min": 0,
+     "max": 1,
+     "default": 1,
+     "value": 1
+    },
+    {
+     "code": "tempo",
+     "name": "Tempo",
+     "type": 0,
+     "min": 10,
+     "max": 100,
+     "default": 40,
+     "value": 40
+    }
+   ]
+  },
+  {
+   "position": 18,
+   "code": "nuclear",
+   "name": "Nuclear Noise",
+   "inDemo": true,
+   "params": [
+    {
+     "code": "speed",
+     "name": "Tempo",
+     "type": 0,
+     "min": 1,
+     "max": 10,
+     "default": 3,
+     "value": 3
+    }
+   ]
+  },
+  {
+   "position": 19,
+   "code": "dunes",
+   "name": "Colored dunes",
+   "inDemo": true,
+   "params": [
+    {
+     "code": "speed",
+     "name": "Tempo",
+     "type": 0,
+     "min": 1,
+     "max": 10,
+     "default": 3,
+     "value": 3
+    },
+    {
+     "code": "palette",
+     "name": "Palette",
+     "type": 0,
+     "min": 0,
+     "max": 13,
+     "default": 1,
+     "value": 1
+    }
+   ]
+  },
+  {
+   "position": 20,
+   "code": "clouds",
+   "name": "Clouds",
+   "inDemo": true,
+   "params": [
+    {
+     "code": "scale",
+     "name": "Scale",
+     "type": 0,
+     "min": 1,
+     "max": 100,
+     "default": 34,
+     "value": 34
+    },
+    {
+     "code": "speed",
+     "name": "Tempo",
+     "type": 0,
+     "min": 1,
+     "max": 50,
+     "default": 4,
+     "value": 4
+    }
+   ]
+  },
+  {
+   "position": 21,
+   "code": "polar_lights",
+   "name": "Polar lights",
+   "inDemo": true,
+   "params": [
+    {
+     "code": "speed",
+     "name": "Tempo",
+     "type": 0,
+     "min": 1,
+     "max": 255,
+     "default": 127,
+     "value": 127
+    },
+    {
+     "code": "scale",
+     "name": "Scale",
+     "type": 0,
+     "min": 1,
+     "max": 255,
+     "default": 60,
+     "value": 60
+    },
+    {
+     "code": "palette",
+     "name": "Palette",
+     "type": 0,
+     "min": 0,
+     "max": 1,
+     "default": 0,
+     "value": 0
+    },
+    {
+     "code": "height",
+     "name": "Height adjustment",
+     "type": 0,
+     "min": 1,
+     "max": 255,
+     "default": 50,
+     "value": 50
+    }
+   ]
+  },
+  {
+   "position": 22,
+   "code": "rays",
+   "name": "Rays",
+   "inDemo": true,
+   "params": [
+    {
+     "code": "speed",
+     "name": "Tempo",
+     "type": 0,
+     "min": 0,
+     "max": 50,
+     "default": 10,
+     "value": 10
+    },
+    {
+     "code": "min_rays",
+     "name": "Min rays",
+     "type": 0,
+     "min": 1,
+     "max": 10,
+     "default": 3,
+     "value": 3
+    },
+    {
+     "code": "max_rays",
+     "name": "Max rays",
+     "type": 0,
+     "min": 1,
+     "max": 20,
+     "default": 6,
+     "value": 6
+    }
+   ]
+  },
+  {
+   "position": 23,
+   "code": "wheel",
+   "name": "Radiant wheel",
+   "inDemo": true,
+   "params": [
+    {
+     "code": "rotation_speed",
+     "name": "Rotation speed",
+     "type": 0,
+     "min": 0,
+     "max": 255,
+     "default": 60,
+     "value": 60
+    },
+    {
+     "code": "hue_1",
+     "name": "Hue 1",
+     "type": 0,
+     "min": 0,
+     "max": 255,
+     "default": 0,
+     "value": 0
+    },
+    {
+     "code": "saturation_1",
+     "name": "Saturation 1",
+     "type": 0,
+     "min": 0,
+     "max": 255,
+     "default": 255,
+     "value": 255
+    },
+    {
+     "code": "hue_2",
+     "name": "Hue 2",
+     "type": 0,
+     "min": 0,
+     "max": 255,
+     "default": 150,
+     "value": 150
+    },
+    {
+     "code": "saturation_2",
+     "name": "Saturation 2",
+     "type": 0,
+     "min": 0,
+     "max": 255,
+     "default": 0,
+     "value": 0
+    },
+    {
+     "code": "rays",
+     "name": "Number of rays",
+     "type": 0,
+     "min": 2,
+     "max": 6,
+     "default": 3,
+     "value": 3
+    }
+   ]
+  },
+  {
+   "position": 24,
+   "code": "flower",
+   "name": "Flower",
+   "inDemo": true,
+   "params": [
+    {
+     "code": "speed",
+     "name": "Tempo",
+     "type": 0,
+     "min": 1,
+     "max": 255,
+     "default": 100,
+     "value": 100
+    },
+    {
+     "code": "diameter",
+     "name": "Diameter",
+     "type": 0,
+     "min": 50,
+     "max": 150,
+     "default": 128,
+     "value": 128
+    }
+   ]
+  },
+  {
+   "position": 25,
+   "code": "tunnel",
+   "name": "Tunnel",
+   "inDemo": true,
+   "params": [
+    {
+     "code": "speed",
+     "name": "Tempo",
+     "type": 0,
+     "min": 1,
+     "max": 170,
+     "default": 70,
+     "value": 70
+    }
+   ]
+  },
+  {
+   "position": 26,
+   "code": "gif",
+   "name": "Gif image",
+   "inDemo": true,
+   "params": [
+    {
+     "code": "file",
+     "name": "File",
+     "type": 0,
+     "min": 0,
+     "max": 10,
+     "default": 0,
+     "value": 0
+    },
+    {
+     "code": "tempo",
+     "name": "Tempo",
+     "type": 0,
+     "min": 10,
+     "max": 100,
+     "default": 100,
+     "value": 100
+    }
+   ]
+  },
+  {
+   "position": 27,
+   "code": "water",
+   "name": "Water",
+   "inDemo": true,
+   "params": [
+    {
+     "code": "hue",
+     "name": "Hue",
+     "type": 0,
+     "min": 0,
+     "max": 255,
+     "default": 150,
+     "value": 150
+    },
+    {
+     "code": "saturation",
+     "name": "Saturation",
+     "type": 0,
+     "min": 0,
+     "max": 255,
+     "default": 255,
+     "value": 255
+    },
+    {
+     "code": "speed",
+     "name": "Tempo",
+     "type": 0,
+     "min": 0,
+     "max": 54,
+     "default": 40,
+     "value": 40
+    }
+   ]
+  },
+  {
+   "position": 28,
+   "code": "waterfall",
+   "name": "Waterfall",
+   "inDemo": true,
+   "params": [
+    {
+     "code": "mode",
+     "name": "Mode",
+     "type": 0,
+     "min": 0,
+     "max": 2,
+     "default": 0,
+     "value": 0
+    },
+    {
+     "code": "color",
+     "name": "Color",
+     "type": 0,
+     "min": 0,
+     "max": 255,
+     "default": 160,
+     "value": 160
+    },
+    {
+     "code": "cooling",
+     "name": "Cooling",
+     "type": 0,
+     "min": 5,
+     "max": 100,
+     "default": 10,
+     "value": 10
+    },
+    {
+     "code": "sparking",
+     "name": "Sparking",
+     "type": 0,
+     "min": 20,
+     "max": 200,
+     "default": 60,
+     "value": 60
+    },
+    {
+     "code": "tempo",
+     "name": "Tempo",
+     "type": 0,
+     "min": 10,
+     "max": 100,
+     "default": 50,
+     "value": 50
+    }
+   ]
+  },
+  {
+   "position": 29,
+   "code": "glass_drops",
+   "name": "Drops on glass",
+   "inDemo": true,
+   "params": [
+    {
+     "code": "drops",
+     "name": "Number of drops",
+     "type": 0,
+     "min": 1,
+     "max": 100,
+     "default": 16,
+     "value": 16
+    },
+    {
+     "code": "mode",
+     "name": "Mode",
+     "type": 0,
+     "min": 0,
+     "max": 2,
+     "default": 0,
+     "value": 0
+    },
+    {
+     "code": "hue",
+     "name": "Hue",
+     "type": 0,
+     "min": 0,
+     "max": 255,
+     "default": 150,
+     "value": 150
+    },
+    {
+     "code": "tempo",
+     "name": "Tempo",
+     "type": 0,
+     "min": 10,
+     "max": 100,
+     "default": 50,
+     "value": 50
+    }
+   ]
+  },
+  {
+   "position": 30,
+   "code": "matrix",
+   "name": "Matrix",
+   "inDemo": true,
+   "params": [
+    {
+     "code": "density",
+     "name": "Density",
+     "type": 0,
+     "min": 0,
+     "max": 255,
+     "default": 150,
+     "value": 150
+    },
+    {
+     "code": "tempo",
+     "name": "Tempo",
+     "type": 0,
+     "min": 10,
+     "max": 100,
+     "default": 42,
+     "value": 42
+    }
+   ]
+  },
+  {
+   "position": 31,
+   "code": "rain",
+   "name": "Rain",
+   "inDemo": true,
+   "params": [
+    {
+     "code": "colored",
+     "name": "Colored",
+     "type": 1,
+     "min": 0,
+     "max": 1,
+     "default": 0,
+     "value": 0
+    },
+    {
+     "code": "hue",
+     "name": "Hue",
+     "type": 0,
+     "min": 0,
+     "max": 255,
+     "default": 128,
+     "value": 128
+    },
+    {
+     "code": "density",
+     "name": "Density",
+     "type": 0,
+     "min": 0,
+     "max": 100,
+     "default": 50,
+     "value": 50
+    },
+    {
+     "code": "tail_length",
+     "name": "Tail length",
+     "type": 0,
+     "min": 100,
+     "max": 200,
+     "default": 150,
+     "value": 150
+    },
+    {
+     "code": "tempo",
+     "name": "Tempo",
+     "type": 0,
+     "min": 10,
+     "max": 100,
+     "default": 100,
+     "value": 100
+    }
+   ]
+  },
+  {
+   "position": 32,
+   "code": "storm",
+   "name": "Thunderstorm",
+   "inDemo": true,
+   "params": [
+    {
+     "code": "density",
+     "name": "Density",
+     "type": 0,
+     "min": 1,
+     "max": 100,
+     "default": 25,
+     "value": 25
+    },
+    {
+     "code": "lightning",
+     "name": "Lightning frequency",
+     "type": 0,
+     "min": 0,
+     "max": 100,
+     "default": 50,
+     "value": 50
+    },
+    {
+     "code": "clouds",
+     "name": "Clouds",
+     "type": 1,
+     "min": 0,
+     "max": 1,
+     "default": 1,
+     "value": 1
+    },
+    {
+     "code": "tempo",
+     "name": "Tempo",
+     "type": 0,
+     "min": 10,
+     "max": 100,
+     "default": 100,
+     "value": 100
+    }
+   ]
+  },
+  {
+   "position": 33,
+   "code": "snow",
+   "name": "Snowfall",
+   "inDemo": true,
+   "params": [
+    {
+     "code": "density",
+     "name": "Density",
+     "type": 0,
+     "min": 0,
+     "max": 99,
+     "default": 90,
+     "value": 90
+    },
+    {
+     "code": "tempo",
+     "name": "Tempo",
+     "type": 0,
+     "min": 10,
+     "max": 100,
+     "default": 22,
+     "value": 22
+    }
+   ]
+  },
+  {
+   "position": 34,
+   "code": "starfall",
+   "name": "Starfall",
+   "inDemo": true,
+   "params": [
+    {
+     "code": "colored",
+     "name": "Colored",
+     "type": 1,
+     "min": 0,
+     "max": 1,
+     "default": 1,
+     "value": 1
+    },
+    {
+     "code": "saturation",
+     "name": "Saturation",
+     "type": 0,
+     "min": 0,
+     "max": 255,
+     "default": 140,
+     "value": 140
+    },
+    {
+     "code": "density",
+     "name": "Density",
+     "type": 0,
+     "min": 1,
+     "max": 100,
+     "default": 50,
+     "value": 50
+    },
+    {
+     "code": "tail_length",
+     "name": "Tail length",
+     "type": 0,
+     "min": 0,
+     "max": 100,
+     "default": 50,
+     "value": 50
+    },
+    {
+     "code": "tempo",
+     "name": "Tempo",
+     "type": 0,
+     "min": 10,
+     "max": 100,
+     "default": 30,
+     "value": 30
+    }
+   ]
+  },
+  {
+   "position": 35,
+   "code": "sparkles",
+   "name": "Sparkles",
+   "inDemo": true,
+   "params": [
+    {
+     "code": "sparkles",
+     "name": "Number of sparkles",
+     "type": 0,
+     "min": 1,
+     "max": 50,
+     "default": 10,
+     "value": 10
+    },
+    {
+     "code": "fadeout",
+     "name": "Fadeout speed",
+     "type": 0,
+     "min": 10,
+     "max": 150,
+     "default": 80,
+     "value": 80
+    },
+    {
+     "code": "tempo",
+     "name": "Tempo",
+     "type": 0,
+     "min": 10,
+     "max": 100,
+     "default": 14,
+     "value": 14
+    }
+   ]
+  },
+  {
+   "position": 36,
+   "code": "twinkles",
+   "name": "Twinkles",
+   "inDemo": true,
+   "params": [
+    {
+     "code": "palette",
+     "name": "Palette",
+     "type": 0,
+     "min": 0,
+     "max": 14,
+     "default": 14,
+     "value": 14
+    },
+    {
+     "code": "density",
+     "name": "Density",
+     "type": 0,
+     "min": 1,
+     "max": 11,
+     "default": 8,
+     "value": 8
+    },
+    {
+     "code": "tempo",
+     "name": "Tempo",
+     "type": 0,
+     "min": 10,
+     "max": 100,
+     "default": 100,
+     "value": 100
+    }
+   ]
+  },
+  {
+   "position": 37,
+   "code": "fireflies",
+   "name": "Fireflies",
+   "inDemo": true,
+   "params": [
+    {
+     "code": "fireflies",
+     "name": "Number of fireflies",
+     "type": 0,
+     "min": 4,
+     "max": 48,
+     "default": 16,
+     "value": 16
+    },
+    {
+     "code": "chaotic",
+     "name": "Chaotic movement",
+     "type": 1,
+     "min": 0,
+     "max": 1,
+     "default": 1,
+     "value": 1
+    },
+    {
+     "code": "speed",
+     "name": "Tempo",
+     "type": 0,
+     "min": 1,
+     "max": 255,
+     "default": 70,
+     "value": 70
+    },
+    {
+     "code": "update_time",
+     "name": "Update time",
+     "type": 0,
+     "min": 1,
+     "max": 10,
+     "default": 3,
+     "value": 3
+    }
+   ]
+  },
+  {
+   "position": 38,
+   "code": "trail_fireflies",
+   "name": "Fireflies with trails",
+   "inDemo": true,
+   "params": [
+    {
+     "code": "fireflies",
+     "name": "Number of fireflies",
+     "type": 0,
+     "min": 1,
+     "max": 10,
+     "default": 3,
+     "value": 3
+    },
+    {
+     "code": "hue",
+     "name": "Hue",
+     "type": 0,
+     "min": 0,
+     "max": 255,
+     "default": 93,
+     "value": 93
+    },
+    {
+     "code": "fadeout",
+     "name": "Fadeout speed",
+     "type": 0,
+     "min": 10,
+     "max": 200,
+     "default": 70,
+     "value": 70
+    },
+    {
+     "code": "tempo",
+     "name": "Tempo",
+     "type": 0,
+     "min": 10,
+     "max": 100,
+     "default": 30,
+     "value": 30
+    }
+   ]
+  },
+  {
+   "position": 39,
+   "code": "crazybees",
+   "name": "Crazy bees",
+   "inDemo": true,
+   "params": [
+    {
+     "code": "bees",
+     "name": "Number of bees",
+     "type": 0,
+     "min": 1,
+     "max": 10,
+     "default": 3,
+     "value": 3
+    },
+    {
+     "code": "bee_hue",
+     "name": "Bee hue",
+     "type": 0,
+     "min": 0,
+     "max": 255,
+     "default": 100,
+     "value": 100
+    },
+    {
+     "code": "bee_saturation",
+     "name": "Bee saturation",
+     "type": 0,
+     "min": 0,
+     "max": 255,
+     "default": 0,
+     "value": 0
+    },
+    {
+     "code": "tempo",
+     "name": "Tempo",
+     "type": 0,
+     "min": 10,
+     "max": 100,
+     "default": 50,
+     "value": 50
+    }
+   ]
+  },
+  {
+   "position": 40,
+   "code": "butterflies",
+   "name": "Butterflies",
+   "inDemo": true,
+   "params": [
+    {
+     "code": "lamp",
+     "name": "Lamp with butterflies",
+     "type": 1,
+     "min": 0,
+     "max": 1,
+     "default": 0,
+     "value": 0
+    },
+    {
+     "code": "butterflies",
+     "name": "Number of butterflies",
+     "type": 0,
+     "min": 1,
+     "max": 100,
+     "default": 20,
+     "value": 20
+    },
+    {
+     "code": "speed",
+     "name": "Tempo",
+     "type": 0,
+     "min": 1,
+     "max": 255,
+     "default": 35,
+     "value": 35
+    },
+    {
+     "code": "wings",
+     "name": "Flapping wings",
+     "type": 1,
+     "min": 0,
+     "max": 1,
+     "default": 1,
+     "value": 1
+    },
+    {
+     "code": "hue",
+     "name": "Lamp hue",
+     "type": 0,
+     "min": 0,
+     "max": 255,
+     "default": 31,
+     "value": 31
+    },
+    {
+     "code": "saturation",
+     "name": "Lamp saturation",
+     "type": 0,
+     "min": 0,
+     "max": 255,
+     "default": 170,
+     "value": 170
+    }
+   ]
+  },
+  {
+   "position": 41,
+   "code": "spaceships",
+   "name": "Flight of spaceships",
+   "inDemo": true,
+   "params": [
+    {
+     "code": "ships",
+     "name": "Number of ships",
+     "type": 0,
+     "min": 2,
+     "max": 16,
+     "default": 8,
+     "value": 8
+    },
+    {
+     "code": "turn_time",
+     "name": "Direction change time",
+     "type": 0,
+     "min": 1,
+     "max": 60,
+     "default": 5,
+     "value": 5
+    },
+    {
+     "code": "tempo",
+     "name": "Tempo",
+     "type": 0,
+     "min": 10,
+     "max": 100,
+     "default": 100,
+     "value": 100
+    }
+   ]
+  },
+  {
+   "position": 42,
+   "code": "diagonals",
+   "name": "Diagonal movements",
+   "inDemo": true,
+   "params": [
+    {
+     "code": "speed",
+     "name": "Tempo",
+     "type": 0,
+     "min": 1,
+     "max": 10,
+     "default": 5,
+     "value": 5
+    }
+   ]
+  },
+  {
+   "position": 43,
+   "code": "holiday",
+   "name": "Holiday lights",
+   "inDemo": true,
+   "params": [
+    {
+     "code": "mode",
+     "name": "Mode",
+     "type": 0,
+     "min": 0,
+     "max": 3,
+     "default": 0,
+     "value": 0
+    },
+    {
+     "code": "speed",
+     "name": "Tempo",
+     "type": 0,
+     "min": 1,
+     "max": 20,
+     "default": 8,
+     "value": 8
+    }
+   ]
+  },
+  {
+   "position": 44,
+   "code": "lamp",
+   "name": "Color lamp",
+   "inDemo": true,
+   "params": [
+    {
+     "code": "red",
+     "name": "Red",
+     "type": 0,
+     "min": 0,
+     "max": 255,
+     "default": 255,
+     "value": 255
+    },
+    {
+     "code": "green",
+     "name": "Green",
+     "type": 0,
+     "min": 0,
+     "max": 255,
+     "default": 159,
+     "value": 159
+    },
+    {
+     "code": "blue",
+     "name": "Blue",
+     "type": 0,
+     "min": 0,
+     "max": 255,
+     "default": 70,
+     "value": 70
+    }
+   ]
+  }
+ ]
+}

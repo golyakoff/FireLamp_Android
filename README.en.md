@@ -37,9 +37,13 @@ Low Energy: no cloud, no account, WiFi is optional for the lamp.
   current limit), controls (one button, four buttons or touch pad, how the buttons are wired, the
   button pin), lamp information, paired phones (name, MAC, "this phone"), reboot and resets.
 - **Firmware update.** From the phone over Bluetooth (the app downloads and verifies the release) or
-  by the lamp itself over WiFi. The app also tells about new versions of itself.
+  by the lamp itself over WiFi — with the same screens and a circular percent gauge.
+- **App settings.** The version and the update check (a new version also appears as a plaque at the
+  bottom of the lamp list), the language, and for developers a bundled firmware 0.11.1 model: every
+  lamp screen without a lamp and a 10-second demonstration of the update.
 
-English and Russian, switchable in the app.
+The app is called "Fire Lamp" in English and "Лампа огонь" in Russian; the language is switched in
+the settings.
 
 ## Installing
 

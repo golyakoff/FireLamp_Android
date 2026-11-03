@@ -1,5 +1,5 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <string name="app_name">FireLamp</string>
+    <string name="app_name">Fire Lamp</string>
 
     <!-- Permissions -->
     <string name="perm_bluetooth_is_off">The app requires Bluetooth to be turned on</string>
@@ -12,6 +12,25 @@
     <string name="dialog_device_name">Name</string>
     <string name="dialog_save">Save</string>
     <string name="dialog_cancel">Cancel</string>
+    <string name="settings_title">Settings</string>
+    <string name="settings_about">About</string>
+    <string name="settings_language">Language</string>
+    <string name="settings_developers">For developers</string>
+    <string name="settings_developers_hint">Preview the lamp screens of a bundled firmware without a lamp. Nothing is sent and nothing is saved. A real lamp needs the Bluetooth permissions the app asks for at start.</string>
+    <string name="settings_developers_open">Firmware %1$s · %2$d effects</string>
+    <string name="settings_check">Check for updates</string>
+    <string name="settings_checking">Checking…</string>
+    <string name="settings_up_to_date">The latest version is installed</string>
+    <string name="settings_check_failed">Could not check for updates</string>
+    <string name="update_success">Success</string>
+    <string name="update_failure">Error</string>
+    <string name="demo_title">Demo</string>
+    <string name="demo_update_hint">A demonstration of the update screens: the progress runs for 10 seconds, nothing is downloaded and the firmware does not change.</string>
+    <string name="demo_update_phone_title">Updating from the phone…</string>
+    <string name="demo_update_lamp_title">Updating by the lamp…</string>
+    <string name="demo_update_done">Update complete</string>
+    <string name="demo_update_note">Demo: the firmware has not changed</string>
+    <string name="demo_update_got_it">Done</string>
     <string name="app_version">Version %1$s</string>
     <string name="app_update_available">New version %1$s available</string>
     <string name="app_update_download">Download</string>
@@ -225,6 +244,18 @@
     <string name="settings_reset_do">Reset</string>
 
     <!-- Firmware update -->
+    <string name="dialog_back">Back</string>
+    <string name="fw_available_title">Update available</string>
+    <string name="fw_new_version">New version: %1$s</string>
+    <string name="fw_done_title">Update complete</string>
+    <string name="fw_failed_title">Update failed</string>
+    <string name="fw_no_official_build_title">No official firmware</string>
+    <string name="fw_retry">Try again</string>
+    <string name="fw_done_action">Done</string>
+    <string name="fw_progress_downloading_detail">Downloading from GitHub</string>
+    <string name="fw_progress_lamp_note">The lamp goes on without the phone; keep it powered</string>
+    <string name="fw_progress_running">Update in progress…</string>
+    <string name="fw_open_screen">Open the update screen</string>
     <string name="fw_title">Firmware update</string>
     <string name="fw_current">Installed: %1$s</string>
     <string name="fw_check">Check for an update</string>
@@ -244,6 +275,7 @@
     <string name="fw_go_back">Go back to %1$s</string>
     <string name="fw_go_back_confirm">The lamp reboots into its previous firmware %1$s, the settings stay. To the newer version again: install the update. Without a phone the lamp goes back when its main button is held for 5 seconds while it is powered on.</string>
     <string name="fw_go_back_do">Go back</string>
+    <string name="fw_rolled_back_title">Rollback</string>
     <string name="fw_rolled_back">The new firmware did not start, the lamp went back to %1$s</string>
     <string name="fw_error_no_internet">Could not download the update: check the internet connection</string>
     <string name="fw_error_bad_file">The downloaded file is damaged, try again</string>
