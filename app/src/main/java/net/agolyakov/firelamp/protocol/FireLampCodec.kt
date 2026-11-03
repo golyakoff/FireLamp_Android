@@ -302,6 +302,16 @@ object FireLampCodec {
         }
     }
 
+    /** Command 0x0B: forget another bonded phone by its identity address. */
+    fun encodeForgetBond(phone: BondedPhone): ByteArray {
+        require(phone.type != AddressType.UNKNOWN) { "Unknown address type" }
+        return bytesOf {
+            u8(0x0B)
+            u8(phone.type.code)
+            bytes(macToBytes(phone.address))
+        }
+    }
+
     /** Throws [ProtocolException] for a malformed value; unknown address types are kept as UNKNOWN. */
     fun decodeBondedPhones(bytes: ByteArray): BondedPhones = with(ByteReader(bytes)) {
         val count = u8()
@@ -431,4 +441,9 @@ object FireLampCodec {
     private fun macToString(bytes: ByteArray): String =
         bytes.reversed().joinToString(":") { "%02X".format(it.toInt() and 0xFF) }
 
+    private fun macToBytes(address: String): ByteArray {
+        val parts = address.split(':')
+        require(parts.size == 6) { "Not a MAC address: $address" }
+        return ByteArray(6) { parts[5 - it].toInt(16).toByte() }
+    }
 }

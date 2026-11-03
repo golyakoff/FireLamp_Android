@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import net.agolyakov.firelamp.data.model.ble.ConnectionState
 import net.agolyakov.firelamp.data.model.ble.FireLampDevice
+import net.agolyakov.firelamp.protocol.BondedPhone
 import net.agolyakov.firelamp.protocol.Command
 import net.agolyakov.firelamp.protocol.PowerCommand
 import net.agolyakov.firelamp.protocol.Controls
@@ -278,4 +279,9 @@ class DeviceViewModel @Inject constructor(
         private const val RECONNECT_DELAY_MS = 2000L
     }
 
+    // ---------- System tab: paired phones ----------
+
+    fun forgetBondedPhone(phone: BondedPhone) {
+        viewModelScope.launch { bluetoothService.forgetBondedPhone(phone) }
+    }
 }

@@ -213,6 +213,7 @@ fun DeviceScreen(
                 onResetEffects = viewModel::resetEffects,
                 onFactoryReset = viewModel::factoryReset,
                 bondedPhones = bondedPhones,
+                onForgetBond = viewModel::forgetBondedPhone,
                 power = { powerStatus?.let { PowerSection(it, viewModel) } },
                 firmware = {
                     deviceInfo?.let { info ->

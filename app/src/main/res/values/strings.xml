@@ -123,6 +123,8 @@
     <string name="bonded_phones_count">%1$d of %2$d</string>
     <string name="bonded_phones_this">This phone</string>
     <string name="bonded_phones_hint">The lamp remembers up to %1$d phones; a new one forgets the oldest.</string>
+    <string name="bonded_phones_forget">Forget</string>
+    <string name="bonded_phones_forget_confirm">Forget %1$s? That phone will have to pair with the lamp again.</string>
     <string name="hw_lamp_info">About the lamp</string>
     <string name="hw_info_firmware">Firmware</string>
     <string name="hw_info_build_date">Built</string>

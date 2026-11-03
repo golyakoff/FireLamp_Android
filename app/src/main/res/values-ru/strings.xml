@@ -123,6 +123,8 @@
     <string name="bonded_phones_count">%1$d из %2$d</string>
     <string name="bonded_phones_this">Этот телефон</string>
     <string name="bonded_phones_hint">Лампа помнит до %1$d телефонов; новый вытесняет самый старый.</string>
+    <string name="bonded_phones_forget">Забыть</string>
+    <string name="bonded_phones_forget_confirm">Забыть %1$s? Этому телефону придётся заново спариваться с лампой.</string>
     <string name="hw_lamp_info">О лампе</string>
     <string name="hw_info_firmware">Прошивка</string>
     <string name="hw_info_build_date">Сборка</string>

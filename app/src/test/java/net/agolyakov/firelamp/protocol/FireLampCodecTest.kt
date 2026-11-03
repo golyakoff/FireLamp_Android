@@ -459,6 +459,12 @@ class FireLampCodecTest {
     }
 
     @Test
+    fun encodeForgetBond() {
+        val phone = BondedPhone(AddressType.PUBLIC, "AA:BB:CC:DD:EE:FF", isCurrent = false, name = "")
+        assertArrayEquals(hex("0b 00 ff ee dd cc bb aa"), FireLampCodec.encodeForgetBond(phone))
+    }
+
+    @Test
     fun takeUtf8DoesNotSplitACharacter() {
         // "Ж" is two bytes; 3 bytes fit only the first one
         assertEquals("Ж", "ЖЖ".takeUtf8(3))

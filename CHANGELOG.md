@@ -1,6 +1,6 @@
 # Release 0.11.0
 
-- Lamp firmware 0.11.0: System tab, "Paired phones" - the phones the lamp remembers, with their Bluetooth name, MAC address and a "this phone" mark
+- Lamp firmware 0.11.0: System tab, "Paired phones" - the phones the lamp remembers, with their Bluetooth name, MAC address and a "this phone" mark; another phone can be forgotten from the list (the lamp refuses to forget the current one)
 - The app sends the phone's Bluetooth name (the one in the phone's Bluetooth settings, the model when it is empty) to the lamp once, so the list shows names instead of bare MAC addresses
 - Lamp firmware 0.11.0 keeps five paired phones instead of four and no longer lets a second phone's notifications forget the first phone's pairing
 

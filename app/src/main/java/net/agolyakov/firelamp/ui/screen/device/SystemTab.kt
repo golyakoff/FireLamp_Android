@@ -48,6 +48,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import net.agolyakov.firelamp.R
+import net.agolyakov.firelamp.protocol.BondedPhone
 import net.agolyakov.firelamp.protocol.BondedPhones
 import net.agolyakov.firelamp.protocol.Chip
 import net.agolyakov.firelamp.protocol.ColorOrder
@@ -86,6 +87,7 @@ fun SystemTab(
     onResetEffects: () -> Unit,
     onFactoryReset: () -> Unit,
     bondedPhones: BondedPhones? = null,
+    onForgetBond: (BondedPhone) -> Unit = {},
     firmware: @Composable () -> Unit = {},
     power: @Composable () -> Unit = {},
 ) {
@@ -98,7 +100,7 @@ fun SystemTab(
         item { power() }
         hardwareSettings?.let { item { ControlsSection(it, onSaveHardwareSettings) } }
         deviceInfo?.let { item { LampInfoSection(it) } }
-        bondedPhones?.let { item { BondedPhonesSection(it) } }
+        bondedPhones?.let { item { BondedPhonesSection(it, onForgetBond) } }
         item {
             OutlinedButton(onClick = onReboot, modifier = Modifier.fillMaxWidth()) {
                 Text(stringResource(R.string.hw_reboot))

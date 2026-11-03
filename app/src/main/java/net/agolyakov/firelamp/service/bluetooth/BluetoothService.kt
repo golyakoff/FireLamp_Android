@@ -1,5 +1,6 @@
 package net.agolyakov.firelamp.service.bluetooth
 
+import android.annotation.SuppressLint
 import android.bluetooth.BluetoothDevice
 import android.os.Build
 import android.util.Log
@@ -26,6 +27,8 @@ import net.agolyakov.firelamp.data.local.EffectCatalogRepository
 import net.agolyakov.firelamp.data.local.KnownLamps
 import net.agolyakov.firelamp.data.model.ble.ConnectionState
 import net.agolyakov.firelamp.data.model.ble.FireLampDevice
+import net.agolyakov.firelamp.protocol.AddressType
+import net.agolyakov.firelamp.protocol.BondedPhone
 import net.agolyakov.firelamp.protocol.BondedPhones
 import net.agolyakov.firelamp.protocol.CalibrationState
 import net.agolyakov.firelamp.protocol.Command
@@ -480,6 +483,7 @@ class BluetoothService @Inject constructor(
     }
 
     /** The name the phone shows in its Bluetooth settings, or the model when the adapter has none. */
+    @SuppressLint("MissingPermission") // BlePermissions.granted() above
     private fun phoneBluetoothName(): String? = try {
         if (!BlePermissions.granted(bluetoothAdapterProvider.getContext())) {
             null
@@ -491,6 +495,15 @@ class BluetoothService @Inject constructor(
     } catch (e: Exception) {
         Log.w(tag, "Could not read the phone's Bluetooth name", e)
         null
+    }
+
+    /** Forgets another phone on the lamp (the current one is refused: it would drop us). */
+    suspend fun forgetBondedPhone(phone: BondedPhone): Boolean {
+        if (phone.isCurrent || phone.type == AddressType.UNKNOWN) return false
+        return guarded(FireLampGatt.COMMAND) {
+            bleManager.write(FireLampGatt.COMMAND, FireLampCodec.encodeForgetBond(phone))
+            _bondedPhones.value = FireLampCodec.decodeBondedPhones(bleManager.read(FireLampGatt.BONDED_PHONES))
+        }
     }
 
     private val effectInfoMutex = Mutex()
